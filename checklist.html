@@ -285,6 +285,7 @@
   .psy-cluster .pc-name { font-family: "Silkscreen", "Courier New", monospace; font-size: 10px; letter-spacing: 1.5px; color: var(--ink); }
   .psy-cluster .pc-line { font-size: 12px; color: var(--muted); margin-top: 3px; }
   .psy-cluster .pc-line b { color: var(--ink); font-weight: 600; }
+  #pcard-emotions .lbl { flex-basis: 128px; }
   .tl-scroll { overflow-x: auto; padding: 10px 8px 4px; scrollbar-width: thin; }
   .pcard-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 6px 22px; margin-top: 14px; }
   .pcol-h {
@@ -669,7 +670,6 @@
         </div>
         <div id="pcard-detail">
           <div class="pcard-stats" id="pcard-stats"></div>
-          <div class="tl-wrap"><div class="tl-scroll" id="tl"></div><p class="mini-caption" id="tl-caption">Tap a dot to see the game.</p></div>
           <div class="psyche" id="psyche">
             <h3 class="pcol-h">PSYCHE — WHAT YOUR GAMES SAY ABOUT YOU</h3>
             <div class="psyche-grid">
@@ -681,9 +681,10 @@
               </div>
             </div>
           </div>
+          <div class="tl-wrap"><div class="tl-scroll" id="tl"></div><p class="mini-caption" id="tl-caption">Tap a dot to see the game.</p></div>
           <div class="pcard-cols">
             <div><h3 class="pcol-h">PLATFORMS</h3><div id="pcard-plat"></div></div>
-            <div><h3 class="pcol-h">GENRE LEANINGS</h3><div id="pcard-genre"></div></div>
+            <div><h3 class="pcol-h">EMOTIONAL PALETTE</h3><div id="pcard-emotions"></div></div>
           </div>
           <div class="pcard-badges" id="pcard-badges"></div>
           <p class="mini-caption" id="badge-caption">Tap a badge for its name and how to earn it.</p>
@@ -3460,15 +3461,32 @@
     });
 
     document.getElementById("tl").innerHTML = timelineSVG(p);
+    renderPsyche();
     barRows(document.getElementById("pcard-plat"),
       Object.entries(p.byPlat).sort((a, b) => b[1] - a[1]).slice(0, 7), n, true);
-    barRows(document.getElementById("pcard-genre"),
-      Object.entries(p.byGenre).sort((a, b) => b[1] - a[1]).slice(0, 6), n, false);
+    // Emotional palette: the leading emotion of each top psyche cluster,
+    // scaled by how far that cluster leans above the average player.
+    const emoEl = document.getElementById("pcard-emotions");
+    emoEl.innerHTML = "";
+    if (lastPsyche && lastPsyche.n >= 10) {
+      const top = lastPsyche.ranked.slice(0, 7);
+      const maxR = lastPsyche.R[top[0]] || 1;
+      top.forEach(key => {
+        const row = document.createElement("div");
+        row.className = "prow";
+        row.innerHTML = '<span class="lbl"></span><span class="trk"><span class="fill" style="width:' +
+          Math.round(100 * lastPsyche.R[key] / maxR) + '%"></span></span><span class="cnt mono">' +
+          Math.round(lastPsyche.R[key] * 100) + '%</span>';
+        row.querySelector(".lbl").textContent = CLUSTERS[key].emoji + " " + CLUSTERS[key].emotions[0];
+        row.title = CLUSTERS[key].name + " — " + CLUSTERS[key].emotions.join(", ");
+        emoEl.appendChild(row);
+      });
+    } else {
+      emoEl.innerHTML = '<div style="font-size:12px;color:var(--muted)">Unlocks with your psyche at 10 games.</div>';
+    }
 
     // Emoji mosaic in fixed definition order: every badge keeps its spot on the
     // wall forever — earned tiles light up gold, locked ones sit grayscaled.
-    renderPsyche();
-
     const badgesEl = document.getElementById("pcard-badges");
     badgesEl.innerHTML = "";
     const earnedSet = new Set(p.badges.map(b => b[1]));
@@ -3673,17 +3691,31 @@
       c.fillText(String(cnt), 470, y - 3);
       c.font = '600 15px "IBM Plex Sans", sans-serif';
     });
-    const genres = Object.entries(p.byGenre).sort((a, b) => b[1] - a[1]).slice(0, 5);
-    const maxG = genres.length ? genres[0][1] : 1;
-    genres.forEach(([label, cnt], i) => {
-      const y = rowY + i * rowH2;
-      c.fillStyle = "#ECEAE4"; c.font = '600 15px "IBM Plex Sans", sans-serif';
-      c.fillText(label, 620, y);
-      c.fillStyle = "#2A2931"; c.fillRect(790, y - 13, 250, 10);
-      c.fillStyle = "#E5B84B"; c.fillRect(790, y - 13, Math.max(6, 250 * cnt / maxG), 10);
-      c.fillStyle = "#98948D"; c.font = '400 13px "IBM Plex Mono", monospace';
-      c.fillText(String(cnt), 1050, y - 3);
-    });
+    if (lastPsyche && lastPsyche.n >= 10) {
+      const top = lastPsyche.ranked.slice(0, 5);
+      const maxR = lastPsyche.R[top[0]] || 1;
+      top.forEach((key, i) => {
+        const y = rowY + i * rowH2;
+        c.fillStyle = "#ECEAE4"; c.font = '600 15px "IBM Plex Sans", sans-serif';
+        c.fillText(CLUSTERS[key].emoji + " " + CLUSTERS[key].name, 620, y);
+        c.fillStyle = "#2A2931"; c.fillRect(790, y - 13, 250, 10);
+        c.fillStyle = "#E5B84B"; c.fillRect(790, y - 13, Math.max(6, 250 * lastPsyche.R[key] / maxR), 10);
+        c.fillStyle = "#98948D"; c.font = '400 13px "IBM Plex Mono", monospace';
+        c.fillText(Math.round(lastPsyche.R[key] * 100) + "%", 1050, y - 3);
+      });
+    } else {
+      const genres = Object.entries(p.byGenre).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const maxG = genres.length ? genres[0][1] : 1;
+      genres.forEach(([label, cnt], i) => {
+        const y = rowY + i * rowH2;
+        c.fillStyle = "#ECEAE4"; c.font = '600 15px "IBM Plex Sans", sans-serif';
+        c.fillText(label, 620, y);
+        c.fillStyle = "#2A2931"; c.fillRect(790, y - 13, 250, 10);
+        c.fillStyle = "#E5B84B"; c.fillRect(790, y - 13, Math.max(6, 250 * cnt / maxG), 10);
+        c.fillStyle = "#98948D"; c.font = '400 13px "IBM Plex Mono", monospace';
+        c.fillText(String(cnt), 1050, y - 3);
+      });
+    }
 
     // Earned badges as an emoji mosaic strip, then the site footer.
     c.font = '24px "Segoe UI Emoji", sans-serif';
