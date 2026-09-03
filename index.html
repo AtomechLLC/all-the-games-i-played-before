@@ -668,6 +668,7 @@
           <div class="pcard-actions">
             <label class="hide-played">Born <input id="birth-year" class="search" type="number" min="1930" max="2020" step="1" style="width:76px;flex:0 0 auto;"></label>
             <button class="export" id="card-btn" type="button" hidden>Save card as image</button>
+            <button class="export" id="gif-btn" type="button" hidden>🧬 Gamer DNA GIF</button>
           </div>
         </div>
         <div id="pcard-detail">
@@ -3707,12 +3708,14 @@
       descEl.className = "pcard-desc pcard-empty";
       detail.hidden = true;
       document.getElementById("card-btn").hidden = true;
+      document.getElementById("gif-btn").hidden = true;
       return;
     }
     descEl.className = "pcard-desc";
     descEl.textContent = p.desc;
     detail.hidden = false;
     document.getElementById("card-btn").hidden = false;
+    document.getElementById("gif-btn").hidden = false;
 
     const stats = document.getElementById("pcard-stats");
     stats.innerHTML = "";
@@ -4028,6 +4031,255 @@
       btn.textContent = (e && e.code === "declined") ? "Save card as image" : "Save failed";
     }
     setTimeout(() => { btn.textContent = "Save card as image"; btn.disabled = false; }, 2200);
+  });
+
+  // Gamer DNA GIF: the Wrapped-style story rendered entirely in the browser.
+  // gif.js loads from cdnjs on first use; its worker must be re-served from a
+  // same-origin blob URL because workers can't be created cross-origin.
+  let gifEngine = null;
+  async function loadGifEngine() {
+    if (gifEngine) return gifEngine;
+    await new Promise((res, rej) => {
+      if (window.GIF) return res();
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js";
+      s.onload = res;
+      s.onerror = () => rej(new Error("gif.js unavailable"));
+      document.head.appendChild(s);
+    });
+    const src = await fetch("https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js").then(r => r.text());
+    gifEngine = { GIF: window.GIF, workerUrl: URL.createObjectURL(new Blob([src], { type: "application/javascript" })) };
+    return gifEngine;
+  }
+
+  const GIF_EMOJI_FONT = '"Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+
+  function gifBase(subtitle) {
+    const cv = document.createElement("canvas");
+    cv.width = 1200; cv.height = 630;
+    const c = cv.getContext("2d");
+    c.fillStyle = "#17161B"; c.fillRect(0, 0, 1200, 630);
+    c.strokeStyle = "#34323B"; c.lineWidth = 4; c.strokeRect(10, 10, 1180, 610);
+    c.fillStyle = "#FF6A5C"; c.font = '700 15px "Silkscreen", monospace';
+    c.fillText("ALL THE GAMES I PLAYED BEFORE", 50, 58);
+    c.fillStyle = "#98948D"; c.font = '400 14px "IBM Plex Mono", monospace';
+    c.fillText(subtitle, 50, 82);
+    return [cv, c];
+  }
+
+  function gifBoot(lines, cursor, flicker) {
+    const cv = document.createElement("canvas");
+    cv.width = 1200; cv.height = 630;
+    const c = cv.getContext("2d");
+    c.fillStyle = "#0C0B0E"; c.fillRect(0, 0, 1200, 630);
+    c.font = '400 24px "IBM Plex Mono", monospace';
+    lines.forEach((ln, i) => {
+      c.fillStyle = ln.startsWith(">") ? "#5CE0A0" : "#E5B84B";
+      c.fillText(ln, 90, 150 + i * 52);
+    });
+    if (cursor && lines.length) {
+      c.fillStyle = "#5CE0A0";
+      c.fillRect(90 + c.measureText(lines[lines.length - 1]).width + 12, 128 + (lines.length - 1) * 52, 16, 28);
+    }
+    for (let y = 0; y < 630; y += 4) { c.fillStyle = "rgba(0,0,0,0.18)"; c.fillRect(0, y, 1200, 2); }
+    if (flicker) {
+      c.fillStyle = "rgba(92,224,160,0.05)"; c.fillRect(0, 0, 1200, 630);
+      c.fillStyle = "rgba(255,255,255,0.06)"; c.fillRect(0, Math.random() * 500, 1200, 60);
+    }
+    return cv;
+  }
+
+  function gifRadar(c, cx, cy, rMax, R) {
+    const pt = (i, r) => {
+      const a = Math.PI * 2 * i / CKEYS.length - Math.PI / 2;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    };
+    [0.5, 1.0, 1.5].forEach(ring => {
+      c.beginPath();
+      CKEYS.forEach((k, i) => { const [x, y] = pt(i, ring / 1.9 * rMax); i ? c.lineTo(x, y) : c.moveTo(x, y); });
+      c.closePath();
+      c.strokeStyle = ring === 1 ? "#98948D" : "#34323B";
+      c.setLineDash(ring === 1 ? [4, 4] : []);
+      c.lineWidth = 1; c.stroke(); c.setLineDash([]);
+    });
+    c.font = '400 9px "IBM Plex Mono", monospace'; c.textAlign = "center";
+    CKEYS.forEach((k, i) => { const [x, y] = pt(i, rMax + 15); c.fillStyle = "#98948D"; c.fillText(CLUSTERS[k].name, x, y + 3); });
+    c.beginPath();
+    CKEYS.forEach((k, i) => {
+      const r = Math.max(0.15, Math.min(1.9, R[k]));
+      const [x, y] = pt(i, r / 1.9 * rMax);
+      i ? c.lineTo(x, y) : c.moveTo(x, y);
+    });
+    c.closePath();
+    c.fillStyle = "rgba(229,184,75,0.25)"; c.fill();
+    c.strokeStyle = "#E5B84B"; c.lineWidth = 2; c.stroke();
+    c.textAlign = "left";
+  }
+
+  function buildDnaFrames() {
+    const pg = lastProfile.gs;
+    const psy = (lastPsyche && lastPsyche.n >= 10) ? lastPsyche : null;
+    const years = pg.map(g => g.y).filter(Boolean);
+    const span = years.length ? Math.max(...years) - Math.min(...years) + 1 : 0;
+    const byYear = {};
+    pg.forEach(g => { if (g.y) (byYear[g.y] = byYear[g.y] || []).push(g); });
+    const platCount = {};
+    pg.forEach(g => { platCount[g.p] = (platCount[g.p] || 0) + 1; });
+    const topPlats = Object.entries(platCount).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const earned = lastProfile.badges;
+    const frames = [];
+
+    const bootLines = [
+      "> LOADING PLAYER_1.SAV",
+      "> " + pg.length + " GAMES FOUND",
+      "> " + span + " YEARS DETECTED",
+      "> SEQUENCING GAMER DNA...",
+      "  OK"
+    ];
+    for (let i = 1; i <= 4; i++) frames.push([gifBoot(bootLines.slice(0, i), true, false), 700]);
+    frames.push([gifBoot(bootLines, false, true), 1000]);
+
+    {
+      const [cv, c] = gifBase("GAMING HISTORY // 1972-2026");
+      c.textAlign = "center";
+      c.fillStyle = "#E5B84B"; c.font = '700 150px "Silkscreen", monospace';
+      c.fillText(String(pg.length), 600, 330);
+      c.fillStyle = "#ECEAE4"; c.font = '700 26px "Silkscreen", monospace';
+      c.fillText("GAMES PLAYED", 600, 400);
+      c.fillStyle = "#98948D"; c.font = '400 16px "IBM Plex Mono", monospace';
+      c.fillText(span > 1 ? "ACROSS " + span + " YEARS OF GAMING HISTORY" : "AND THIS IS ONLY THE BEGINNING", 600, 440);
+      c.textAlign = "left";
+      frames.push([cv, 3800]);
+    }
+
+    if (years.length) {
+      const [cv, c] = gifBase("EVERY YEAR, EVERY GAME");
+      const X0 = 70, W = 1060, Y0 = 1972, Y1 = 2026, colW = W / (Y1 - Y0 + 1);
+      const maxN = Math.max(...Object.values(byYear).map(a => a.length));
+      const unit = Math.min(14, 420 / maxN);
+      for (let y = Y0; y <= Y1; y++) {
+        const games = (byYear[y] || []).slice().sort((a, b) => (b.s ?? -1) - (a.s ?? -1));
+        const x = X0 + (y - Y0) * colW;
+        games.forEach((g, i) => {
+          c.fillStyle = (PLATFORMS[g.p] && PLATFORMS[g.p].color) || "#E5B84B";
+          c.fillRect(x + 1, 545 - (i + 1) * unit, colW - 3, Math.max(1.5, unit - 1));
+        });
+        if (!games.length) { c.fillStyle = "#2A2931"; c.fillRect(x + 1, 542, colW - 3, 3); }
+      }
+      c.strokeStyle = "#34323B"; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(X0, 547); c.lineTo(X0 + W, 547); c.stroke();
+      c.fillStyle = "#98948D"; c.font = '400 12px "IBM Plex Mono", monospace';
+      c.fillText("1972", X0, 570);
+      c.textAlign = "right"; c.fillText("2026", X0 + W, 570); c.textAlign = "left";
+      c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+      c.fillText("ONE BLOCK PER GAME. " + pg.length + " BLOCKS.", 70, 140);
+      frames.push([cv, 3800]);
+    }
+
+    if (topPlats.length) {
+      const [cv, c] = gifBase("WHERE YOU LIVED");
+      c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+      c.fillText("HOME PLATFORMS", 70, 150);
+      const maxN = topPlats[0][1];
+      topPlats.forEach(([code, n], i) => {
+        const y = 220 + i * 110;
+        c.fillStyle = "#ECEAE4"; c.font = '700 24px "Silkscreen", monospace';
+        c.fillText((i + 1) + ". " + ((PLATFORMS[code] && PLATFORMS[code].label) || code).toUpperCase(), 90, y);
+        c.fillStyle = "#2A2931"; c.fillRect(90, y + 18, 900, 34);
+        c.fillStyle = (PLATFORMS[code] && PLATFORMS[code].color) || "#E5B84B";
+        c.fillRect(90, y + 18, 900 * n / maxN, 34);
+        c.fillStyle = "#E5B84B"; c.font = '700 22px "Silkscreen", monospace';
+        c.fillText(n + (n === 1 ? " GAME" : " GAMES"), 1010, y + 44);
+      });
+      frames.push([cv, 3800]);
+    }
+
+    {
+      const [cv, c] = gifBase("SEQUENCING COMPLETE");
+      if (psy) {
+        c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
+        c.fillText("YOUR GAMER DNA RESOLVES TO:", 70, 160);
+        c.fillStyle = "#E5B84B"; c.font = '700 44px "Silkscreen", monospace';
+        c.fillText((psy.title || "").toUpperCase(), 70, 225);
+        psy.ranked.slice(0, 3).forEach((k, i) => {
+          const y = 300 + i * 90;
+          c.fillStyle = "#ECEAE4"; c.font = '700 24px "Silkscreen", monospace';
+          c.fillText(CLUSTERS[k].name + "  " + Math.round(psy.R[k] * 100) + "% OF AVG LEAN", 70, y);
+          c.fillStyle = "#98948D"; c.font = '400 14px "IBM Plex Mono", monospace';
+          c.fillText(CLUSTERS[k].blurb.slice(0, 68), 70, y + 28);
+        });
+        gifRadar(c, 950, 380, 150, psy.R);
+      } else {
+        c.textAlign = "center";
+        c.fillStyle = "#ECEAE4"; c.font = '700 40px "Silkscreen", monospace';
+        c.fillText("DNA LOCKED", 600, 300);
+        c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
+        c.fillText("CHECK AT LEAST 10 GAMES TO SEQUENCE YOUR GAMER DNA", 600, 350);
+        c.textAlign = "left";
+      }
+      frames.push([cv, 4600]);
+    }
+
+    if (earned.length) {
+      const [cv, c] = gifBase("TROPHY WALL");
+      c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+      c.fillText("BADGES: " + earned.length + " / " + BADGES.length, 70, 150);
+      c.textAlign = "center"; c.font = "34px " + GIF_EMOJI_FONT;
+      const perRow = 15, cell = 72;
+      BADGES.forEach((b, i) => {
+        const x = 90 + (i % perRow) * cell + cell / 2;
+        const y = 230 + Math.floor(i / perRow) * 66;
+        c.globalAlpha = earned.includes(b) ? 1 : 0.16;
+        c.fillText(b[0], x, y);
+      });
+      c.globalAlpha = 1; c.textAlign = "left";
+      frames.push([cv, 3800]);
+    }
+
+    {
+      const [cv, c] = gifBase("YOUR TURN");
+      c.textAlign = "center";
+      c.fillStyle = "#ECEAE4"; c.font = '700 46px "Silkscreen", monospace';
+      c.fillText("WHAT MAKES UP", 600, 240);
+      c.fillStyle = "#E5B84B"; c.fillText("YOUR GAMER DNA?", 600, 310);
+      const bw = 480;
+      c.fillStyle = "#2A2931"; c.fillRect(600 - bw / 2, 370, bw, 58);
+      c.strokeStyle = "#FF6A5C"; c.lineWidth = 3; c.strokeRect(600 - bw / 2, 370, bw, 58);
+      c.fillStyle = "#FF6A5C"; c.font = '700 22px "Silkscreen", monospace';
+      c.fillText("COMPARE VS XELNATH", 600, 408);
+      c.fillStyle = "#98948D"; c.font = '400 16px "IBM Plex Mono", monospace';
+      c.fillText("atomechllc.github.io/all-the-games-i-played-before", 600, 500);
+      c.textAlign = "left";
+      frames.push([cv, 5200]);
+    }
+    return frames;
+  }
+
+  document.getElementById("gif-btn").addEventListener("click", async () => {
+    if (!lastProfile || !lastProfile.gs.length) return;
+    const btn = document.getElementById("gif-btn");
+    const idle = "🧬 Gamer DNA GIF";
+    btn.disabled = true; btn.textContent = "Booting…";
+    try {
+      const eng = await loadGifEngine();
+      await document.fonts.ready;
+      const frames = buildDnaFrames();
+      btn.textContent = "Encoding 0%";
+      const blob = await new Promise((res, rej) => {
+        const gif = new eng.GIF({ workers: 2, quality: 10, width: 1200, height: 630, workerScript: eng.workerUrl, repeat: 0 });
+        frames.forEach(([cv, delay]) => gif.addFrame(cv, { delay, copy: true }));
+        gif.on("progress", p => { btn.textContent = "Encoding " + Math.round(p * 100) + "%"; });
+        gif.on("finished", res);
+        setTimeout(() => rej(new Error("encode timed out")), 90000);
+        gif.render();
+      });
+      await saveFile("my-gamer-dna.gif", blob, "image/gif");
+      btn.textContent = "Saved ✓";
+    } catch (e) {
+      btn.textContent = (e && e.code === "declined") ? idle : "GIF failed";
+      if (!(e && e.code === "declined")) showToast("Couldn't render the GIF here — try the site in a regular browser.", false);
+    }
+    setTimeout(() => { btn.textContent = idle; btn.disabled = false; }, 2600);
   });
 
   function updateSubtitle() {
