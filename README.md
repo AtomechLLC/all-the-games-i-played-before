@@ -22,8 +22,9 @@ timeline, computed player profile, badges, and a downloadable infographic card.
 
 ## Platform codes
 
-NES, SNES, GB, GBC, GBA, N64, GCN, WII, WIIU, NSW (Switch, incl. Switch 2 titles),
-IBM (IBM PS/1 · DOS), OS2, PC1 (Warcraft→StarCraft era, pre-July 2002), PC2 (Warcraft III→now).
+NES, SNES, GEN (Sega Genesis), GB, GBC, GBA, N64, PSX (PlayStation), GCN, PS2, WII, PS3,
+WIIU, PS4, NSW (Switch, incl. Switch 2 titles), PS5, IBM (IBM PS/1 · DOS), OS2,
+PC1 (Warcraft→StarCraft era, pre-July 2002), PC2 (Warcraft III→now).
 
 ## Rebuild after editing games.json or template.html
 
