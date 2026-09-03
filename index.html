@@ -248,10 +248,21 @@
   .prow .trk { flex: 1; height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
   .prow .fill { display: block; height: 100%; border-radius: 99px; background: var(--gold-strong); }
   .prow .cnt { flex: 0 0 auto; color: var(--muted); font-size: 11px; }
-  .pcard-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; min-height: 30px; align-content: flex-start; }
+  .pcard-badges {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-top: 16px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    min-height: 42px;
+    scrollbar-width: thin;
+  }
   .badge {
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
+    white-space: nowrap;
     gap: 7px;
     padding: 5px 12px;
     border: 1px solid color-mix(in srgb, var(--gold-strong) 45%, var(--line));
@@ -261,6 +272,35 @@
     font-size: 12.5px;
     font-weight: 600;
   }
+  .badge.locked {
+    border-color: var(--line);
+    background: transparent;
+    color: var(--muted);
+    opacity: 0.55;
+    font-weight: 500;
+  }
+
+  .cmp-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 190px;
+    overflow-y: auto;
+    align-content: flex-start;
+    scrollbar-width: thin;
+  }
+  .cmp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    font-size: 12px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background: var(--surface);
+  }
+  .cmp-chip .pdot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 7px; }
+  .cmp-more { color: var(--muted); font-size: 12px; align-self: center; }
 
   .chips {
     display: flex;
@@ -440,8 +480,10 @@
       <label class="hide-played"><input type="checkbox" id="hide-played"> Hide played</label>
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
       <button class="export" id="import-btn" type="button">Import</button>
+      <button class="export" id="compare-btn" type="button">Compare</button>
       <button class="export" id="export-btn" type="button" hidden>Export</button>
       <input type="file" id="import-file" accept="application/json,.json" hidden>
+      <input type="file" id="compare-file" accept="application/json,.json" hidden>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Filter by platform"></div>
   </div>
@@ -469,6 +511,23 @@
           </div>
           <div class="pcard-badges" id="pcard-badges"></div>
         </div>
+      </div>
+    </div>
+  </section>
+  <section class="pcard" id="compare" hidden>
+    <div class="pcard-inner" style="padding-top: 18px;">
+      <div class="pcard-head">
+        <div>
+          <span class="pcard-eyebrow">HEAD TO HEAD</span>
+          <h2 class="pcard-arch px" id="cmp-title"></h2>
+          <p class="pcard-desc" id="cmp-desc"></p>
+        </div>
+        <button class="export" id="cmp-close" type="button">Close</button>
+      </div>
+      <div class="pcard-stats" id="cmp-stats"></div>
+      <div class="pcard-cols">
+        <div><h3 class="pcol-h">THEY PLAYED — YOU HAVEN'T</h3><div class="cmp-list" id="cmp-them"></div></div>
+        <div><h3 class="pcol-h">YOU PLAYED — THEY HAVEN'T</h3><div class="cmp-list" id="cmp-you"></div></div>
       </div>
     </div>
   </section>
@@ -1672,24 +1731,110 @@
     "Fighting": "Brawler", "Adventure & Horror": "Explorer", "Shooters": "Sharpshooter",
     "Platformers": "Platforming Pro", "Arcade & Action": "Arcade Ace"
   };
+  // Badge helpers: count by title regex, genre bucket, platform code, year filter.
+  const cRe = (gs, re) => gs.filter(g => re.test(g.t)).length;
+  const cGenre = (gs, genre) => gs.filter(g => g.genre === genre).length;
+  const cPlat = (gs, codes) => gs.filter(g => codes.includes(g.p)).length;
+  const cYear = (gs, fn) => gs.filter(g => fn(g.y)).length;
+  const INDIE_RE = /stardew|hollow knight|celeste|undertale|hades|terraria|binding of isaac|spire|balatro|cuphead|shovel|dead cells|limbo|braid|firewatch|goose|inscryption|meat boy|bastion|gungeon|darkest|vampire surviv|fez|noita|baba|papers, please|stanley|superhot|owlboy|axiom|blasphemous|hotline|tunic|animal well|obra dinn|witness|ori and|hyper light|to the moon|world of goo|loop hero|dome keeper|stacklands|rimworld/i;
+  const ROGUE_RE = /binding of isaac|slay the spire|gungeon|hades|dead cells|risk of rain|darkest dungeon|necrodancer|loop hero|noita|vampire survivors|monster train|curse of the dead gods|ftl|cobalt core|undermine|wizard of legend|ember knights|ravenswatch|ball x pit/i;
+  const SURVIVAL_RE = /minecraft|terraria|valheim|rust\b|ark: survival|the forest|sons of the forest|7 days|dayz|zomboid|subnautica|raft\b|enshrouded|palworld|v rising|don't starve|grounded|no man's sky|tribes of midgard/i;
+  const STORY_RE = /walking dead|wolf among|life is strange|firewatch|her story|telling lies|disco elysium|norco|heaven's vault|twelve minutes|immortality|stanley|gods will be watching|dispatch|broken age|grim fandango|monkey island|tentacle|loom\b|full throttle|sam & max|myst|king's quest|space quest|slay the princess|golden idol|obra dinn/i;
+  const MMO_RE = /world of warcraft|everquest|runescape|guild wars|old republic|eve online|ultima online|final fantasy xiv|new world|lost ark|champions online|destiny/i;
+  const BLIZZ_RE = /warcraft|starcraft|diablo|overwatch|hearthstone|heroes of the storm/i;
+
+  // Badges: [emoji, name, hint, test]. Shown earned-first, locked ones dimmed.
   const BADGES = [
-    ["🎒", "Pokémon Trainer", gs => gs.filter(g => /pok[eé]mon/i.test(g.t)).length >= 3],
-    ["🗡️", "Hero of Hyrule", gs => gs.filter(g => /zelda/i.test(g.t)).length >= 3],
-    ["🍄", "Plumber's Union", gs => gs.filter(g => /mario/i.test(g.t)).length >= 8],
-    ["🚀", "Bounty Hunter", gs => gs.filter(g => /metroid/i.test(g.t)).length >= 2],
-    ["❄️", "Blizzard Faithful", gs => gs.filter(g => /warcraft|starcraft|diablo|overwatch|hearthstone/i.test(g.t)).length >= 4],
-    ["🏁", "Kart Legend", gs => gs.filter(g => /kart|f-zero|racer/i.test(g.t)).length >= 3],
-    ["🎯", "Trigger Discipline", gs => gs.filter(g => g.genre === "Shooters").length >= 6],
-    ["♟️", "Grand Strategist", gs => gs.filter(g => g.genre === "Strategy").length >= 6],
-    ["🏗️", "City Planner", gs => gs.filter(g => /simcity|tycoon|cities|theme |factorio|satisfactory|manor/i.test(g.t)).length >= 3],
-    ["✨", "Indie Spirit", gs => gs.filter(g => /stardew|hollow|celeste|undertale|hades|terraria|binding|spire|balatro|cuphead|shovel|dead cells|limbo|braid|firewatch|goose|inscryption|meat boy|bastion|gungeon|darkest|vampire/i.test(g.t)).length >= 5],
-    ["⚔️", "Raid Ready", gs => gs.filter(g => /world of warcraft|everquest|runescape|guild wars|old republic|eve online|ultima online|destiny/i.test(g.t)).length >= 2],
-    ["🎉", "Party Starter", gs => gs.filter(g => g.genre === "Party & Sports").length >= 5],
-    ["👾", "8-Bit Native", gs => gs.filter(g => g.y <= 1992).length >= 8],
-    ["🔥", "Still Playing", gs => gs.filter(g => g.y >= 2023).length >= 5],
-    ["📚", "The Historian", gs => new Set(gs.map(g => g.era)).size >= 8],
-    ["💯", "Completionist", gs => gs.length >= GAMES.length * 0.5]
+    // — Franchises —
+    ["🎒", "Pokémon Trainer", "Play 3 Pokémon games", gs => cRe(gs, /pok[eé]mon/i) >= 3],
+    ["🧢", "Pokémon Professor", "Play 8 Pokémon games", gs => cRe(gs, /pok[eé]mon/i) >= 8],
+    ["🗡️", "Hero of Hyrule", "Play 3 Zelda games", gs => cRe(gs, /zelda/i) >= 3],
+    ["👑", "Triforce Complete", "Play 10 Zelda games", gs => cRe(gs, /zelda/i) >= 10],
+    ["🍄", "Plumber's Union", "Play 8 Mario games", gs => cRe(gs, /mario/i) >= 8],
+    ["⭐", "One-Up Millionaire", "Play 20 Mario games", gs => cRe(gs, /mario/i) >= 20],
+    ["🚀", "Bounty Hunter", "Play 2 Metroid games", gs => cRe(gs, /metroid/i) >= 2],
+    ["🧬", "Chozo Chosen", "Play 8 Metroid games", gs => cRe(gs, /metroid/i) >= 8],
+    ["❄️", "Blizzard Faithful", "Play 4 Blizzard games", gs => cRe(gs, BLIZZ_RE) >= 4],
+    ["🌩️", "Children of the Storm", "Play 10 Blizzard games", gs => cRe(gs, BLIZZ_RE) >= 10],
+    ["⚔️", "For the Horde", "Play 3 Warcraft games", gs => cRe(gs, /warcraft/i) >= 3],
+    ["😈", "Rip and Tear", "Play 3 Doom games", gs => cRe(gs, /doom/i) >= 3],
+    ["🧟", "S.T.A.R.S. Survivor", "Play 2 Resident Evil games", gs => cRe(gs, /resident evil/i) >= 2],
+    ["🐉", "Dragonborn", "Play 3 Elder Scrolls games", gs => cRe(gs, /elder scrolls|morrowind|oblivion|skyrim|daggerfall/i) >= 3],
+    ["☢️", "Vault Dweller", "Play 3 Fallout games", gs => cRe(gs, /fallout/i) >= 3],
+    ["🔥", "Git Gud", "Play 3 FromSoftware games", gs => cRe(gs, /dark souls|sekiro|elden ring|armored core/i) >= 3],
+    ["💎", "Crystal Bearer", "Play 3 Final Fantasy games", gs => cRe(gs, /final fantasy/i) >= 3],
+    ["🌟", "Star Warrior", "Play 5 Kirby games", gs => cRe(gs, /kirby/i) >= 5],
+    ["🍌", "Banana Hoarder", "Play 5 Donkey Kong games", gs => cRe(gs, /donkey kong|diddy kong/i) >= 5],
+    ["🦇", "Belmont Bloodline", "Play 3 Castlevania-blood games", gs => cRe(gs, /castlevania|bloodstained/i) >= 3],
+    ["🤖", "Blue Bomber", "Play 3 Mega Man games", gs => cRe(gs, /mega man/i) >= 3],
+    ["🏁", "Kart Legend", "Play 3 kart racers", gs => cRe(gs, /kart|f-zero|racer/i) >= 3],
+    ["🎲", "Forgotten Realms", "Play 2 classic D&D CRPGs", gs => cRe(gs, /baldur|icewind|neverwinter|planescape/i) >= 2],
+    ["🐺", "School of the Wolf", "Play 2 Witcher games", gs => cRe(gs, /witcher/i) >= 2],
+    ["🧪", "Black Mesa Alumni", "Play 2 Valve story games", gs => cRe(gs, /half-life|portal/i) >= 2],
+    ["🥋", "Final Destination", "Play 3 Smash Bros. games", gs => cRe(gs, /smash bros/i) >= 3],
+    ["🎪", "Party Planner", "Play 4 Mario Party games", gs => cRe(gs, /mario party/i) >= 4],
+    ["🚜", "Sid Meier Fan Club", "Play 3 Sid Meier games", gs => cRe(gs, /civilization|alpha centauri|colonization|pirates!|railroad tycoon/i) >= 3],
+    // — Genres & habits —
+    ["🎯", "Trigger Discipline", "Play 6 shooters", gs => cGenre(gs, "Shooters") >= 6],
+    ["💥", "Bullet Sponge", "Play 15 shooters", gs => cGenre(gs, "Shooters") >= 15],
+    ["♟️", "Grand Strategist", "Play 6 strategy games", gs => cGenre(gs, "Strategy") >= 6],
+    ["🌍", "World Conqueror", "Play 15 strategy games", gs => cGenre(gs, "Strategy") >= 15],
+    ["🧗", "Platforming Pro", "Play 10 platformers", gs => cGenre(gs, "Platformers") >= 10],
+    ["🕸️", "Coyote Time", "Play 25 platformers", gs => cGenre(gs, "Platformers") >= 25],
+    ["📖", "Role-Player", "Play 10 RPGs", gs => cGenre(gs, "RPGs") >= 10],
+    ["🐲", "Level 99", "Play 25 RPGs", gs => cGenre(gs, "RPGs") >= 25],
+    ["🧩", "Puzzle Master", "Play 5 puzzle games", gs => cGenre(gs, "Puzzle") >= 5],
+    ["🥊", "Combo Breaker", "Play 4 fighting games", gs => cGenre(gs, "Fighting") >= 4],
+    ["🏎️", "Speed Demon", "Play 6 racing games", gs => cGenre(gs, "Racing") >= 6],
+    ["🔦", "Flashlight Ready", "Play 6 adventure or horror games", gs => cGenre(gs, "Adventure & Horror") >= 6],
+    ["🎉", "Party Starter", "Play 5 party & sports games", gs => cGenre(gs, "Party & Sports") >= 5],
+    ["🏗️", "City Planner", "Play 3 city or tycoon sims", gs => cRe(gs, /simcity|tycoon|cities|theme |timberborn|against the storm|manor lords|frostpunk/i) >= 3],
+    ["🌾", "Homesteader", "Play 3 cozy life sims", gs => cRe(gs, /stardew|harvest moon|animal crossing|graveyard keeper|slime rancher|dave the diver/i) >= 3],
+    ["⚙️", "The Factory Must Grow", "Play 2 automation games", gs => cRe(gs, /factorio|satisfactory|dyson sphere|oxygen not included|shapez/i) >= 2],
+    ["🏕️", "Survivalist", "Play 4 survival-craft games", gs => cRe(gs, SURVIVAL_RE) >= 4],
+    ["🔁", "One More Run", "Play 5 roguelikes", gs => cRe(gs, ROGUE_RE) >= 5],
+    ["🧠", "Immersive Sim Doctorate", "Play 3 immersive sims", gs => cRe(gs, /deus ex|system shock|bioshock|dishonored|prey|thief/i) >= 3],
+    ["🎬", "Story Seeker", "Play 5 narrative adventures", gs => cRe(gs, STORY_RE) >= 5],
+    ["🛡️", "Raid Ready", "Play 2 MMOs", gs => cRe(gs, MMO_RE) >= 2],
+    ["✨", "Indie Spirit", "Play 5 beloved indies", gs => cRe(gs, INDIE_RE) >= 5],
+    ["🎨", "Indie Connoisseur", "Play 20 beloved indies", gs => cRe(gs, INDIE_RE) >= 20],
+    // — Eras & platforms —
+    ["👾", "8-Bit Native", "Play 8 games from 1992 or earlier", gs => cYear(gs, y => y <= 1992) >= 8],
+    ["📼", "Before the Internet", "Play 20 games from 1992 or earlier", gs => cYear(gs, y => y <= 1992) >= 20],
+    ["🧃", "90s Kid", "Play 15 games from the 1990s", gs => cYear(gs, y => y >= 1990 && y <= 1999) >= 15],
+    ["💾", "C:\\> Prompt", "Play 5 IBM PS/1-era games", gs => cPlat(gs, ["IBM"]) >= 5],
+    ["🦕", "OS/2 Survivor", "Play an OS/2 game", gs => cPlat(gs, ["OS2"]) >= 1],
+    ["🔌", "LAN Party Legend", "Play 8 classic PC games", gs => cPlat(gs, ["PC1"]) >= 8],
+    ["🎮", "NES Generation", "Play 10 NES games", gs => cPlat(gs, ["NES"]) >= 10],
+    ["🦸", "16-Bit Believer", "Play 10 SNES games", gs => cPlat(gs, ["SNES"]) >= 10],
+    ["🔋", "Pocket Gamer", "Play 10 Game Boy family games", gs => cPlat(gs, ["GB", "GBC", "GBA"]) >= 10],
+    ["🌀", "N64 Kid", "Play 10 N64 games", gs => cPlat(gs, ["N64"]) >= 10],
+    ["🧊", "Cube Head", "Play 8 GameCube games", gs => cPlat(gs, ["GCN"]) >= 8],
+    ["🎳", "Wii Would Like to Play", "Play 10 Wii games", gs => cPlat(gs, ["WII"]) >= 10],
+    ["🦄", "Wii U Believer", "Play 8 Wii U games", gs => cPlat(gs, ["WIIU"]) >= 8],
+    ["🔴", "Switched On", "Play 10 Switch games", gs => cPlat(gs, ["NSW"]) >= 10],
+    ["⌨️", "PC Master Race", "Play 50 PC games", gs => cPlat(gs, ["IBM", "OS2", "PC1", "PC2"]) >= 50],
+    ["🚂", "Steam Powered", "Play 40 modern PC games", gs => cPlat(gs, ["PC2"]) >= 40],
+    ["🕹️", "Still Playing", "Play 5 games from 2023 on", gs => cYear(gs, y => y >= 2023) >= 5],
+    ["🏛️", "Day One", "Play 3 games from 1983–1987", gs => gs.filter(g => g.era === 0).length >= 3],
+    ["📚", "The Historian", "Play games from 8 of 9 eras", gs => new Set(gs.map(g => g.era)).size >= 8],
+    ["🌈", "Platform Agnostic", "Play on 10 different platforms", gs => new Set(gs.map(g => g.p)).size >= 10],
+    // — Milestones —
+    ["🌱", "Press Start", "Check your first game", gs => gs.length >= 1],
+    ["💿", "Century Club", "Play 100 games", gs => gs.length >= 100],
+    ["🏆", "The Collector", "Play 250 games", gs => gs.length >= 250],
+    ["💯", "Completionist", "Play half the list", gs => gs.length >= GAMES.length * 0.5],
+    ["🏺", "Librarian of Alexandria", "Play 500 games", gs => gs.length >= 500],
+    ["🌿", "Touch Grass", "Play 750 games", gs => gs.length >= 750],
+    ["🦖", "Elder Gamer", "Your games span 35+ years", gs => gs.length > 0 && (Math.max(...gs.map(g => g.y)) - Math.min(...gs.map(g => g.y))) >= 35],
+    ["🗓️", "Decade Spanner", "Play games from 4 different decades", gs => new Set(gs.map(g => Math.floor(g.y / 10))).size >= 4],
+    ["🌌", "Time Lord", "Play games from all 5 decades", gs => new Set(gs.map(g => Math.floor(g.y / 10))).size >= 5]
   ];
+
+  // How many listed games exist per year — used to normalize per-year stats
+  // so a dense list year doesn't automatically win.
+  const LISTED_BY_YEAR = {};
+  GAMES.forEach(g => { LISTED_BY_YEAR[g.y] = (LISTED_BY_YEAR[g.y] || 0) + 1; });
 
   function computeProfile() {
     const gs = GAMES.filter(g => played.has(g.id));
@@ -1700,7 +1845,17 @@
       byGenre[g.genre] = (byGenre[g.genre] || 0) + 1;
     });
     const years = gs.map(g => g.y);
-    const busiest = Object.entries(byYear).sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
+    // "Deepest year": highest share of that year's list played (min 5 listed).
+    let deepest = null;
+    Object.entries(byYear).forEach(([y, n]) => {
+      const listed = LISTED_BY_YEAR[y] || 0;
+      if (listed >= 5) {
+        const pct = n / listed;
+        if (!deepest || pct > deepest.pct || (pct === deepest.pct && n > deepest.n)) {
+          deepest = { y, pct, n, listed };
+        }
+      }
+    });
     const topPlat = Object.entries(byPlat).sort((a, b) => b[1] - a[1])[0];
     const topGenre = Object.entries(byGenre).sort((a, b) => b[1] - a[1])[0];
 
@@ -1721,16 +1876,18 @@
       const firstGame = gs.filter(g => g.y === firstY).sort((a, b) => (b.s ?? -1) - (a.s ?? -1))[0];
       const lastGame = gs.filter(g => g.y === lastY).sort((a, b) => (b.s ?? -1) - (a.s ?? -1))[0];
       desc = gs.length + " games from " + firstGame.t + " (" + firstY + ") to " + lastGame.t +
-        " (" + lastY + "). Busiest year: " + busiest[0] + " with " + busiest[1] +
-        " games. Top platform: " + PLATFORMS[topPlat[0]].label + ". Leans " + topGenre[0] + ".";
+        " (" + lastY + ")." +
+        (deepest ? " Deepest year: " + deepest.y + " — you've played " + Math.round(100 * deepest.pct) +
+          "% of its list (" + deepest.n + "/" + deepest.listed + ")." : "") +
+        " Top platform: " + PLATFORMS[topPlat[0]].label + ". Leans " + topGenre[0] + ".";
     }
     return {
       gs, byPlat, byYear, byGenre, archetype, desc,
       firstY: years.length ? Math.min(...years) : 0,
       lastY: years.length ? Math.max(...years) : 0,
-      busiestYear: busiest ? busiest[0] : "—",
+      deepest,
       platCount: Object.keys(byPlat).length,
-      badges: BADGES.filter(([, , test]) => test(gs)).slice(0, 8)
+      badges: BADGES.filter(([, , , test]) => test(gs))
     };
   }
 
@@ -1814,8 +1971,8 @@
     [[n + " / " + GAMES.length, "games played"],
      [p.platCount + " / 14", "platforms"],
      [(p.lastY - p.firstY + 1) + " yrs", p.firstY + "–" + p.lastY],
-     [p.busiestYear, "busiest year"],
-     [p.badges.length, "badges earned"]].forEach(([v, k]) => {
+     [p.deepest ? p.deepest.y : "—", p.deepest ? "deepest year · " + Math.round(100 * p.deepest.pct) + "%" : "deepest year"],
+     [p.badges.length + " / " + BADGES.length, "badges earned"]].forEach(([v, k]) => {
       const d = document.createElement("div");
       d.className = "stat";
       d.innerHTML = '<div class="v"></div><div class="k"></div>';
@@ -1830,14 +1987,21 @@
     barRows(document.getElementById("pcard-genre"),
       Object.entries(p.byGenre).sort((a, b) => b[1] - a[1]).slice(0, 6), n, false);
 
+    // Earned badges first, then locked ones dimmed — a fixed-height shelf that
+    // scrolls sideways, so unlocking badges never resizes the panel.
     const badgesEl = document.getElementById("pcard-badges");
     badgesEl.innerHTML = "";
-    p.badges.forEach(([emoji, name]) => {
-      const b = document.createElement("span");
-      b.className = "badge";
-      b.textContent = emoji + " " + name;
-      badgesEl.appendChild(b);
-    });
+    const earnedSet = new Set(p.badges.map(b => b[1]));
+    BADGES.slice()
+      .sort((a, b) => (earnedSet.has(b[1]) ? 1 : 0) - (earnedSet.has(a[1]) ? 1 : 0))
+      .forEach(([emoji, name, hint]) => {
+        const earned = earnedSet.has(name);
+        const b = document.createElement("span");
+        b.className = earned ? "badge" : "badge locked";
+        b.textContent = (earned ? emoji : "🔒") + " " + name;
+        b.title = hint + (earned ? "" : " (locked)");
+        badgesEl.appendChild(b);
+      });
   }
 
   let lastProfile = null;
@@ -1941,7 +2105,9 @@
     });
 
     c.fillStyle = "#E5B84B"; c.font = '600 17px "IBM Plex Sans", sans-serif';
-    c.fillText(p.badges.slice(0, 5).map(([e, nm]) => e + " " + nm).join("   "), 60, 622);
+    const badgeLine = p.badges.slice(0, 5).map(([e, nm]) => e + " " + nm).join("   ") +
+      (p.badges.length > 5 ? "   +" + (p.badges.length - 5) + " more" : "");
+    c.fillText(badgeLine, 60, 622);
     return cv;
   }
 
@@ -2047,7 +2213,7 @@
   // Import: read a played-list JSON file (this page's own export format, or a
   // raw {ids: [...]} save) and check everything in it. Works everywhere — no
   // cloud capability needed — so the public copy of the site can be seeded too.
-  function importPlayedData(data) {
+  function resolveIds(data) {
     const ids = new Set();
     if (Array.isArray(data && data.ids)) {
       data.ids.forEach(id => { if (cardEls.has(id)) ids.add(id); });
@@ -2064,6 +2230,11 @@
         if (exact) ids.add(exact.id);
       });
     }
+    return ids;
+  }
+
+  function importPlayedData(data) {
+    const ids = resolveIds(data);
     const before = played.size;
     const union = new Set(played);
     ids.forEach(id => union.add(id));
@@ -2094,6 +2265,90 @@
     reader.onerror = () => {
       importBtn.textContent = "Couldn't read file";
       setTimeout(() => { importBtn.textContent = "Import"; }, 2600);
+    };
+    reader.readAsText(file);
+  });
+
+  // Compare: load someone else's export and show the overlap instead of merging.
+  function renderCompare(theirIds, label) {
+    const both = [...theirIds].filter(id => played.has(id));
+    const onlyThem = [...theirIds].filter(id => !played.has(id));
+    const onlyYou = [...played].filter(id => !theirIds.has(id));
+    const union = theirIds.size + played.size - both.length;
+    const similarity = union ? Math.round(100 * both.length / union) : 0;
+
+    document.getElementById("cmp-title").textContent = "YOU × " + label.toUpperCase();
+    document.getElementById("cmp-desc").textContent =
+      "You share " + both.length + " games. They bring " + onlyThem.length +
+      " you haven't played; you bring " + onlyYou.length + " they haven't.";
+
+    const stats = document.getElementById("cmp-stats");
+    stats.innerHTML = "";
+    [[both.length, "played by both"],
+     [onlyThem.length, "only them"],
+     [onlyYou.length, "only you"],
+     [similarity + "%", "taste overlap"]].forEach(([v, k]) => {
+      const d = document.createElement("div");
+      d.className = "stat";
+      d.innerHTML = '<div class="v mono"></div><div class="k"></div>';
+      d.querySelector(".v").textContent = v;
+      d.querySelector(".k").textContent = k;
+      stats.appendChild(d);
+    });
+
+    const fill = (elId, ids) => {
+      const el = document.getElementById(elId);
+      el.innerHTML = "";
+      const games = ids.map(id => cardEls.get(id).g).sort((a, b) => (b.s ?? -1) - (a.s ?? -1));
+      games.slice(0, 40).forEach(g => {
+        const chip = document.createElement("span");
+        chip.className = "cmp-chip";
+        chip.innerHTML = '<span class="pdot" style="background:' + PLATFORMS[g.p].color + '"></span>';
+        chip.appendChild(document.createTextNode(g.t + " (" + g.y + ")"));
+        chip.title = PLATFORMS[g.p].label;
+        el.appendChild(chip);
+      });
+      if (games.length > 40) {
+        const more = document.createElement("span");
+        more.className = "cmp-more";
+        more.textContent = "+" + (games.length - 40) + " more";
+        el.appendChild(more);
+      }
+      if (!games.length) {
+        const none = document.createElement("span");
+        none.className = "cmp-more";
+        none.textContent = "none — clean sweep";
+        el.appendChild(none);
+      }
+    };
+    fill("cmp-them", onlyThem);
+    fill("cmp-you", onlyYou);
+
+    const panel = document.getElementById("compare");
+    panel.hidden = false;
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  const compareBtn = document.getElementById("compare-btn");
+  const compareFile = document.getElementById("compare-file");
+  compareBtn.addEventListener("click", () => compareFile.click());
+  document.getElementById("cmp-close").addEventListener("click", () => {
+    document.getElementById("compare").hidden = true;
+  });
+  compareFile.addEventListener("change", () => {
+    const file = compareFile.files && compareFile.files[0];
+    compareFile.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const ids = resolveIds(JSON.parse(reader.result));
+        if (!ids.size) throw new Error("empty");
+        renderCompare(ids, file.name.replace(/\.json$/i, "").replace(/[-_]/g, " "));
+      } catch (e) {
+        compareBtn.textContent = "No games recognized";
+        setTimeout(() => { compareBtn.textContent = "Compare"; }, 2600);
+      }
     };
     reader.readAsText(file);
   });
