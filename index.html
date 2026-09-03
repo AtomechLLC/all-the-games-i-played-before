@@ -4230,14 +4230,15 @@
         });
       });
       const dnaTitle = (psy.title || "").toUpperCase();
-      const STEPS = 7;
+      const STEPS = 14;
+      const DRIFT = 7 / STEPS;
       for (let s = 1; s <= STEPS; s++) {
         const [cv, c] = gifBase("SEQUENCING COMPLETE");
         flyers.forEach(f => {
           c.globalAlpha = 0.10 + rnd() * (0.50 - 0.12 * f.tier);
           c.fillStyle = tierCol[f.tier];
           c.font = '400 ' + Math.round(f.size) + 'px "IBM Plex Mono", monospace';
-          c.fillText(f.w, f.x + f.dx * s, f.y + f.dy * s);
+          c.fillText(f.w, f.x + f.dx * s * DRIFT, f.y + f.dy * s * DRIFT);
         });
         c.globalAlpha = 1;
         c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
@@ -4245,7 +4246,7 @@
         c.fillStyle = "#E5B84B"; c.font = '700 44px "Silkscreen", monospace';
         c.fillText(dnaTitle.slice(0, Math.ceil(dnaTitle.length * s / STEPS)) + (s < STEPS ? "_" : ""), 70, 225);
         gifDots(c, cardIdx, cardTotal);
-        frames.push([cv, s === STEPS ? 900 : 340]);
+        frames.push([cv, s === STEPS ? 900 : 170]);
       }
       const [cv, c] = gifBase("SEQUENCING COMPLETE");
       c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
