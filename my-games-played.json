@@ -1,8 +1,58 @@
 {
-  "exported": "2026-09-03T03:37:24.038Z",
-  "gamesPlayed": 462,
-  "gamesListed": 857,
+  "exported": "2026-09-03T04:49:46.238Z",
+  "gamesPlayed": 527,
+  "gamesListed": 1222,
   "games": [
+    {
+      "title": "Pong",
+      "platform": "Arcade",
+      "year": 1972
+    },
+    {
+      "title": "Space Invaders",
+      "platform": "Atari 2600",
+      "year": 1980
+    },
+    {
+      "title": "Asteroids",
+      "platform": "Atari 2600",
+      "year": 1981
+    },
+    {
+      "title": "Centipede",
+      "platform": "Arcade",
+      "year": 1981
+    },
+    {
+      "title": "Donkey Kong",
+      "platform": "Arcade",
+      "year": 1981
+    },
+    {
+      "title": "Galaga",
+      "platform": "Arcade",
+      "year": 1981
+    },
+    {
+      "title": "Missile Command",
+      "platform": "Atari 2600",
+      "year": 1981
+    },
+    {
+      "title": "Dig Dug",
+      "platform": "Arcade",
+      "year": 1982
+    },
+    {
+      "title": "Ms. Pac-Man",
+      "platform": "Arcade",
+      "year": 1982
+    },
+    {
+      "title": "Pac-Man",
+      "platform": "Atari 2600",
+      "year": 1982
+    },
     {
       "title": "Duck Hunt",
       "platform": "NES",
@@ -11,6 +61,11 @@
     {
       "title": "Excitebike",
       "platform": "NES",
+      "year": 1985
+    },
+    {
+      "title": "Gauntlet",
+      "platform": "Arcade",
       "year": 1985
     },
     {
@@ -234,6 +289,11 @@
       "year": 1991
     },
     {
+      "title": "Sonic the Hedgehog",
+      "platform": "Genesis",
+      "year": 1991
+    },
+    {
       "title": "Space Quest IV",
       "platform": "IBM PS/1",
       "year": 1991
@@ -244,6 +304,11 @@
       "year": 1991
     },
     {
+      "title": "Ecco the Dolphin",
+      "platform": "Genesis",
+      "year": 1992
+    },
+    {
       "title": "Kirby's Dream Land",
       "platform": "Game Boy",
       "year": 1992
@@ -251,6 +316,11 @@
     {
       "title": "Mario Paint",
       "platform": "SNES",
+      "year": 1992
+    },
+    {
+      "title": "Sonic the Hedgehog 2",
+      "platform": "Genesis",
       "year": 1992
     },
     {
@@ -272,6 +342,11 @@
       "title": "The Legend of Zelda: A Link to the Past",
       "platform": "SNES",
       "year": 1992
+    },
+    {
+      "title": "Disney's Aladdin",
+      "platform": "Genesis",
+      "year": 1993
     },
     {
       "title": "Doom",
@@ -489,8 +564,18 @@
       "year": 1997
     },
     {
+      "title": "Castlevania: Symphony of the Night",
+      "platform": "PlayStation",
+      "year": 1997
+    },
+    {
       "title": "Diablo",
       "platform": "PC ’94–’02",
+      "year": 1997
+    },
+    {
+      "title": "Final Fantasy VII",
+      "platform": "PlayStation",
       "year": 1997
     },
     {
@@ -509,8 +594,18 @@
       "year": 1997
     },
     {
+      "title": "Banjo-Kazooie",
+      "platform": "N64",
+      "year": 1998
+    },
+    {
       "title": "Half-Life",
       "platform": "PC ’94–’02",
+      "year": 1998
+    },
+    {
+      "title": "Metal Gear Solid",
+      "platform": "PlayStation",
       "year": 1998
     },
     {
@@ -549,6 +644,11 @@
       "year": 1998
     },
     {
+      "title": "Xenogears",
+      "platform": "PlayStation",
+      "year": 1998
+    },
+    {
       "title": "Yoshi's Story",
       "platform": "N64",
       "year": 1998
@@ -556,6 +656,11 @@
     {
       "title": "Donkey Kong 64",
       "platform": "N64",
+      "year": 1999
+    },
+    {
+      "title": "Final Fantasy VIII",
+      "platform": "PlayStation",
       "year": 1999
     },
     {
@@ -571,6 +676,11 @@
     {
       "title": "Planescape: Torment",
       "platform": "PC ’94–’02",
+      "year": 1999
+    },
+    {
+      "title": "Pokémon Snap",
+      "platform": "N64",
       "year": 1999
     },
     {
@@ -601,6 +711,11 @@
     {
       "title": "Diablo II",
       "platform": "PC ’94–’02",
+      "year": 2000
+    },
+    {
+      "title": "Final Fantasy IX",
+      "platform": "PlayStation",
       "year": 2000
     },
     {
@@ -644,6 +759,31 @@
       "year": 2001
     },
     {
+      "title": "Devil May Cry",
+      "platform": "PS2",
+      "year": 2001
+    },
+    {
+      "title": "Final Fantasy X",
+      "platform": "PS2",
+      "year": 2001
+    },
+    {
+      "title": "Halo: Combat Evolved",
+      "platform": "Xbox",
+      "year": 2001
+    },
+    {
+      "title": "ICO",
+      "platform": "PS2",
+      "year": 2001
+    },
+    {
+      "title": "Metal Gear Solid 2: Sons of Liberty",
+      "platform": "PS2",
+      "year": 2001
+    },
+    {
       "title": "Paper Mario",
       "platform": "N64",
       "year": 2001
@@ -651,6 +791,11 @@
     {
       "title": "Pokémon Stadium 2",
       "platform": "N64",
+      "year": 2001
+    },
+    {
+      "title": "Super Monkey Ball",
+      "platform": "GameCube",
       "year": 2001
     },
     {
@@ -667,6 +812,16 @@
       "title": "Zelda: Oracle of Seasons / Oracle of Ages",
       "platform": "GB Color",
       "year": 2001
+    },
+    {
+      "title": "Kingdom Hearts",
+      "platform": "PS2",
+      "year": 2002
+    },
+    {
+      "title": "MechAssault",
+      "platform": "Xbox",
+      "year": 2002
     },
     {
       "title": "Metroid Fusion",
@@ -729,6 +884,11 @@
       "year": 2003
     },
     {
+      "title": "Fable",
+      "platform": "Xbox",
+      "year": 2004
+    },
+    {
       "title": "Half-Life 2",
       "platform": "PC ’02–now",
       "year": 2004
@@ -754,6 +914,21 @@
       "year": 2005
     },
     {
+      "title": "God of War",
+      "platform": "PS2",
+      "year": 2005
+    },
+    {
+      "title": "Guitar Hero",
+      "platform": "PS2",
+      "year": 2005
+    },
+    {
+      "title": "Shadow of the Colossus",
+      "platform": "PS2",
+      "year": 2005
+    },
+    {
       "title": "Super Mario Strikers",
       "platform": "GameCube",
       "year": 2005
@@ -761,6 +936,26 @@
     {
       "title": "Dwarf Fortress",
       "platform": "PC ’02–now",
+      "year": 2006
+    },
+    {
+      "title": "Final Fantasy XII",
+      "platform": "PS2",
+      "year": 2006
+    },
+    {
+      "title": "Guitar Hero II",
+      "platform": "PS2",
+      "year": 2006
+    },
+    {
+      "title": "New Super Mario Bros.",
+      "platform": "DS",
+      "year": 2006
+    },
+    {
+      "title": "Okami",
+      "platform": "PS2",
       "year": 2006
     },
     {
@@ -786,6 +981,11 @@
     {
       "title": "Call of Duty 4: Modern Warfare",
       "platform": "PC ’02–now",
+      "year": 2007
+    },
+    {
+      "title": "God of War II",
+      "platform": "PS2",
       "year": 2007
     },
     {
@@ -826,6 +1026,11 @@
     {
       "title": "Fallout 3",
       "platform": "PC ’02–now",
+      "year": 2008
+    },
+    {
+      "title": "LittleBigPlanet",
+      "platform": "PS3",
       "year": 2008
     },
     {
@@ -874,8 +1079,18 @@
       "year": 2009
     },
     {
+      "title": "Demon's Souls",
+      "platform": "PS3",
+      "year": 2009
+    },
+    {
       "title": "Dragon Age: Origins",
       "platform": "PC ’02–now",
+      "year": 2009
+    },
+    {
+      "title": "inFamous",
+      "platform": "PS3",
       "year": 2009
     },
     {
@@ -899,6 +1114,11 @@
       "year": 2009
     },
     {
+      "title": "Uncharted 2: Among Thieves",
+      "platform": "PS3",
+      "year": 2009
+    },
+    {
       "title": "Wii Sports Resort",
       "platform": "Wii",
       "year": 2009
@@ -906,6 +1126,16 @@
     {
       "title": "Epic Mickey",
       "platform": "Wii",
+      "year": 2010
+    },
+    {
+      "title": "God of War III",
+      "platform": "PS3",
+      "year": 2010
+    },
+    {
+      "title": "Heavy Rain",
+      "platform": "PS3",
       "year": 2010
     },
     {
@@ -921,6 +1151,11 @@
     {
       "title": "Recettear: An Item Shop's Tale",
       "platform": "PC ’02–now",
+      "year": 2010
+    },
+    {
+      "title": "Red Dead Redemption",
+      "platform": "PS3",
       "year": 2010
     },
     {
@@ -994,6 +1229,11 @@
       "year": 2011
     },
     {
+      "title": "To the Moon",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
       "title": "Borderlands 2",
       "platform": "PC ’02–now",
       "year": 2012
@@ -1010,6 +1250,11 @@
     },
     {
       "title": "Diablo III",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
+      "title": "Dishonored",
       "platform": "PC ’02–now",
       "year": 2012
     },
@@ -1119,6 +1364,11 @@
       "year": 2013
     },
     {
+      "title": "Papers, Please",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
       "title": "Penny Arcade's On the Rain-Slick Precipice of Darkness 4",
       "platform": "PC ’02–now",
       "year": 2013
@@ -1135,6 +1385,11 @@
     },
     {
       "title": "The Cave",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "The Stanley Parable",
       "platform": "PC ’02–now",
       "year": 2013
     },
@@ -1239,6 +1494,11 @@
       "year": 2015
     },
     {
+      "title": "Bloodborne",
+      "platform": "PS4",
+      "year": 2015
+    },
+    {
       "title": "Caves of Qud",
       "platform": "PC ’02–now",
       "year": 2015
@@ -1265,6 +1525,11 @@
     },
     {
       "title": "Her Story",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Heroes of the Storm",
       "platform": "PC ’02–now",
       "year": 2015
     },
@@ -1319,6 +1584,11 @@
       "year": 2015
     },
     {
+      "title": "Until Dawn",
+      "platform": "PS4",
+      "year": 2015
+    },
+    {
       "title": "Xenoblade Chronicles X",
       "platform": "Wii U",
       "year": 2015
@@ -1366,6 +1636,11 @@
     {
       "title": "Factorio",
       "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Final Fantasy XV",
+      "platform": "PS4",
       "year": 2016
     },
     {
@@ -1439,6 +1714,11 @@
       "year": 2016
     },
     {
+      "title": "Uncharted 4: A Thief's End",
+      "platform": "PS4",
+      "year": 2016
+    },
+    {
       "title": "XCOM 2",
       "platform": "PC ’02–now",
       "year": 2016
@@ -1494,6 +1774,11 @@
       "year": 2017
     },
     {
+      "title": "Horizon Zero Dawn",
+      "platform": "PS4",
+      "year": 2017
+    },
+    {
       "title": "Kindergarten",
       "platform": "PC ’02–now",
       "year": 2017
@@ -1501,6 +1786,11 @@
     {
       "title": "Nioh",
       "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Persona 5",
+      "platform": "PS4",
       "year": 2017
     },
     {
@@ -1579,8 +1869,18 @@
       "year": 2018
     },
     {
+      "title": "Detroit: Become Human",
+      "platform": "PS4",
+      "year": 2018
+    },
+    {
       "title": "Frostpunk",
       "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "God of War",
+      "platform": "PS4",
       "year": 2018
     },
     {
@@ -1776,6 +2076,16 @@
     {
       "title": "Cyberpunk 2077",
       "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Deep Rock Galactic",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Demon's Souls",
+      "platform": "PS5",
       "year": 2020
     },
     {
@@ -2104,6 +2414,11 @@
       "year": 2023
     },
     {
+      "title": "Final Fantasy XVI",
+      "platform": "PS5",
+      "year": 2023
+    },
+    {
       "title": "Lies of P",
       "platform": "PC ’02–now",
       "year": 2023
@@ -2156,6 +2471,11 @@
     {
       "title": "Another Crab's Treasure",
       "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "Astro Bot",
+      "platform": "PS5",
       "year": 2024
     },
     {
@@ -2226,6 +2546,11 @@
     {
       "title": "Clair Obscur: Expedition 33",
       "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Death Stranding 2: On the Beach",
+      "platform": "PS5",
       "year": 2025
     },
     {

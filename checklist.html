@@ -250,31 +250,29 @@
   .pcard-badges {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     margin-top: 16px;
-    min-height: 42px;
+    min-height: 48px;
     align-content: flex-start;
   }
-  .badge {
-    display: inline-flex;
-    align-items: center;
+  .btile {
+    width: 42px;
+    height: 42px;
     flex: 0 0 auto;
-    white-space: nowrap;
-    gap: 7px;
-    padding: 5px 12px;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    line-height: 1;
     border: 1px solid color-mix(in srgb, var(--gold-strong) 45%, var(--line));
     background: var(--gold-wash);
-    color: var(--gold);
-    border-radius: 99px;
-    font-size: 12.5px;
-    font-weight: 600;
+    border-radius: 8px;
+    cursor: default;
   }
-  .badge.locked {
+  .btile.locked {
     border-color: var(--line);
-    background: transparent;
-    color: var(--muted);
-    opacity: 0.55;
-    font-weight: 500;
+    background: var(--bg);
+    filter: grayscale(1);
+    opacity: 0.35;
   }
 
   .cmp-list {
@@ -2341,21 +2339,19 @@
     barRows(document.getElementById("pcard-genre"),
       Object.entries(p.byGenre).sort((a, b) => b[1] - a[1]).slice(0, 6), n, false);
 
-    // Earned badges first, then locked ones dimmed — a fixed-height shelf that
-    // scrolls sideways, so unlocking badges never resizes the panel.
+    // Emoji mosaic in fixed definition order: every badge keeps its spot on the
+    // wall forever — earned tiles light up gold, locked ones sit grayscaled.
     const badgesEl = document.getElementById("pcard-badges");
     badgesEl.innerHTML = "";
     const earnedSet = new Set(p.badges.map(b => b[1]));
-    BADGES.slice()
-      .sort((a, b) => (earnedSet.has(b[1]) ? 1 : 0) - (earnedSet.has(a[1]) ? 1 : 0))
-      .forEach(([emoji, name, hint]) => {
-        const earned = earnedSet.has(name);
-        const b = document.createElement("span");
-        b.className = earned ? "badge" : "badge locked";
-        b.textContent = (earned ? emoji : "🔒") + " " + name;
-        b.title = hint + (earned ? "" : " (locked)");
-        badgesEl.appendChild(b);
-      });
+    BADGES.forEach(([emoji, name, hint]) => {
+      const earned = earnedSet.has(name);
+      const b = document.createElement("span");
+      b.className = earned ? "btile" : "btile locked";
+      b.textContent = emoji;
+      b.title = name + " — " + hint + (earned ? "" : " (locked)");
+      badgesEl.appendChild(b);
+    });
   }
 
   let lastProfile = null;
@@ -2458,10 +2454,12 @@
       c.fillText(String(cnt), 1050, y - 3);
     });
 
-    c.fillStyle = "#E5B84B"; c.font = '600 17px "IBM Plex Sans", sans-serif';
-    const badgeLine = p.badges.slice(0, 5).map(([e, nm]) => e + " " + nm).join("   ") +
-      (p.badges.length > 5 ? "   +" + (p.badges.length - 5) + " more" : "");
-    c.fillText(badgeLine, 60, 622);
+    // Earned badges as an emoji mosaic strip (up to two rows).
+    c.font = '24px "Segoe UI Emoji", sans-serif';
+    const perRow = 31, gap = (W - 120) / perRow;
+    p.badges.slice(0, perRow * 2).forEach(([e], i) => {
+      c.fillText(e, 60 + (i % perRow) * gap, 618 + Math.floor(i / perRow) * 32);
+    });
     return cv;
   }
 
