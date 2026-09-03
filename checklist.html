@@ -1,6 +1,14 @@
 ﻿<meta charset="utf-8">
 <title>All The Games I Played Before</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17161B">
+<meta property="og:type" content="website">
+<meta property="og:title" content="All The Games I Played Before">
+<meta property="og:description" content="1,222 games. 33 platforms. Pong to now. Check off everything you ever played and get your player card.">
+<meta property="og:url" content="https://atomechllc.github.io/all-the-games-i-played-before/">
+<meta property="og:image" content="https://atomechllc.github.io/all-the-games-i-played-before/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -28,7 +36,7 @@
       --accent: #FF6A5C;
       --gold: #E5B84B;
       --gold-strong: #E5B84B;
-      --gold-wash: #2C2820;
+      --gold-wash: #3B3214;
       --focus: #FF6A5C;
     }
   }
@@ -42,7 +50,7 @@
     --accent: #FF6A5C;
     --gold: #E5B84B;
     --gold-strong: #E5B84B;
-    --gold-wash: #2C2820;
+    --gold-wash: #3B3214;
     --focus: #FF6A5C;
   }
 
@@ -100,6 +108,16 @@
   @media (max-width: 700px) {
     .funsmith { position: static; margin-top: 14px; }
   }
+  .hero-stats { display: flex; gap: 30px; margin-top: 16px; flex-wrap: wrap; }
+  .hero-stats span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 9px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+  .hero-stats b { font-weight: 700; font-size: 22px; color: var(--gold-strong); }
   .funsmith:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   footer a { color: var(--accent); }
 
@@ -294,9 +312,10 @@
   }
   .btile.locked {
     border-color: var(--line);
-    background: var(--bg);
+    border-style: dashed;
+    background: transparent;
     filter: grayscale(1);
-    opacity: 0.35;
+    opacity: 0.3;
   }
 
   .cmp-list {
@@ -402,7 +421,7 @@
     max-width: 90vw;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
     font-size: 13px;
   }
@@ -464,6 +483,7 @@
   }
 
   .card {
+    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 11px;
@@ -515,6 +535,30 @@
   }
   .card[aria-pressed="true"] .title { color: var(--gold); }
 
+  .card .rank {
+    position: absolute;
+    top: 6px;
+    right: 9px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--gold-strong);
+  }
+  .card:has(.rank) .title { padding-right: 26px; }
+  .chip-sep { flex: 0 0 1px; align-self: stretch; background: var(--line); margin: 3px 5px; }
+  .badge-group-label {
+    flex: 1 0 100%;
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin: 10px 0 2px;
+  }
+  .badge-group-label:first-child { margin-top: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .box.pop { animation: boxpop 0.18s ease; }
+  }
+  @keyframes boxpop { 50% { transform: scale(1.3); } }
+
   .card:focus-visible, .chip:focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 2px;
@@ -548,7 +592,12 @@
 
 <header class="hero">
   <h1>ALL THE GAMES<br>I PLAYED <span class="dim">BEFORE</span></h1>
-  <p id="subtitle">43 years. 33 platforms. Check off everything you ever played — each era sorted by the best-selling games of its day.</p>
+  <p id="subtitle">Check off everything you ever played — each era sorted by the best-selling games of its day.</p>
+  <div class="hero-stats">
+    <span><b class="px" id="hs-years">43</b> YEARS</span>
+    <span><b class="px" id="hs-plats">33</b> PLATFORMS</span>
+    <span><b class="px" id="hs-games">1222</b> GAMES</span>
+  </div>
   <a class="funsmith" href="https://funsmith.club" target="_blank" rel="noopener">
     <svg viewBox="0 0 127.14 96.36" width="19" height="14.4" aria-hidden="true" fill="#5865F2"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
     Join the Funsmith Club
@@ -2517,15 +2566,15 @@
   };
 
   const ERAS = [
-    { a: 1972, b: 1987, blurb: "Pong starts it all. Atari brings the arcade home, and then the NES revives everything." },
-    { a: 1988, b: 1992, blurb: "NES at full power, a Game Boy in every pocket, SNES and Genesis start a console war — and an IBM PS/1 hums in the den." },
-    { a: 1993, b: 1997, blurb: "The 16-bit golden age, PlayStation and N64 go 3D, and DOS discovers Doom, Warcraft, and Diablo." },
-    { a: 1998, b: 2002, blurb: "Pokémania, Ocarina of Time, the PS2’s debut, and Blizzard’s PC dynasty: StarCraft, Diablo II, Counter-Strike." },
-    { a: 2003, b: 2007, blurb: "The PS2 era. GameCube and GBA in their prime, WoW eats the world, and the Wii gets everyone off the couch." },
-    { a: 2008, b: 2012, blurb: "Peak Wii. Minecraft, Skyrim, and StarCraft II take over the PC." },
-    { a: 2013, b: 2017, blurb: "The Wii U’s cult classics, the Switch’s landmark launch, and Steam’s indie explosion." },
-    { a: 2018, b: 2022, blurb: "Switch dominance — and the co-op and battle-royale PC era." },
-    { a: 2023, b: 2026, blurb: "Tears of the Kingdom, Baldur’s Gate 3, and the Switch 2 era begins." }
+    { a: 1972, b: 1987, c: "#C46A3A", blurb: "Pong starts it all. Atari brings the arcade home, and then the NES revives everything." },
+    { a: 1988, b: 1992, c: "#B0453C", blurb: "NES at full power, a Game Boy in every pocket, SNES and Genesis start a console war — and an IBM PS/1 hums in the den." },
+    { a: 1993, b: 1997, c: "#7A6FD0", blurb: "The 16-bit golden age, PlayStation and N64 go 3D, and DOS discovers Doom, Warcraft, and Diablo." },
+    { a: 1998, b: 2002, c: "#3E9C5C", blurb: "Pokémania, Ocarina of Time, the PS2’s debut, and Blizzard’s PC dynasty: StarCraft, Diablo II, Counter-Strike." },
+    { a: 2003, b: 2007, c: "#3244C7", blurb: "The PS2 era. GameCube and GBA in their prime, WoW eats the world, and the Wii gets everyone off the couch." },
+    { a: 2008, b: 2012, c: "#5CA8DC", blurb: "Peak Wii. Minecraft, Skyrim, and StarCraft II take over the PC." },
+    { a: 2013, b: 2017, c: "#4E82C6", blurb: "The Wii U’s cult classics, the Switch’s landmark launch, and Steam’s indie explosion." },
+    { a: 2018, b: 2022, c: "#E8443F", blurb: "Switch dominance — and the co-op and battle-royale PC era." },
+    { a: 2023, b: 2026, c: "#0E7ECD", blurb: "Tears of the Kingdom, Baldur’s Gate 3, and the Switch 2 era begins." }
   ];
 
   const STORE_KEY = "atgipb-played-v1";
@@ -2589,6 +2638,7 @@
       btn.style.setProperty("--pc", plat.color);
       btn.setAttribute("aria-pressed", played.has(g.id) ? "true" : "false");
       btn.innerHTML =
+        (rank < 3 && g.s != null ? '<span class="rank px" aria-hidden="true">0' + (rank + 1) + '</span>' : "") +
         '<span class="box" aria-hidden="true">✓</span>' +
         '<span class="body">' +
           '<span class="title"></span>' +
@@ -2603,6 +2653,12 @@
         const on = !played.has(g.id);
         on ? played.add(g.id) : played.delete(g.id);
         btn.setAttribute("aria-pressed", on ? "true" : "false");
+        if (on) {
+          const box = btn.querySelector(".box");
+          box.classList.remove("pop");
+          void box.offsetWidth;
+          box.classList.add("pop");
+        }
         save();
         if (playedChangedHook) playedChangedHook();
         if (state.hidePlayed) applyFilters(); else updateCounts();
@@ -2627,6 +2683,7 @@
     era.sec = sec;
     era.eyebrowEl = sec.querySelector(".era-eyebrow");
     era.index = i;
+    sec.querySelector(".era-head").style.borderBottomColor = era.c;
     erasEl.appendChild(sec);
   });
 
@@ -2641,27 +2698,45 @@
   }
   updateEraAges();
 
-  // Platform chips
+  // Platform chips, grouped by hardware family with hairline separators
+  const FAMILIES = [
+    ["ARC", "ATARI"],
+    ["NES", "SNES", "N64", "GCN", "WII", "WIIU", "NSW"],
+    ["GB", "GBC", "GBA", "NDS", "3DS"],
+    ["GEN", "GG", "SAT", "DC"],
+    ["PSX", "PS2", "PS3", "PS4", "PS5", "PSP"],
+    ["XBX", "X360", "XONE"],
+    ["IBM", "OS2", "PC1", "PC2"],
+    ["VR", "MOB"]
+  ];
   const chipsEl = document.getElementById("chips");
   const chipEls = {};
-  Object.entries(PLATFORMS).forEach(([code, plat]) => {
-    const count = GAMES.filter(g => g.p === code).length;
-    if (!count) return;
-    const chip = document.createElement("button");
-    chip.className = "chip";
-    chip.type = "button";
-    chip.style.setProperty("--pc", plat.color);
-    chip.setAttribute("aria-pressed", "false");
-    chip.innerHTML = '<span class="dot" aria-hidden="true"></span>' + plat.label +
-      ' <span class="n mono">' + count + '</span>';
-    chip.addEventListener("click", () => {
-      const on = !state.platforms.has(code);
-      on ? state.platforms.add(code) : state.platforms.delete(code);
-      chip.setAttribute("aria-pressed", on ? "true" : "false");
-      applyFilters();
+  FAMILIES.forEach((codes, fi) => {
+    if (fi) {
+      const sep = document.createElement("span");
+      sep.className = "chip-sep";
+      chipsEl.appendChild(sep);
+    }
+    codes.forEach(code => {
+      const plat = PLATFORMS[code];
+      const count = GAMES.filter(g => g.p === code).length;
+      if (!count) return;
+      const chip = document.createElement("button");
+      chip.className = "chip";
+      chip.type = "button";
+      chip.style.setProperty("--pc", plat.color);
+      chip.setAttribute("aria-pressed", "false");
+      chip.innerHTML = '<span class="dot" aria-hidden="true"></span>' + plat.label +
+        ' <span class="n mono">' + count + '</span>';
+      chip.addEventListener("click", () => {
+        const on = !state.platforms.has(code);
+        on ? state.platforms.add(code) : state.platforms.delete(code);
+        chip.setAttribute("aria-pressed", on ? "true" : "false");
+        applyFilters();
+      });
+      chipEls[code] = chip;
+      chipsEl.appendChild(chip);
     });
-    chipEls[code] = chip;
-    chipsEl.appendChild(chip);
   });
 
   // Era jump links (the sticky bar's navigation for a 15,000px page)
@@ -2673,6 +2748,7 @@
     b.type = "button";
     b.textContent = "’" + String(era.a).slice(2);
     b.title = era.a + "–" + era.b;
+    b.style.borderBottom = "2px solid " + era.c;
     b.addEventListener("click", () => era.sec.scrollIntoView({ behavior: "smooth" }));
     eraNavEl.appendChild(b);
   });
@@ -2711,7 +2787,7 @@
           era.moreBtn.style.display = "none";
         } else {
           era.moreBtn.style.display = "";
-          era.moreBtn.textContent = era.expanded ? "▴ Show fewer" : "▸ " + hidden + " more from this era";
+          era.moreBtn.textContent = era.expanded ? "− Show fewer" : "+ " + hidden + " more from this era";
           era.moreBtn.setAttribute("aria-expanded", era.expanded ? "true" : "false");
         }
       }
@@ -2952,6 +3028,16 @@
           '" height="' + (base + 6) + '" fill="var(--surface-2)" opacity="0.45"/>');
       }
     });
+    // Console-launch landmarks turn the scatter into a piece of gaming history.
+    [[1972, "PONG"], [1985, "NES"], [1991, "SNES"], [1995, "PS1"], [2000, "PS2"], [2006, "WII"], [2017, "SWITCH"]].forEach(([ly, label]) => {
+      const lx = padL + (ly - Y0) * colW + colW / 2;
+      parts.push('<text x="' + lx + '" y="12" text-anchor="middle" font-size="8" letter-spacing="1" fill="var(--muted)" opacity="0.8" font-family="IBM Plex Mono, monospace">' + label + '</text>');
+      parts.push('<line x1="' + lx + '" y1="16" x2="' + lx + '" y2="' + (base + 6) + '" stroke="var(--line)" stroke-width="1" stroke-dasharray="2 4" opacity="0.6"/>');
+    });
+    if (p.deepest) {
+      const dx = padL + (parseInt(p.deepest.y, 10) - Y0) * colW;
+      parts.push('<rect x="' + dx + '" y="4" width="' + colW + '" height="' + (base + 6) + '" fill="var(--gold-strong)" opacity="0.12"><title>Deepest year: ' + p.deepest.y + '</title></rect>');
+    }
     parts.push('<line x1="' + padL + '" y1="' + (base + 10) + '" x2="' + (w - padL) + '" y2="' + (base + 10) + '" stroke="var(--line)" stroke-width="1"/>');
     for (let y = Y0; y <= Y1; y++) {
       const cx = padL + (y - Y0) * colW + colW / 2;
@@ -3037,7 +3123,18 @@
     const badgesEl = document.getElementById("pcard-badges");
     badgesEl.innerHTML = "";
     const earnedSet = new Set(p.badges.map(b => b[1]));
-    BADGES.forEach(([emoji, name, hint]) => {
+    const groupAt = {};
+    ["Trigger Discipline", "8-Bit Native", "Press Start"].forEach((n, i) => {
+      groupAt[BADGES.findIndex(b => b[1] === n)] = ["GENRES & HABITS", "ERAS & PLATFORMS", "MILESTONES"][i];
+    });
+    groupAt[0] = "FRANCHISES";
+    BADGES.forEach(([emoji, name, hint], i) => {
+      if (groupAt[i]) {
+        const lab = document.createElement("span");
+        lab.className = "badge-group-label";
+        lab.textContent = groupAt[i];
+        badgesEl.appendChild(lab);
+      }
       const earned = earnedSet.has(name);
       const b = document.createElement("span");
       b.className = earned ? "btile" : "btile locked";
@@ -3089,7 +3186,7 @@
     while (c.measureText(arch).width > W - 120 && size > 20) {
       size -= 2; c.font = '700 ' + size + 'px "Silkscreen", monospace';
     }
-    c.fillStyle = "#ECEAE4";
+    c.fillStyle = "#FF6A5C";
     c.fillText(arch, 60, 138);
 
     c.fillStyle = "#98948D";
@@ -3103,11 +3200,19 @@
     const maxN = Math.max(1, ...Object.values(p.byYear));
     c.strokeStyle = "#34323B"; c.lineWidth = 1;
     c.beginPath(); c.moveTo(tx, ty + th + 0.5); c.lineTo(tx + tw, ty + th + 0.5); c.stroke();
+    // Each year's bar takes the color of its dominant platform.
+    const domColor = y => {
+      const counts = {};
+      p.gs.forEach(g => { if (g.y === y) counts[g.p] = (counts[g.p] || 0) + 1; });
+      let best = null;
+      Object.keys(counts).forEach(k => { if (!best || counts[k] > counts[best]) best = k; });
+      return best ? PLATFORMS[best].color : "#E5B84B";
+    };
     for (let i = 0; i < years; i++) {
       const y = 1972 + i, cnt = p.byYear[y] || 0;
       if (cnt) {
         const bh = Math.max(4, th * cnt / maxN);
-        c.fillStyle = "#E5B84B";
+        c.fillStyle = domColor(y);
         c.fillRect(tx + i * colW + 2, ty + th - bh, colW - 4, bh);
       }
       if (y % 5 === 0) {
@@ -3147,12 +3252,18 @@
       c.fillText(String(cnt), 1050, y - 3);
     });
 
-    // Earned badges as an emoji mosaic strip (up to two rows).
+    // Earned badges as an emoji mosaic strip, then the site footer.
     c.font = '24px "Segoe UI Emoji", sans-serif';
     const perRow = 31, gap = (W - 120) / perRow;
-    p.badges.slice(0, perRow * 2).forEach(([e], i) => {
-      c.fillText(e, 60 + (i % perRow) * gap, 618 + Math.floor(i / perRow) * 32);
+    p.badges.slice(0, perRow).forEach(([e], i) => {
+      c.fillText(e, 60 + (i % perRow) * gap, 612);
     });
+    c.fillStyle = "#98948D";
+    c.font = '400 14px "IBM Plex Mono", monospace';
+    c.fillText("atomechllc.github.io/all-the-games-i-played-before", 60, 648);
+    c.textAlign = "right";
+    c.fillText("funsmith.club", W - 60, 648);
+    c.textAlign = "left";
     return cv;
   }
 
@@ -3172,10 +3283,9 @@
   });
 
   function updateSubtitle() {
-    document.getElementById("subtitle").textContent =
-      (new Date().getFullYear() - BIRTH_YEAR) + " years. " + Object.keys(PLATFORMS).length +
-      " platforms. " + GAMES.length +
-      " games. Check off everything you ever played — each era sorted by the best-selling games of its day.";
+    document.getElementById("hs-years").textContent = new Date().getFullYear() - BIRTH_YEAR;
+    document.getElementById("hs-plats").textContent = Object.keys(PLATFORMS).length;
+    document.getElementById("hs-games").textContent = GAMES.length;
   }
 
   const birthInput = document.getElementById("birth-year");
