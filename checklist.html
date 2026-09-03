@@ -14,7 +14,7 @@
     --accent: #C2352C;
     --gold: #8A6A1A;
     --gold-strong: #B98700;
-    --gold-wash: #F6EED6;
+    --gold-wash: #F2E3B3;
     --focus: #C2352C;
   }
   @media (prefers-color-scheme: dark) {
@@ -327,6 +327,62 @@
     background: color-mix(in srgb, var(--pc) 14%, var(--surface));
   }
 
+  .era-nav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+  .era-jump {
+    flex: 0 0 auto;
+    font-family: "IBM Plex Mono", Consolas, monospace;
+    font-size: 11px;
+    padding: 4px 9px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .era-jump:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); }
+  .era-jump:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  @media (max-width: 700px) {
+    .search { font-size: 16px; }
+    .bar.slim .chips,
+    .bar.slim .search,
+    .bar.slim .hide-played,
+    .bar.slim .status,
+    .bar.slim .bar-row .export { display: none; }
+  }
+
+  .mini-caption { min-height: 18px; font-size: 12px; color: var(--muted); margin: 8px 2px 0; }
+  .tl-wrap .mini-caption { margin: 0 10px 8px; }
+  #tl circle, .btile { cursor: pointer; }
+  .btile.sel { outline: 2px solid var(--gold-strong); outline-offset: 1px; }
+
+  .ob-plats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .ob-plats .chip { font-size: 13px; padding: 7px 14px; }
+
+  .toast {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    max-width: 90vw;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+    font-size: 13px;
+  }
+
   main { max-width: 1180px; margin: 0 auto; padding: 8px 24px 40px; }
 
   .era { margin-top: 40px; }
@@ -336,9 +392,14 @@
     gap: 16px;
     flex-wrap: wrap;
     border-bottom: 2px solid var(--ink);
-    padding-bottom: 10px;
+    padding: 8px 0 10px;
     margin-bottom: 6px;
+    position: sticky;
+    top: var(--bar-h, 120px);
+    background: var(--bg);
+    z-index: 5;
   }
+  .era { scroll-margin-top: calc(var(--bar-h, 120px) + 8px); }
   .era-eyebrow {
     display: block;
     font-family: "Silkscreen", "Courier New", monospace;
@@ -421,7 +482,7 @@
   .card .note { display: block; margin-top: 3px; font-size: 11px; color: var(--muted); font-style: italic; }
   .card[aria-pressed="true"] {
     background: var(--gold-wash);
-    border-color: color-mix(in srgb, var(--gold-strong) 55%, var(--line));
+    border-color: color-mix(in srgb, var(--gold-strong) 75%, var(--line));
   }
   .card[aria-pressed="true"] .box {
     background: var(--gold-strong);
@@ -473,19 +534,34 @@
       <div class="progress-track"><div class="progress-fill" id="overall-fill"></div></div>
       <input class="search" id="search" type="search" placeholder="Search games…" aria-label="Search games">
       <label class="hide-played"><input type="checkbox" id="hide-played"> Hide played</label>
+      <button class="export" id="check-all-btn" type="button" hidden title="Check every game currently shown by your filters">Check all shown</button>
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
-      <button class="export" id="import-btn" type="button">Import</button>
-      <button class="export" id="compare-btn" type="button">Compare</button>
+      <button class="export" id="import-btn" type="button" title="Load a played-list .json (made by Export) — checks everything in it">Import</button>
+      <button class="export" id="compare-btn" type="button" title="Load a friend's exported .json to see your overlap">Compare</button>
       <button class="export" id="owner-compare-btn" type="button" hidden></button>
-      <button class="export" id="export-btn" type="button" hidden>Export</button>
+      <button class="export" id="export-btn" type="button" title="Download your played list as a .json file">Export</button>
       <input type="file" id="import-file" accept="application/json,.json" hidden>
       <input type="file" id="compare-file" accept="application/json,.json" hidden>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Filter by platform"></div>
+    <div class="era-nav" id="era-nav" role="group" aria-label="Jump to era"></div>
   </div>
 </div>
 
 <main id="main">
+  <section class="pcard" id="onboard" hidden>
+    <div class="pcard-inner" style="padding-top: 18px;">
+      <span class="pcard-eyebrow">NEW GAME</span>
+      <h2 class="pcard-arch px">WHICH OF THESE DID YOU OWN?</h2>
+      <p class="pcard-desc">Pick your platforms to trim the list down to your life, and set your birth year so every era shows your age. You can change both anytime.</p>
+      <div class="ob-plats" id="ob-plats"></div>
+      <div class="pcard-actions" style="margin-top: 14px;">
+        <label class="hide-played">Born <input id="ob-birth" class="search" type="number" min="1930" max="2020" step="1" style="width:76px;flex:0 0 auto;"></label>
+        <button class="export" id="ob-go" type="button">Show my games</button>
+        <button class="export" id="ob-skip" type="button">Skip — show everything</button>
+      </div>
+    </div>
+  </section>
   <section class="pcard">
     <div class="pcard-inner">
       <button class="pcard-toggle" id="pcard-toggle" type="button" aria-expanded="false">+ YOUR PLAYER CARD <span class="mono" id="pcard-count"></span></button>
@@ -503,12 +579,13 @@
         </div>
         <div id="pcard-detail">
           <div class="pcard-stats" id="pcard-stats"></div>
-          <div class="tl-wrap"><div class="tl-scroll" id="tl"></div></div>
+          <div class="tl-wrap"><div class="tl-scroll" id="tl"></div><p class="mini-caption" id="tl-caption">Tap a dot to see the game.</p></div>
           <div class="pcard-cols">
             <div><h3 class="pcol-h">PLATFORMS</h3><div id="pcard-plat"></div></div>
             <div><h3 class="pcol-h">GENRE LEANINGS</h3><div id="pcard-genre"></div></div>
           </div>
           <div class="pcard-badges" id="pcard-badges"></div>
+          <p class="mini-caption" id="badge-caption">Tap a badge for its name and how to earn it.</p>
         </div>
       </div>
     </div>
@@ -533,6 +610,11 @@
   <div id="eras"></div>
   <p class="empty">No games match — clear the search or platform filters above.</p>
 </main>
+
+<div class="toast" id="toast" hidden>
+  <span id="toast-msg"></span>
+  <button class="export" id="toast-undo" type="button">Undo</button>
+</div>
 
 <footer>
   <div class="inner">
@@ -1811,7 +1893,7 @@
     "name":  "Xelnath",
     "birthYear":  1983,
     "exported":  "2026-09-03",
-    "count":  534,
+    "count":  553,
     "ids":  [
                 "ARC-1981-centipede",
                 "ARC-1981-donkey-kong",
@@ -1826,6 +1908,7 @@
                 "GB-1989-super-mario-land",
                 "GB-1989-tetris",
                 "GB-1990-dr-mario",
+                "GB-1990-the-final-fantasy-legend",
                 "GB-1991-final-fantasy-adventure",
                 "GB-1991-mega-man-dr-wily-s-revenge",
                 "GB-1991-metroid-ii-return-of-samus",
@@ -1850,6 +1933,7 @@
                 "GBA-2003-final-fantasy-tactics-advance",
                 "GBA-2003-pok-mon-ruby-sapphire",
                 "GBA-2004-metroid-zero-mission",
+                "GBA-2005-the-legend-of-zelda-the-minish-cap",
                 "GBC-1998-the-legend-of-zelda-link-s-awakening-dx",
                 "GBC-2000-pok-mon-gold-silver",
                 "GBC-2000-wario-land-3",
@@ -1867,6 +1951,8 @@
                 "GEN-1992-ecco-the-dolphin",
                 "GEN-1992-sonic-the-hedgehog-2",
                 "GEN-1993-disney-s-aladdin",
+                "GEN-1994-earthworm-jim",
+                "GEN-1994-the-lion-king",
                 "IBM-1989-simcity",
                 "IBM-1990-commander-keen-invasion-of-the-vorticons",
                 "IBM-1990-loom",
@@ -1900,6 +1986,7 @@
                 "N64-2001-pok-mon-stadium-2",
                 "NDS-2006-new-super-mario-bros",
                 "NDS-2007-the-legend-of-zelda-phantom-hourglass",
+                "NDS-2009-mario-luigi-bowser-s-inside-story",
                 "NDS-2009-scribblenauts",
                 "NES-1985-duck-hunt",
                 "NES-1985-excitebike",
@@ -1961,6 +2048,7 @@
                 "PC1-1999-homeworld",
                 "PC1-1999-planescape-torment",
                 "PC1-1999-unreal-tournament",
+                "PC1-1999-worms-armageddon",
                 "PC1-2000-counter-strike",
                 "PC1-2000-deus-ex",
                 "PC1-2000-diablo-ii",
@@ -2061,6 +2149,7 @@
                 "PC2-2015-life-is-strange",
                 "PC2-2015-ori-and-the-blind-forest",
                 "PC2-2015-rainbow-six-siege",
+                "PC2-2015-rocket-league",
                 "PC2-2015-soma",
                 "PC2-2015-tabletop-simulator",
                 "PC2-2015-the-witcher-3-wild-hunt",
@@ -2206,6 +2295,7 @@
                 "PC2-2022-tunic",
                 "PC2-2022-vampire-survivors",
                 "PC2-2023-against-the-storm",
+                "PC2-2023-armored-core-vi-fires-of-rubicon",
                 "PC2-2023-baldur-s-gate-3",
                 "PC2-2023-cobalt-core",
                 "PC2-2023-cocoon",
@@ -2275,6 +2365,7 @@
                 "PS3-2012-journey",
                 "PS4-2015-bloodborne",
                 "PS4-2015-until-dawn",
+                "PS4-2016-dark-souls-iii",
                 "PS4-2016-final-fantasy-xv",
                 "PS4-2016-uncharted-4-a-thief-s-end",
                 "PS4-2017-horizon-zero-dawn",
@@ -2282,9 +2373,11 @@
                 "PS4-2018-detroit-become-human",
                 "PS4-2018-god-of-war",
                 "PS5-2020-demon-s-souls",
+                "PS5-2021-returnal",
                 "PS5-2023-final-fantasy-xvi",
                 "PS5-2024-astro-bot",
                 "PS5-2025-death-stranding-2-on-the-beach",
+                "PSX-1996-crash-bandicoot",
                 "PSX-1997-castlevania-symphony-of-the-night",
                 "PSX-1997-final-fantasy-vii",
                 "PSX-1998-metal-gear-solid",
@@ -2310,6 +2403,7 @@
                 "SNES-1994-stunt-race-fx",
                 "SNES-1994-super-metroid",
                 "SNES-1994-super-punch-out",
+                "SNES-1994-super-street-fighter-ii",
                 "SNES-1995-chrono-trigger",
                 "SNES-1995-donkey-kong-country-2-diddy-s-kong-quest",
                 "SNES-1995-earthbound",
@@ -2330,6 +2424,7 @@
                 "WII-2009-new-super-mario-bros-wii",
                 "WII-2009-wii-sports-resort",
                 "WII-2010-epic-mickey",
+                "WII-2010-metroid-other-m",
                 "WII-2010-super-mario-galaxy-2",
                 "WII-2011-kirby-s-return-to-dream-land",
                 "WII-2012-mario-party-9",
@@ -2339,11 +2434,17 @@
                 "WIIU-2013-new-super-luigi-u",
                 "WIIU-2013-super-mario-3d-world",
                 "WIIU-2014-bayonetta-2",
+                "WIIU-2014-mario-kart-8",
                 "WIIU-2015-super-mario-maker",
                 "WIIU-2015-xenoblade-chronicles-x",
                 "WIIU-2017-the-legend-of-zelda-breath-of-the-wild",
+                "X360-2006-gears-of-war",
+                "X360-2006-viva-pi-ata",
                 "X360-2007-mass-effect",
                 "X360-2008-castle-crashers",
+                "X360-2008-fable-ii",
+                "X360-2008-gears-of-war-2",
+                "X360-2010-fable-iii",
                 "XBX-2001-halo-combat-evolved",
                 "XBX-2002-mechassault",
                 "XBX-2004-fable"
@@ -2513,6 +2614,7 @@
 
   // Platform chips
   const chipsEl = document.getElementById("chips");
+  const chipEls = {};
   Object.entries(PLATFORMS).forEach(([code, plat]) => {
     const count = GAMES.filter(g => g.p === code).length;
     if (!count) return;
@@ -2529,7 +2631,21 @@
       chip.setAttribute("aria-pressed", on ? "true" : "false");
       applyFilters();
     });
+    chipEls[code] = chip;
     chipsEl.appendChild(chip);
+  });
+
+  // Era jump links (the sticky bar's navigation for a 15,000px page)
+  const eraNavEl = document.getElementById("era-nav");
+  ERAS.forEach(era => {
+    if (!era.sec) return;
+    const b = document.createElement("button");
+    b.className = "era-jump";
+    b.type = "button";
+    b.textContent = "’" + String(era.a).slice(2);
+    b.title = era.a + "–" + era.b;
+    b.addEventListener("click", () => era.sec.scrollIntoView({ behavior: "smooth" }));
+    eraNavEl.appendChild(b);
   });
 
   document.getElementById("search").addEventListener("input", e => {
@@ -2572,6 +2688,7 @@
       }
     });
     document.getElementById("main").classList.toggle("no-results", !any);
+    document.getElementById("check-all-btn").hidden = !searchActive;
     updateCounts();
   }
 
@@ -2587,6 +2704,10 @@
       era.sec.querySelector(".era-count .progress-fill").style.width =
         (era.games.length ? (100 * d / era.games.length) : 0) + "%";
     });
+    if (played.size > 0) {
+      const ob = document.getElementById("onboard");
+      if (ob && !ob.hidden) dismissOnboard();
+    }
     renderProfile();
   }
 
@@ -2859,7 +2980,7 @@
     descEl.className = "pcard-desc";
     descEl.textContent = p.desc;
     detail.hidden = false;
-    document.getElementById("card-btn").hidden = !downloadsNS;
+    document.getElementById("card-btn").hidden = false;
 
     const stats = document.getElementById("pcard-stats");
     stats.innerHTML = "";
@@ -3007,13 +3128,13 @@
   }
 
   document.getElementById("card-btn").addEventListener("click", async () => {
-    if (!downloadsNS || !lastProfile || !lastProfile.gs.length) return;
+    if (!lastProfile || !lastProfile.gs.length) return;
     const btn = document.getElementById("card-btn");
     btn.disabled = true; btn.textContent = "Drawing…";
     try {
       const cv = await drawShareCard(lastProfile);
       const blob = await new Promise(res => cv.toBlob(res, "image/png"));
-      await downloadsNS.save({ filename: "my-player-card.png", data: blob });
+      await saveFile("my-player-card.png", blob, "image/png");
       btn.textContent = "Saved ✓";
     } catch (e) {
       btn.textContent = (e && e.code === "declined") ? "Save card as image" : "Save failed";
@@ -3042,6 +3163,115 @@
     if (save !== false && playedChangedHook) playedChangedHook();
   }
   birthInput.addEventListener("change", () => setBirthYear(birthInput.value, true));
+
+  // Tap-to-reveal captions: hover tooltips don't exist on touch, so tapping a
+  // badge tile or timeline dot writes its details into a reserved caption line.
+  document.getElementById("pcard-badges").addEventListener("click", e => {
+    const tile = e.target.closest(".btile");
+    if (!tile) return;
+    document.querySelectorAll(".btile.sel").forEach(t => t.classList.remove("sel"));
+    tile.classList.add("sel");
+    document.getElementById("badge-caption").textContent = tile.title;
+  });
+  document.getElementById("tl").addEventListener("click", e => {
+    const circle = e.target.closest("circle");
+    if (!circle) return;
+    const t = circle.querySelector("title");
+    if (t) document.getElementById("tl-caption").textContent = t.textContent;
+  });
+
+  // Slim sticky bar on small screens: scrolling down collapses it to the
+  // progress line + era jumps; scrolling up brings the full controls back.
+  const barEl = document.querySelector(".bar");
+  function updateBarH() {
+    document.documentElement.style.setProperty("--bar-h", barEl.offsetHeight + "px");
+  }
+  let lastY = 0;
+  addEventListener("scroll", () => {
+    const y = scrollY;
+    if (Math.abs(y - lastY) < 12) return;
+    const slim = y > lastY && y > 250;
+    if (barEl.classList.contains("slim") !== slim) {
+      barEl.classList.toggle("slim", slim);
+      updateBarH();
+    }
+    lastY = y;
+  }, { passive: true });
+  addEventListener("resize", updateBarH);
+  updateBarH();
+
+  // Bulk check of whatever the current filters show, with a toast undo.
+  const toastEl = document.getElementById("toast");
+  let toastTimer = null, undoSnapshot = null;
+  function showToast(msg, canUndo) {
+    document.getElementById("toast-msg").textContent = msg;
+    document.getElementById("toast-undo").hidden = !canUndo;
+    toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastEl.hidden = true; }, 8000);
+  }
+  document.getElementById("check-all-btn").addEventListener("click", () => {
+    const targets = GAMES.filter(g => visible(g) && !played.has(g.id));
+    if (!targets.length) { showToast("Everything shown is already checked", false); return; }
+    undoSnapshot = [...played];
+    const union = new Set(played);
+    targets.forEach(g => union.add(g.id));
+    applyPlayed(union);
+    if (playedChangedHook) playedChangedHook();
+    showToast("Checked " + targets.length + " games", true);
+  });
+  document.getElementById("toast-undo").addEventListener("click", () => {
+    if (undoSnapshot) {
+      applyPlayed(new Set(undoSnapshot));
+      if (playedChangedHook) playedChangedHook();
+      undoSnapshot = null;
+    }
+    toastEl.hidden = true;
+  });
+
+  // First-run ramp: platform picker + birth year, until dismissed or first check.
+  function dismissOnboard() {
+    const ob = document.getElementById("onboard");
+    if (ob) ob.hidden = true;
+    try { localStorage.setItem("atgipb-onboarded", "1"); } catch (e) {}
+  }
+  (() => {
+    let seen = false;
+    try { seen = localStorage.getItem("atgipb-onboarded") === "1"; } catch (e) {}
+    if (seen || played.size > 0) return;
+    const wrap = document.getElementById("ob-plats");
+    const obSel = new Set();
+    Object.entries(PLATFORMS).forEach(([code, plat]) => {
+      const chip = document.createElement("button");
+      chip.className = "chip";
+      chip.type = "button";
+      chip.style.setProperty("--pc", plat.color);
+      chip.setAttribute("aria-pressed", "false");
+      chip.innerHTML = '<span class="dot" aria-hidden="true"></span>' + plat.label;
+      chip.addEventListener("click", () => {
+        const on = !obSel.has(code);
+        on ? obSel.add(code) : obSel.delete(code);
+        chip.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      wrap.appendChild(chip);
+    });
+    document.getElementById("ob-birth").value = BIRTH_YEAR;
+    document.getElementById("onboard").hidden = false;
+    document.getElementById("ob-skip").addEventListener("click", dismissOnboard);
+    document.getElementById("ob-go").addEventListener("click", () => {
+      const by = parseInt(document.getElementById("ob-birth").value, 10);
+      if (by) setBirthYear(by, true);
+      if (obSel.size) {
+        state.platforms = new Set(obSel);
+        Object.entries(chipEls).forEach(([code, el]) =>
+          el.setAttribute("aria-pressed", state.platforms.has(code) ? "true" : "false"));
+      }
+      dismissOnboard();
+      applyFilters();
+      const idx = Math.min(8, Math.max(0, Math.floor((BIRTH_YEAR + 8 - 1983) / 5)));
+      if (ERAS[idx] && ERAS[idx].sec) ERAS[idx].sec.scrollIntoView({ behavior: "smooth" });
+    });
+  })();
 
   updateSubtitle();
   applyFilters();
@@ -3280,14 +3510,26 @@
     reader.readAsText(file);
   });
 
+  // Saving files: the artifact viewer needs its downloads capability (plain
+  // links are sandboxed there); everywhere else a normal browser download works.
+  (async () => { downloadsNS = await useCap("downloads"); })();
+  async function saveFile(filename, data, type) {
+    const dl = downloadsNS || await useCap("downloads");
+    if (dl) { await dl.save({ filename, data }); return; }
+    const blob = data instanceof Blob ? data : new Blob([data], { type: type || "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
   // Export: download the played list as a JSON file.
-  (async () => {
-    const downloads = await useCap("downloads");
-    if (!downloads) return;
-    downloadsNS = downloads;
-    renderProfile(); // reveal the share-card button now that saving files works
+  (() => {
     const btn = document.getElementById("export-btn");
-    btn.hidden = false;
     const reset = () => setTimeout(() => { btn.textContent = "Export"; btn.disabled = false; }, 2200);
     btn.addEventListener("click", async () => {
       btn.disabled = true;
@@ -3302,7 +3544,7 @@
         games: checked
       };
       try {
-        await downloads.save({ filename: "my-games-played.json", data: JSON.stringify(payload, null, 2) });
+        await saveFile("my-games-played.json", JSON.stringify(payload, null, 2), "application/json");
         btn.textContent = "Exported ✓";
       } catch (e) {
         btn.textContent = (e && e.code === "declined") ? "Export" : "Export failed";
