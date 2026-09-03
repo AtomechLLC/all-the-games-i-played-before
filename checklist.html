@@ -3921,20 +3921,31 @@
     const maxN = Math.max(1, ...Object.values(p.byYear));
     c.strokeStyle = "#34323B"; c.lineWidth = 1;
     c.beginPath(); c.moveTo(tx, ty + th + 0.5); c.lineTo(tx + tw, ty + th + 0.5); c.stroke();
-    // Each year's bar takes the color of its dominant platform.
-    const domColor = y => {
-      const counts = {};
-      p.gs.forEach(g => { if (g.y === y) counts[g.p] = (counts[g.p] || 0) + 1; });
-      let best = null;
-      Object.keys(counts).forEach(k => { if (!best || counts[k] > counts[best]) best = k; });
-      return best ? PLATFORMS[best].color : "#E5B84B";
-    };
+    // Each year's bar is a stack of blocks, one per game, colored by platform —
+    // the same stack-of-dots read as the page timeline. Falls back to
+    // per-platform segments when blocks would be sub-pixel.
+    const unit = th / maxN;
     for (let i = 0; i < years; i++) {
       const y = 1972 + i, cnt = p.byYear[y] || 0;
       if (cnt) {
-        const bh = Math.max(4, th * cnt / maxN);
-        c.fillStyle = domColor(y);
-        c.fillRect(tx + i * colW + 2, ty + th - bh, colW - 4, bh);
+        const games = p.gs.filter(g => g.y === y).sort((a, b) => a.p.localeCompare(b.p));
+        let cursor = ty + th;
+        if (unit >= 4) {
+          games.forEach(g => {
+            cursor -= unit;
+            c.fillStyle = PLATFORMS[g.p].color;
+            c.fillRect(tx + i * colW + 2, cursor + 0.5, colW - 4, Math.max(1, unit - 1));
+          });
+        } else {
+          const byPlat = {};
+          games.forEach(g => { byPlat[g.p] = (byPlat[g.p] || 0) + 1; });
+          Object.keys(byPlat).sort().forEach(k => {
+            const h = byPlat[k] * unit;
+            cursor -= h;
+            c.fillStyle = PLATFORMS[k].color;
+            c.fillRect(tx + i * colW + 2, cursor, colW - 4, Math.max(1, h - 0.5));
+          });
+        }
       }
       if (y % 5 === 0) {
         c.fillStyle = "#98948D"; c.font = '400 12px "IBM Plex Mono", monospace';
