@@ -1935,7 +1935,20 @@
     c.textAlign = "left";
   }
 
-  function buildDnaFrames() {
+  // Progress dots along the bottom of each story card: lit for visited cards,
+  // bright for the current one, faded for cards still to come.
+  function gifDots(c, idx, total) {
+    const startX = 600 - (total - 1) * 13;
+    for (let i = 0; i < total; i++) {
+      c.beginPath();
+      c.arc(startX + i * 26, 594, i === idx ? 6 : 4.5, 0, Math.PI * 2);
+      c.fillStyle = i === idx ? "#E5B84B" : (i < idx ? "#98948D" : "#2A2931");
+      c.fill();
+      if (i > idx) { c.strokeStyle = "#34323B"; c.lineWidth = 1; c.stroke(); }
+    }
+  }
+
+  function buildDnaFrames(saveName) {
     const pg = lastProfile.gs;
     const psy = (lastPsyche && lastPsyche.n >= 10) ? lastPsyche : null;
     const years = pg.map(g => g.y).filter(Boolean);
@@ -1947,9 +1960,11 @@
     const topPlats = Object.entries(platCount).sort((a, b) => b[1] - a[1]).slice(0, 3);
     const earned = lastProfile.badges;
     const frames = [];
+    const cardTotal = 3 + (years.length ? 1 : 0) + (topPlats.length ? 1 : 0) + (earned.length ? 1 : 0);
+    let cardIdx = 0;
 
     const bootLines = [
-      "> LOADING PLAYER_1.SAV",
+      "> LOADING " + (saveName || "PLAYER_1") + ".SAV",
       "> " + pg.length + " GAMES FOUND",
       "> " + span + " YEARS DETECTED",
       "> SEQUENCING GAMER DNA...",
@@ -1968,6 +1983,7 @@
       c.fillStyle = "#98948D"; c.font = '400 16px "IBM Plex Mono", monospace';
       c.fillText(span > 1 ? "ACROSS " + span + " YEARS OF GAMING HISTORY" : "AND THIS IS ONLY THE BEGINNING", 600, 440);
       c.textAlign = "left";
+      gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 3800]);
     }
 
@@ -1992,6 +2008,7 @@
       c.textAlign = "right"; c.fillText("2026", X0 + W, 570); c.textAlign = "left";
       c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
       c.fillText("ONE BLOCK PER GAME. " + pg.length + " BLOCKS.", 70, 140);
+      gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 3800]);
     }
 
@@ -2010,32 +2027,75 @@
         c.fillStyle = "#E5B84B"; c.font = '700 22px "Silkscreen", monospace';
         c.fillText(n + (n === 1 ? " GAME" : " GAMES"), 1010, y + 44);
       });
+      gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 3800]);
     }
 
-    {
-      const [cv, c] = gifBase("SEQUENCING COMPLETE");
-      if (psy) {
+    if (psy) {
+      // Theme words from the top clusters swirl and flicker while the title
+      // types itself out, then everything settles into the full DNA readout.
+      let seed = 1983;
+      const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+      const tierCol = ["#E5B84B", "#ECEAE4", "#98948D"];
+      const flyers = [];
+      psy.ranked.slice(0, 3).forEach((k, tier) => {
+        CLUSTERS[k].emotions.concat(CLUSTERS[k].traits).forEach(w => {
+          flyers.push({
+            w: w.toUpperCase(), tier,
+            x: 90 + rnd() * 880, y: 150 + rnd() * 420,
+            dx: (rnd() - 0.5) * 26, dy: (rnd() - 0.5) * 18,
+            size: 26 - tier * 5 + rnd() * 10
+          });
+        });
+      });
+      const dnaTitle = (psy.title || "").toUpperCase();
+      const STEPS = 7;
+      for (let s = 1; s <= STEPS; s++) {
+        const [cv, c] = gifBase("SEQUENCING COMPLETE");
+        flyers.forEach(f => {
+          c.globalAlpha = 0.10 + rnd() * (0.50 - 0.12 * f.tier);
+          c.fillStyle = tierCol[f.tier];
+          c.font = '400 ' + Math.round(f.size) + 'px "IBM Plex Mono", monospace';
+          c.fillText(f.w, f.x + f.dx * s, f.y + f.dy * s);
+        });
+        c.globalAlpha = 1;
         c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
         c.fillText("YOUR GAMER DNA RESOLVES TO:", 70, 160);
         c.fillStyle = "#E5B84B"; c.font = '700 44px "Silkscreen", monospace';
-        c.fillText((psy.title || "").toUpperCase(), 70, 225);
-        psy.ranked.slice(0, 3).forEach((k, i) => {
-          const y = 300 + i * 90;
-          c.fillStyle = "#ECEAE4"; c.font = '700 24px "Silkscreen", monospace';
-          c.fillText(CLUSTERS[k].name + "  " + Math.round(psy.R[k] * 100) + "% OF AVG LEAN", 70, y);
-          c.fillStyle = "#98948D"; c.font = '400 14px "IBM Plex Mono", monospace';
-          c.fillText(CLUSTERS[k].blurb.slice(0, 68), 70, y + 28);
-        });
-        gifRadar(c, 950, 380, 150, psy.R);
-      } else {
-        c.textAlign = "center";
-        c.fillStyle = "#ECEAE4"; c.font = '700 40px "Silkscreen", monospace';
-        c.fillText("DNA LOCKED", 600, 300);
-        c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
-        c.fillText("CHECK AT LEAST 10 GAMES TO SEQUENCE YOUR GAMER DNA", 600, 350);
-        c.textAlign = "left";
+        c.fillText(dnaTitle.slice(0, Math.ceil(dnaTitle.length * s / STEPS)) + (s < STEPS ? "_" : ""), 70, 225);
+        gifDots(c, cardIdx, cardTotal);
+        frames.push([cv, s === STEPS ? 900 : 340]);
       }
+      const [cv, c] = gifBase("SEQUENCING COMPLETE");
+      c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
+      c.fillText("YOUR GAMER DNA RESOLVES TO:", 70, 160);
+      c.fillStyle = "#E5B84B"; c.font = '700 44px "Silkscreen", monospace';
+      c.fillText(dnaTitle, 70, 225);
+      psy.ranked.slice(0, 3).forEach((k, i) => {
+        const y = 300 + i * 92;
+        const cl = CLUSTERS[k];
+        c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+        c.fillText(cl.emoji + " " + cl.name + "  " + Math.round(psy.R[k] * 100) + "% OF AVG LEAN", 70, y);
+        c.fillStyle = "#B9B5AD"; c.font = '400 13px "IBM Plex Mono", monospace';
+        c.fillText("FEELS LIKE: " + cl.emotions.join(" · ").toUpperCase(), 70, y + 24);
+        c.fillStyle = "#807C76";
+        c.fillText("TAKES: " + cl.traits.join(", ").toUpperCase(), 70, y + 44);
+      });
+      const low = psy.ranked[psy.ranked.length - 1];
+      c.fillStyle = "#5E5B64"; c.font = '400 13px "IBM Plex Mono", monospace';
+      c.fillText("RECESSIVE GENE: " + CLUSTERS[low].name, 70, 596);
+      gifRadar(c, 950, 400, 140, psy.R);
+      gifDots(c, cardIdx++, cardTotal);
+      frames.push([cv, 5200]);
+    } else {
+      const [cv, c] = gifBase("SEQUENCING COMPLETE");
+      c.textAlign = "center";
+      c.fillStyle = "#ECEAE4"; c.font = '700 40px "Silkscreen", monospace';
+      c.fillText("DNA LOCKED", 600, 300);
+      c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
+      c.fillText("CHECK AT LEAST 10 GAMES TO SEQUENCE YOUR GAMER DNA", 600, 350);
+      c.textAlign = "left";
+      gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 4600]);
     }
 
@@ -2052,6 +2112,7 @@
         c.fillText(b[0], x, y);
       });
       c.globalAlpha = 1; c.textAlign = "left";
+      gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 3800]);
     }
 
@@ -2069,6 +2130,7 @@
       c.fillStyle = "#98948D"; c.font = '400 16px "IBM Plex Mono", monospace';
       c.fillText("atomechllc.github.io/all-the-games-i-played-before", 600, 500);
       c.textAlign = "left";
+      gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 5200]);
     }
     return frames;
