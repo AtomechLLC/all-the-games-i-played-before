@@ -248,13 +248,11 @@
   .prow .cnt { flex: 0 0 auto; color: var(--muted); font-size: 11px; }
   .pcard-badges {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 16px;
-    overflow-x: auto;
-    padding-bottom: 6px;
     min-height: 42px;
-    scrollbar-width: thin;
+    align-content: flex-start;
   }
   .badge {
     display: inline-flex;
