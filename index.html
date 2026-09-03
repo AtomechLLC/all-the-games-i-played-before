@@ -58,6 +58,7 @@
 
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
+  html { overflow-anchor: none; }
   body {
     margin: 0;
     background: var(--bg);
@@ -400,6 +401,7 @@
     .bar.slim .hide-played,
     .bar.slim .status,
     .bar.slim .bar-row .export { display: none; }
+    .era .era-head { position: static; }
   }
 
   .mini-caption { min-height: 18px; font-size: 12px; color: var(--muted); margin: 8px 2px 0; }
@@ -3476,16 +3478,37 @@
   function updateBarH() {
     document.documentElement.style.setProperty("--bar-h", barEl.offsetHeight + "px");
   }
-  let lastY = 0;
+  // Hysteresis + scroll compensation: collapsing the bar changes its height,
+  // which would shift the page under the finger and read back as an opposite
+  // scroll — the oscillation that caused mobile jank. We require sustained
+  // movement in one direction before toggling, and when we do toggle we
+  // counter-scroll by the height delta so the content never visibly moves.
+  let lastY = 0, acc = 0, adjusting = false;
   addEventListener("scroll", () => {
-    const y = scrollY;
-    if (Math.abs(y - lastY) < 12) return;
-    const slim = y > lastY && y > 250;
-    if (barEl.classList.contains("slim") !== slim) {
-      barEl.classList.toggle("slim", slim);
-      updateBarH();
-    }
+    if (adjusting) { lastY = Math.max(0, scrollY); return; }
+    const y = Math.max(0, scrollY);
+    const dy = y - lastY;
     lastY = y;
+    if (Math.abs(dy) < 2) return;
+    acc = (acc >= 0) === (dy >= 0) ? acc + dy : dy;
+    const slim = barEl.classList.contains("slim");
+    let want = slim;
+    if (!slim && y > 320 && acc > 30) want = true;
+    else if (slim && (acc < -140 || y < 120)) want = false;
+    if (want !== slim) {
+      const before = barEl.offsetHeight;
+      barEl.classList.toggle("slim", want);
+      const after = barEl.offsetHeight;
+      updateBarH();
+      const delta = after - before;
+      if (delta !== 0 && y > 0) {
+        adjusting = true;
+        scrollBy(0, delta);
+        lastY = Math.max(0, scrollY);
+        requestAnimationFrame(() => { adjusting = false; });
+      }
+      acc = 0;
+    }
   }, { passive: true });
   addEventListener("resize", updateBarH);
   updateBarH();
