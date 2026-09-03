@@ -1088,5 +1088,13 @@
   {"t":"Stellar Blade","p":"PS5","y":2024,"s":2.0},
   {"t":"Death Stranding 2: On the Beach","p":"PS5","y":2025,"s":2.0},
   {"t":"Demon's Souls","p":"PS5","y":2020,"s":1.4,"n":"remake"},
-  {"t":"Returnal","p":"PS5","y":2021,"s":null}
+  {"t":"Returnal","p":"PS5","y":2021,"s":null},
+
+  {"t":"King's Field","p":"PSX","y":1995,"s":null,"n":"FromSoftware's first"},
+  {"t":"Armored Core","p":"PSX","y":1997,"s":null},
+  {"t":"Dark Souls","p":"PS3","y":2011,"s":2.4,"n":"also under PC"},
+  {"t":"Dark Souls II","p":"PS3","y":2014,"s":1.6,"n":"also under PC"},
+  {"t":"Dark Souls III","p":"PS4","y":2016,"s":4.8,"n":"also under PC"},
+  {"t":"Sekiro: Shadows Die Twice","p":"PS4","y":2019,"s":3.5,"n":"also under PC"},
+  {"t":"Elden Ring","p":"PS5","y":2022,"s":9.0,"n":"also under PC"}
 ]
