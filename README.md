@@ -1,0 +1,52 @@
+# All The Games I Played Before
+
+A graphical checklist of ~850 notable games across 43 years (1983–2026) and 14 platforms,
+organized in 5-year eras and sorted by lifetime sales within each era — with a personal
+timeline, computed player profile, badges, and a downloadable infographic card.
+
+- Published artifact (cloud saves + export): https://claude.ai/code/artifact/4b6531be-0787-4d5e-a28d-2e8e1552f7d6
+- GitHub Pages (browser-local saves): https://atomechllc.github.io/all-the-games-i-played-before/
+
+## Files
+
+- `games.json` — canonical game data. Fields: `t` title, `p` platform code, `y` NA release year,
+  `s` approx. lifetime sales in millions (`null` = unknown/F2P), `n` optional note.
+- `template.html` — page source with a `__GAMES_DATA__` placeholder (artifact format: no
+  doctype/html/head/body wrapper tags).
+- `checklist.html` — built output for the Claude artifact. Do not edit directly.
+- `index.html` — built standalone output for GitHub Pages (same page wrapped in a full
+  HTML document; cloud save and export degrade gracefully to localStorage there).
+- `build.ps1` — rebuilds both outputs from template + data.
+- `steam-library.json` — Steam library snapshot (games with >2h played, with minutes),
+  used to backfill the checklist. Contains personal playtime data.
+
+## Platform codes
+
+NES, SNES, GB, GBC, GBA, N64, GCN, WII, WIIU, NSW (Switch, incl. Switch 2 titles),
+IBM (IBM PS/1 · DOS), OS2, PC1 (Warcraft→StarCraft era, pre-July 2002), PC2 (Warcraft III→now).
+
+## Rebuild after editing games.json or template.html
+
+```powershell
+.\build.ps1
+```
+
+The script reads sources with explicit UTF-8: Windows PowerShell's `Get-Content` defaults
+to the ANSI codepage and silently mangles en-dashes and accented characters.
+
+Then republish `checklist.html` to the same artifact URL. The artifact declares
+capabilities `{db: {}, downloads: true}` — omitting `capabilities` on a republish
+carries that forward.
+
+## Conventions
+
+- Eras are 5-year buckets from 1983 (owner born ~1983); a game's era = its NA release year.
+- Each era shows its top 16 sellers; the rest sit behind a "more from this era" toggle,
+  auto-expanded while searching or platform-filtering.
+- Saving: selections sync to the artifact's database (doc `checklists/owner`) when opened
+  from claude.ai, with localStorage (`atgipb-played-v1`) as the always-on local fallback.
+  The Export button downloads the played list as JSON via the `downloads` capability.
+- Declaring `db` makes the artifact organization-internal — it cannot be shared fully
+  publicly while `db` is on (revisit at the sharing/profiling step).
+- Roadmap: Steam/Epic library import, public sharing so friends can fill in their own lists
+  (artifact `db` + `user` capabilities), then play-history profiling from Steam playtime data.

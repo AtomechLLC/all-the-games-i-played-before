@@ -1,0 +1,1982 @@
+﻿<meta charset="utf-8">
+<title>All The Games I Played Before</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #F1F0EB;
+    --surface: #FBFAF7;
+    --surface-2: #E9E7E0;
+    --ink: #211F1F;
+    --muted: #6E6A66;
+    --line: #DCD9D1;
+    --accent: #C2352C;
+    --gold: #8A6A1A;
+    --gold-strong: #B98700;
+    --gold-wash: #F6EED6;
+    --focus: #C2352C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17161B;
+      --surface: #201F26;
+      --surface-2: #2A2931;
+      --ink: #ECEAE4;
+      --muted: #98948D;
+      --line: #34323B;
+      --accent: #FF6A5C;
+      --gold: #E5B84B;
+      --gold-strong: #E5B84B;
+      --gold-wash: #2C2820;
+      --focus: #FF6A5C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17161B;
+    --surface: #201F26;
+    --surface-2: #2A2931;
+    --ink: #ECEAE4;
+    --muted: #98948D;
+    --line: #34323B;
+    --accent: #FF6A5C;
+    --gold: #E5B84B;
+    --gold-strong: #E5B84B;
+    --gold-wash: #2C2820;
+    --focus: #FF6A5C;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .px { font-family: "Silkscreen", "Courier New", monospace; }
+  .mono { font-family: "IBM Plex Mono", Consolas, monospace; font-variant-numeric: tabular-nums; }
+
+  .hero {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 44px 24px 18px;
+  }
+  .hero h1 {
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-weight: 700;
+    font-size: clamp(19px, 3.4vw, 34px);
+    line-height: 1.25;
+    letter-spacing: 0.5px;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  .hero h1 .dim { color: var(--accent); }
+  .hero p {
+    margin: 0;
+    color: var(--muted);
+    max-width: 62ch;
+  }
+
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 10px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .progress-label { font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .progress-track {
+    flex: 1 1 120px;
+    height: 8px;
+    min-width: 90px;
+    background: var(--surface-2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--gold-strong);
+    border-radius: 99px;
+  }
+  .search {
+    flex: 0 1 220px;
+    min-width: 140px;
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .search::placeholder { color: var(--muted); }
+  .hide-played {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .hide-played input { accent-color: var(--gold-strong); margin: 0; }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .status .s-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+  .status[data-s="ok"] .s-dot { background: #3E9C5C; }
+  .status[data-s="saving"] .s-dot { background: var(--gold-strong); }
+  .status[data-s="err"] .s-dot { background: var(--accent); }
+
+  .export {
+    padding: 5px 12px;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .export:disabled { opacity: 0.6; cursor: default; }
+  .export:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .more-btn {
+    grid-column: 1 / -1;
+    padding: 9px 12px;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .more-btn:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); }
+  .more-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .pcard {
+    margin-top: 26px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .pcard-inner { padding: 4px 18px 18px; }
+  .pcard-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 0;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: var(--ink);
+  }
+  .pcard-toggle .mono { color: var(--muted); font-size: 12px; letter-spacing: 0; }
+  .pcard-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .pcard-eyebrow {
+    display: block;
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .pcard-arch { font-size: clamp(17px, 2.6vw, 26px); line-height: 1.25; margin: 0 0 7px; text-wrap: balance; }
+  .pcard-desc { color: var(--muted); font-size: 13px; margin: 0; max-width: 72ch; }
+  .pcard-head { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+  .pcard-empty { color: var(--muted); font-size: 13.5px; margin: 2px 0 10px; }
+  .pcard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .stat { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .stat .v { font-family: "IBM Plex Mono", Consolas, monospace; font-variant-numeric: tabular-nums; font-size: 19px; font-weight: 600; }
+  .stat .k { font-size: 10.5px; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; margin-top: 2px; }
+  .tl-wrap { margin-top: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+  .tl-scroll { overflow-x: auto; padding: 10px 8px 4px; scrollbar-width: thin; }
+  .pcard-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 6px 22px; margin-top: 14px; }
+  .pcol-h {
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-weight: 400;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin: 10px 0 6px;
+  }
+  .prow { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 12px; }
+  .prow .pdot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; }
+  .prow .lbl { flex: 0 0 96px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prow .trk { flex: 1; height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+  .prow .fill { display: block; height: 100%; border-radius: 99px; background: var(--gold-strong); }
+  .prow .cnt { flex: 0 0 auto; color: var(--muted); font-size: 11px; }
+  .pcard-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border: 1px solid color-mix(in srgb, var(--gold-strong) 45%, var(--line));
+    background: var(--gold-wash);
+    color: var(--gold);
+    border-radius: 99px;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  .chips {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 11px;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .chip .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pc); }
+  .chip .n { color: var(--muted); font-size: 11px; }
+  .chip[aria-pressed="true"] {
+    border-color: var(--pc);
+    background: color-mix(in srgb, var(--pc) 14%, var(--surface));
+  }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 8px 24px 40px; }
+
+  .era { margin-top: 40px; }
+  .era-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+  }
+  .era-eyebrow {
+    display: block;
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .era-years {
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-weight: 700;
+    font-size: clamp(20px, 3vw, 30px);
+    line-height: 1.1;
+    margin: 0;
+  }
+  .era-blurb {
+    flex: 1 1 260px;
+    color: var(--muted);
+    font-size: 13.5px;
+    max-width: 58ch;
+  }
+  .era-count {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .era-count .progress-track { flex: 0 0 72px; height: 6px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .card {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 11px 12px;
+    text-align: left;
+    font: inherit;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .card .box {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: transparent;
+    background: var(--bg);
+  }
+  .card .body { min-width: 0; flex: 1; }
+  .card .title { display: block; font-weight: 600; font-size: 13.5px; line-height: 1.35; }
+  .card .meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+  .card .meta .pdot { width: 8px; height: 8px; border-radius: 50%; background: var(--pc); flex: 0 0 8px; }
+  .card .meta .plat { white-space: nowrap; }
+  .card .meta .sales { margin-left: auto; font-size: 11px; }
+  .card .note { display: block; margin-top: 3px; font-size: 11px; color: var(--muted); font-style: italic; }
+  .card[aria-pressed="true"] {
+    background: var(--gold-wash);
+    border-color: color-mix(in srgb, var(--gold-strong) 55%, var(--line));
+  }
+  .card[aria-pressed="true"] .box {
+    background: var(--gold-strong);
+    border-color: var(--gold-strong);
+    color: var(--bg);
+  }
+  .card[aria-pressed="true"] .title { color: var(--gold); }
+
+  .card:focus-visible, .chip:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .empty {
+    display: none;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 24px 0 8px;
+  }
+  main.no-results .empty { display: block; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+  footer .inner { max-width: 1180px; margin: 0 auto; padding: 20px 24px 40px; }
+  footer p { margin: 6px 0; max-width: 90ch; }
+
+  @media (hover: hover) {
+    .card:hover { border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); }
+    .chip:hover { border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .card, .chip { transition: background 0.12s ease, border-color 0.12s ease; }
+    .progress-fill { transition: width 0.25s ease; }
+  }
+</style>
+
+<header class="hero">
+  <h1>ALL THE GAMES<br>I PLAYED <span class="dim">BEFORE</span></h1>
+  <p id="subtitle">43 years. 14 platforms. Check off everything you ever played — each era sorted by the best-selling games of its day.</p>
+</header>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="bar-row">
+      <span class="progress-label mono" id="overall-label">0 / 0</span>
+      <div class="progress-track"><div class="progress-fill" id="overall-fill"></div></div>
+      <input class="search" id="search" type="search" placeholder="Search games…" aria-label="Search games">
+      <label class="hide-played"><input type="checkbox" id="hide-played"> Hide played</label>
+      <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
+      <button class="export" id="export-btn" type="button" hidden>Export</button>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filter by platform"></div>
+  </div>
+</div>
+
+<main id="main">
+  <section class="pcard">
+    <div class="pcard-inner">
+      <button class="pcard-toggle" id="pcard-toggle" type="button" aria-expanded="true">- YOUR PLAYER CARD <span class="mono" id="pcard-count"></span></button>
+      <div class="pcard-body" id="pcard-body">
+        <div class="pcard-head">
+          <div>
+            <span class="pcard-eyebrow">PLAYER PROFILE</span>
+            <h2 class="pcard-arch px" id="pcard-arch"></h2>
+            <p class="pcard-desc" id="pcard-desc"></p>
+          </div>
+          <button class="export" id="card-btn" type="button" hidden>Save card as image</button>
+        </div>
+        <div id="pcard-detail">
+          <div class="pcard-stats" id="pcard-stats"></div>
+          <div class="tl-wrap"><div class="tl-scroll" id="tl"></div></div>
+          <div class="pcard-cols">
+            <div><h3 class="pcol-h">PLATFORMS</h3><div id="pcard-plat"></div></div>
+            <div><h3 class="pcol-h">GENRE LEANINGS</h3><div id="pcard-genre"></div></div>
+          </div>
+          <div class="pcard-badges" id="pcard-badges"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div id="eras"></div>
+  <p class="empty">No games match — clear the search or platform filters above.</p>
+</main>
+
+<footer>
+  <div class="inner">
+    <p>Sales figures are approximate lifetime totals from mixed public sources — some are franchise, all-platform, or player counts (noted on the card). Within each era, games are sorted best-selling first; “—” means no reliable number. Eras follow North American release years, ages assume year zero = 1983.</p>
+    <p>Your checkmarks save automatically: to your account's cloud storage when the page is opened from claude.ai (the indicator above shows sync state), and always to this browser as a backup. Export downloads your played list as a JSON file. Coming later: Steam &amp; Epic import, sharing with friends, and play-history profiles.</p>
+  </div>
+</footer>
+
+<script>
+  const GAMES = [
+  {"t":"Super Mario Bros.","p":"NES","y":1985,"s":40.2},
+  {"t":"Duck Hunt","p":"NES","y":1985,"s":28.3},
+  {"t":"The Legend of Zelda","p":"NES","y":1987,"s":6.5},
+  {"t":"Excitebike","p":"NES","y":1985,"s":4.2},
+  {"t":"Golf","p":"NES","y":1985,"s":4.0},
+  {"t":"Kung Fu","p":"NES","y":1985,"s":3.5},
+  {"t":"Baseball","p":"NES","y":1985,"s":3.2},
+  {"t":"Mike Tyson's Punch-Out!!","p":"NES","y":1987,"s":3.0},
+  {"t":"Metroid","p":"NES","y":1987,"s":2.7},
+  {"t":"Rad Racer","p":"NES","y":1987,"s":2.0},
+  {"t":"Kid Icarus","p":"NES","y":1987,"s":1.8},
+  {"t":"Ice Climber","p":"NES","y":1985,"s":1.5},
+  {"t":"Castlevania","p":"NES","y":1987,"s":1.5},
+  {"t":"Mega Man","p":"NES","y":1987,"s":1.4},
+
+  {"t":"Super Mario Bros. 3","p":"NES","y":1990,"s":17.3},
+  {"t":"Tetris","p":"NES","y":1989,"s":8.0},
+  {"t":"Super Mario Bros. 2","p":"NES","y":1988,"s":7.5},
+  {"t":"Dr. Mario","p":"NES","y":1990,"s":4.9},
+  {"t":"Zelda II: The Adventure of Link","p":"NES","y":1988,"s":4.4},
+  {"t":"Teenage Mutant Ninja Turtles","p":"NES","y":1989,"s":4.0},
+  {"t":"Dragon Warrior","p":"NES","y":1989,"s":3.0,"n":"incl. Japan"},
+  {"t":"DuckTales","p":"NES","y":1989,"s":1.7},
+  {"t":"Mega Man 2","p":"NES","y":1989,"s":1.5},
+  {"t":"Final Fantasy","p":"NES","y":1990,"s":1.2},
+  {"t":"Contra","p":"NES","y":1988,"s":null},
+  {"t":"Ninja Gaiden","p":"NES","y":1989,"s":null},
+  {"t":"Battletoads","p":"NES","y":1991,"s":null},
+  {"t":"StarTropics","p":"NES","y":1990,"s":null},
+  {"t":"Tetris","p":"GB","y":1989,"s":35.0},
+  {"t":"Super Mario Land","p":"GB","y":1989,"s":18.1},
+  {"t":"Super Mario Land 2: 6 Golden Coins","p":"GB","y":1992,"s":11.2},
+  {"t":"Dr. Mario","p":"GB","y":1990,"s":5.3},
+  {"t":"Kirby's Dream Land","p":"GB","y":1992,"s":5.1},
+  {"t":"Metroid II: Return of Samus","p":"GB","y":1991,"s":1.7},
+  {"t":"Final Fantasy Adventure","p":"GB","y":1991,"s":null},
+  {"t":"Super Mario World","p":"SNES","y":1991,"s":20.6},
+  {"t":"Super Mario Kart","p":"SNES","y":1992,"s":8.8},
+  {"t":"Street Fighter II: The World Warrior","p":"SNES","y":1992,"s":6.3},
+  {"t":"The Legend of Zelda: A Link to the Past","p":"SNES","y":1992,"s":4.6},
+  {"t":"F-Zero","p":"SNES","y":1991,"s":2.9},
+  {"t":"Mario Paint","p":"SNES","y":1992,"s":2.3},
+  {"t":"SimCity","p":"SNES","y":1991,"s":2.0},
+  {"t":"Final Fantasy II (IV)","p":"SNES","y":1991,"s":1.4},
+  {"t":"Super Castlevania IV","p":"SNES","y":1991,"s":null},
+  {"t":"Contra III: The Alien Wars","p":"SNES","y":1992,"s":null},
+  {"t":"Lemmings","p":"IBM","y":1991,"s":15.0,"n":"all platforms"},
+  {"t":"Where in the World Is Carmen Sandiego?","p":"IBM","y":1990,"s":4.0,"n":"series"},
+  {"t":"Prince of Persia","p":"IBM","y":1990,"s":2.0,"n":"all platforms"},
+  {"t":"Sid Meier's Civilization","p":"IBM","y":1991,"s":1.5},
+  {"t":"SimCity","p":"IBM","y":1989,"s":1.0},
+  {"t":"King's Quest V","p":"IBM","y":1990,"s":0.5},
+  {"t":"Wolfenstein 3D","p":"IBM","y":1992,"s":null,"n":"shareware phenomenon"},
+  {"t":"Commander Keen: Invasion of the Vorticons","p":"IBM","y":1990,"s":null,"n":"shareware"},
+  {"t":"The Secret of Monkey Island","p":"IBM","y":1990,"s":null},
+  {"t":"Wing Commander","p":"IBM","y":1990,"s":null},
+  {"t":"The Oregon Trail","p":"IBM","y":1990,"s":null,"n":"~65M all versions since 1971"},
+
+  {"t":"Super Mario All-Stars","p":"SNES","y":1993,"s":10.6},
+  {"t":"Donkey Kong Country","p":"SNES","y":1994,"s":9.3},
+  {"t":"Donkey Kong Country 2: Diddy's Kong Quest","p":"SNES","y":1995,"s":5.2},
+  {"t":"Street Fighter II Turbo","p":"SNES","y":1993,"s":4.1},
+  {"t":"Super Mario World 2: Yoshi's Island","p":"SNES","y":1995,"s":4.1},
+  {"t":"Star Fox","p":"SNES","y":1993,"s":4.0},
+  {"t":"Donkey Kong Country 3","p":"SNES","y":1996,"s":3.5},
+  {"t":"Final Fantasy III (VI)","p":"SNES","y":1994,"s":3.5,"n":"incl. re-releases"},
+  {"t":"Killer Instinct","p":"SNES","y":1995,"s":3.2},
+  {"t":"Chrono Trigger","p":"SNES","y":1995,"s":2.7},
+  {"t":"Mortal Kombat II","p":"SNES","y":1994,"s":2.5},
+  {"t":"Super Mario RPG: Legend of the Seven Stars","p":"SNES","y":1996,"s":2.1},
+  {"t":"NBA Jam","p":"SNES","y":1994,"s":1.9},
+  {"t":"Secret of Mana","p":"SNES","y":1993,"s":1.8},
+  {"t":"Kirby Super Star","p":"SNES","y":1996,"s":1.4},
+  {"t":"Super Metroid","p":"SNES","y":1994,"s":1.4},
+  {"t":"Mega Man X","p":"SNES","y":1993,"s":1.2},
+  {"t":"EarthBound","p":"SNES","y":1995,"s":0.4},
+  {"t":"Super Punch-Out!!","p":"SNES","y":1994,"s":null},
+  {"t":"Tetris Attack","p":"SNES","y":1996,"s":null},
+  {"t":"Kirby's Adventure","p":"NES","y":1993,"s":1.8},
+  {"t":"Wario Land: Super Mario Land 3","p":"GB","y":1994,"s":5.2},
+  {"t":"Donkey Kong Land","p":"GB","y":1995,"s":3.9},
+  {"t":"The Legend of Zelda: Link's Awakening","p":"GB","y":1993,"s":3.8},
+  {"t":"Donkey Kong","p":"GB","y":1994,"s":3.1},
+  {"t":"Kirby's Dream Land 2","p":"GB","y":1995,"s":2.4},
+  {"t":"Super Mario 64","p":"N64","y":1996,"s":11.9},
+  {"t":"Mario Kart 64","p":"N64","y":1997,"s":9.9},
+  {"t":"GoldenEye 007","p":"N64","y":1997,"s":8.1},
+  {"t":"Diddy Kong Racing","p":"N64","y":1997,"s":4.9},
+  {"t":"Star Fox 64","p":"N64","y":1997,"s":4.0},
+  {"t":"Wave Race 64","p":"N64","y":1996,"s":2.9},
+  {"t":"Myst","p":"PC1","y":1993,"s":6.3},
+  {"t":"SimCity 2000","p":"PC1","y":1993,"s":4.2},
+  {"t":"Doom","p":"PC1","y":1993,"s":3.5,"n":"retail + shareware"},
+  {"t":"Duke Nukem 3D","p":"PC1","y":1996,"s":3.5},
+  {"t":"Warcraft II: Tides of Darkness","p":"PC1","y":1995,"s":3.0},
+  {"t":"Command & Conquer","p":"PC1","y":1995,"s":3.0},
+  {"t":"C&C: Red Alert","p":"PC1","y":1996,"s":3.0},
+  {"t":"Civilization II","p":"PC1","y":1996,"s":3.0},
+  {"t":"Age of Empires","p":"PC1","y":1997,"s":3.0},
+  {"t":"Diablo","p":"PC1","y":1997,"s":2.5},
+  {"t":"Doom II","p":"PC1","y":1994,"s":2.0},
+  {"t":"Quake","p":"PC1","y":1996,"s":1.8},
+  {"t":"MechWarrior 2: 31st Century Combat","p":"PC1","y":1995,"s":1.5},
+  {"t":"Total Annihilation","p":"PC1","y":1997,"s":1.5},
+  {"t":"Descent","p":"PC1","y":1995,"s":1.1},
+  {"t":"Quake II","p":"PC1","y":1997,"s":1.1},
+  {"t":"Warcraft: Orcs & Humans","p":"PC1","y":1994,"s":1.0},
+  {"t":"Fallout","p":"PC1","y":1997,"s":0.6},
+  {"t":"Ultima Online","p":"PC1","y":1997,"s":null,"n":"250k subs at peak"},
+  {"t":"Heroes of Might and Magic II","p":"PC1","y":1996,"s":null},
+  {"t":"Star Wars: TIE Fighter","p":"PC1","y":1994,"s":null},
+  {"t":"Galactic Civilizations","p":"OS2","y":1994,"s":null,"n":"native OS/2"},
+  {"t":"SimCity for OS/2","p":"OS2","y":1995,"s":null,"n":"native OS/2"},
+  {"t":"Roids","p":"OS2","y":1993,"s":null,"n":"OS/2 shareware"},
+
+  {"t":"Pokémon Red / Blue","p":"GB","y":1998,"s":31.4},
+  {"t":"Pokémon Yellow","p":"GB","y":1999,"s":14.6},
+  {"t":"Pokémon Gold / Silver","p":"GBC","y":2000,"s":23.7},
+  {"t":"Pokémon Crystal","p":"GBC","y":2001,"s":6.4},
+  {"t":"Pokémon Pinball","p":"GBC","y":1999,"s":5.3},
+  {"t":"Super Mario Bros. Deluxe","p":"GBC","y":1999,"s":5.1},
+  {"t":"Tetris DX","p":"GBC","y":1998,"s":4.7},
+  {"t":"Zelda: Oracle of Seasons / Oracle of Ages","p":"GBC","y":2001,"s":4.0,"n":"combined"},
+  {"t":"The Legend of Zelda: Link's Awakening DX","p":"GBC","y":1998,"s":2.2},
+  {"t":"Wario Land 3","p":"GBC","y":2000,"s":null},
+  {"t":"The Legend of Zelda: Ocarina of Time","p":"N64","y":1998,"s":7.6},
+  {"t":"Super Smash Bros.","p":"N64","y":1999,"s":5.6},
+  {"t":"Pokémon Stadium","p":"N64","y":2000,"s":5.5},
+  {"t":"Donkey Kong 64","p":"N64","y":1999,"s":5.3},
+  {"t":"Banjo-Kazooie","p":"N64","y":1998,"s":3.7},
+  {"t":"Pokémon Snap","p":"N64","y":1999,"s":3.6},
+  {"t":"The Legend of Zelda: Majora's Mask","p":"N64","y":2000,"s":3.4},
+  {"t":"Banjo-Tooie","p":"N64","y":2000,"s":3.0},
+  {"t":"Mario Party","p":"N64","y":1999,"s":2.7},
+  {"t":"Perfect Dark","p":"N64","y":2000,"s":2.5},
+  {"t":"Mario Party 2","p":"N64","y":2000,"s":2.5},
+  {"t":"Pokémon Stadium 2","p":"N64","y":2001,"s":2.5},
+  {"t":"Star Wars: Rogue Squadron","p":"N64","y":1998,"s":2.0},
+  {"t":"1080° Snowboarding","p":"N64","y":1998,"s":2.0},
+  {"t":"Paper Mario","p":"N64","y":2001,"s":1.4},
+  {"t":"F-Zero X","p":"N64","y":1998,"s":1.1},
+  {"t":"Conker's Bad Fur Day","p":"N64","y":2001,"s":0.6},
+  {"t":"Mario Tennis","p":"N64","y":2000,"s":null},
+  {"t":"Mario Kart: Super Circuit","p":"GBA","y":2001,"s":5.9},
+  {"t":"Super Mario World: Super Mario Advance 2","p":"GBA","y":2002,"s":5.7},
+  {"t":"Super Mario Advance","p":"GBA","y":2001,"s":5.6},
+  {"t":"Zelda: A Link to the Past & Four Swords","p":"GBA","y":2002,"s":2.8},
+  {"t":"Sonic Advance","p":"GBA","y":2002,"s":2.4},
+  {"t":"Yoshi's Island: Super Mario Advance 3","p":"GBA","y":2002,"s":2.2},
+  {"t":"Metroid Fusion","p":"GBA","y":2002,"s":1.6},
+  {"t":"Kirby: Nightmare in Dream Land","p":"GBA","y":2002,"s":1.4},
+  {"t":"Golden Sun","p":"GBA","y":2001,"s":1.2},
+  {"t":"Advance Wars","p":"GBA","y":2001,"s":null},
+  {"t":"Castlevania: Circle of the Moon","p":"GBA","y":2001,"s":null},
+  {"t":"Super Smash Bros. Melee","p":"GCN","y":2001,"s":7.4},
+  {"t":"Super Mario Sunshine","p":"GCN","y":2002,"s":6.3},
+  {"t":"Luigi's Mansion","p":"GCN","y":2001,"s":3.6},
+  {"t":"Metroid Prime","p":"GCN","y":2002,"s":2.8},
+  {"t":"Animal Crossing","p":"GCN","y":2002,"s":2.3},
+  {"t":"Star Fox Adventures","p":"GCN","y":2002,"s":1.9},
+  {"t":"Star Wars Rogue Squadron II: Rogue Leader","p":"GCN","y":2001,"s":1.8},
+  {"t":"Pikmin","p":"GCN","y":2001,"s":1.6},
+  {"t":"Resident Evil","p":"GCN","y":2002,"s":1.4},
+  {"t":"Super Monkey Ball","p":"GCN","y":2001,"s":1.2},
+  {"t":"Eternal Darkness: Sanity's Requiem","p":"GCN","y":2002,"s":0.5},
+  {"t":"The Sims","p":"PC1","y":2000,"s":11.3},
+  {"t":"StarCraft","p":"PC1","y":1998,"s":11.0,"n":"incl. Brood War"},
+  {"t":"Half-Life","p":"PC1","y":1998,"s":9.3},
+  {"t":"Counter-Strike","p":"PC1","y":2000,"s":4.2,"n":"retail; huge online"},
+  {"t":"Diablo II","p":"PC1","y":2000,"s":4.0,"n":"in first year alone"},
+  {"t":"RollerCoaster Tycoon","p":"PC1","y":1999,"s":4.0},
+  {"t":"The Elder Scrolls III: Morrowind","p":"PC1","y":2002,"s":4.0,"n":"all platforms"},
+  {"t":"Baldur's Gate","p":"PC1","y":1998,"s":2.2},
+  {"t":"Age of Empires II: The Age of Kings","p":"PC1","y":1999,"s":2.0,"n":"25M+ with Definitive Ed."},
+  {"t":"Baldur's Gate II: Shadows of Amn","p":"PC1","y":2000,"s":2.0},
+  {"t":"Unreal Tournament","p":"PC1","y":1999,"s":2.0},
+  {"t":"Quake III Arena","p":"PC1","y":1999,"s":1.0},
+  {"t":"Deus Ex","p":"PC1","y":2000,"s":1.0},
+  {"t":"SimCity 3000","p":"PC1","y":1999,"s":null},
+  {"t":"Medal of Honor: Allied Assault","p":"PC1","y":2002,"s":null},
+  {"t":"Neverwinter Nights","p":"PC1","y":2002,"s":null},
+  {"t":"RuneScape","p":"PC1","y":2001,"s":null,"n":"F2P; 200M+ accounts"},
+  {"t":"Warcraft III: Reign of Chaos","p":"PC2","y":2002,"s":3.0,"n":"in first year"},
+  {"t":"Battlefield 1942","p":"PC2","y":2002,"s":2.5},
+  {"t":"Age of Mythology","p":"PC2","y":2002,"s":1.0},
+
+  {"t":"Pokémon Ruby / Sapphire","p":"GBA","y":2003,"s":16.2},
+  {"t":"Pokémon FireRed / LeafGreen","p":"GBA","y":2004,"s":12.0},
+  {"t":"Pokémon Emerald","p":"GBA","y":2005,"s":7.1},
+  {"t":"Pokémon Mystery Dungeon: Red / Blue Rescue Team","p":"GBA","y":2006,"s":5.9,"n":"combined"},
+  {"t":"Mario & Luigi: Superstar Saga","p":"GBA","y":2003,"s":2.2},
+  {"t":"The Legend of Zelda: The Minish Cap","p":"GBA","y":2005,"s":1.8},
+  {"t":"Metroid: Zero Mission","p":"GBA","y":2004,"s":0.8},
+  {"t":"Fire Emblem","p":"GBA","y":2003,"s":0.7},
+  {"t":"WarioWare, Inc.: Mega Microgames!","p":"GBA","y":2003,"s":null},
+  {"t":"Golden Sun: The Lost Age","p":"GBA","y":2003,"s":null},
+  {"t":"Final Fantasy Tactics Advance","p":"GBA","y":2003,"s":null},
+  {"t":"Mario Kart: Double Dash!!","p":"GCN","y":2003,"s":7.0},
+  {"t":"The Legend of Zelda: The Wind Waker","p":"GCN","y":2003,"s":4.6},
+  {"t":"Paper Mario: The Thousand-Year Door","p":"GCN","y":2004,"s":2.0},
+  {"t":"Resident Evil 4","p":"GCN","y":2005,"s":1.7},
+  {"t":"Super Mario Strikers","p":"GCN","y":2005,"s":1.6},
+  {"t":"The Legend of Zelda: Twilight Princess","p":"GCN","y":2006,"s":1.3},
+  {"t":"Pikmin 2","p":"GCN","y":2004,"s":1.2},
+  {"t":"Metroid Prime 2: Echoes","p":"GCN","y":2004,"s":1.1},
+  {"t":"Tales of Symphonia","p":"GCN","y":2004,"s":1.0},
+  {"t":"F-Zero GX","p":"GCN","y":2003,"s":0.7},
+  {"t":"Fire Emblem: Path of Radiance","p":"GCN","y":2005,"s":0.5},
+  {"t":"Wii Sports","p":"WII","y":2006,"s":82.9},
+  {"t":"Wii Play","p":"WII","y":2007,"s":28.0},
+  {"t":"Super Mario Galaxy","p":"WII","y":2007,"s":12.8},
+  {"t":"Mario Party 8","p":"WII","y":2007,"s":8.9},
+  {"t":"Mario & Sonic at the Olympic Games","p":"WII","y":2007,"s":8.0},
+  {"t":"The Legend of Zelda: Twilight Princess","p":"WII","y":2006,"s":7.2},
+  {"t":"Super Paper Mario","p":"WII","y":2007,"s":4.3},
+  {"t":"Metroid Prime 3: Corruption","p":"WII","y":2007,"s":1.6},
+  {"t":"World of Warcraft","p":"PC2","y":2004,"s":12.0,"n":"peak subscribers"},
+  {"t":"The Sims 2","p":"PC2","y":2004,"s":13.0},
+  {"t":"Half-Life 2","p":"PC2","y":2004,"s":12.0},
+  {"t":"The Elder Scrolls IV: Oblivion","p":"PC2","y":2006,"s":9.5,"n":"all platforms"},
+  {"t":"Guild Wars","p":"PC2","y":2005,"s":6.5,"n":"series"},
+  {"t":"Call of Duty 4: Modern Warfare","p":"PC2","y":2007,"s":15.7,"n":"all platforms"},
+  {"t":"BioShock","p":"PC2","y":2007,"s":4.0,"n":"all platforms"},
+  {"t":"Portal","p":"PC2","y":2007,"s":4.0,"n":"incl. Orange Box"},
+  {"t":"Warhammer 40,000: Dawn of War","p":"PC2","y":2004,"s":4.0,"n":"series"},
+  {"t":"Civilization IV","p":"PC2","y":2005,"s":3.0},
+  {"t":"Crysis","p":"PC2","y":2007,"s":3.0},
+  {"t":"Battlefield 2","p":"PC2","y":2005,"s":2.3},
+  {"t":"Age of Empires III","p":"PC2","y":2005,"s":2.0},
+  {"t":"Company of Heroes","p":"PC2","y":2006,"s":null},
+  {"t":"Counter-Strike: Source","p":"PC2","y":2004,"s":null,"n":"bundled with HL2"},
+  {"t":"Warcraft III: The Frozen Throne","p":"PC2","y":2003,"s":null,"n":"birthplace of DotA"},
+  {"t":"Team Fortress 2","p":"PC2","y":2007,"s":null,"n":"now F2P; 50M+ players"},
+  {"t":"Rome: Total War","p":"PC2","y":2004,"s":null},
+
+  {"t":"Mario Kart Wii","p":"WII","y":2008,"s":37.4},
+  {"t":"Wii Sports Resort","p":"WII","y":2009,"s":33.1},
+  {"t":"New Super Mario Bros. Wii","p":"WII","y":2009,"s":30.3},
+  {"t":"Wii Fit","p":"WII","y":2008,"s":22.7},
+  {"t":"Wii Fit Plus","p":"WII","y":2009,"s":21.1},
+  {"t":"Super Smash Bros. Brawl","p":"WII","y":2008,"s":13.3},
+  {"t":"Wii Party","p":"WII","y":2010,"s":9.4},
+  {"t":"Just Dance 2","p":"WII","y":2010,"s":9.4},
+  {"t":"Super Mario Galaxy 2","p":"WII","y":2010,"s":7.4},
+  {"t":"Donkey Kong Country Returns","p":"WII","y":2010,"s":6.5},
+  {"t":"The Legend of Zelda: Skyward Sword","p":"WII","y":2011,"s":3.7},
+  {"t":"Animal Crossing: City Folk","p":"WII","y":2008,"s":3.4},
+  {"t":"Mario Party 9","p":"WII","y":2012,"s":2.8},
+  {"t":"Kirby's Epic Yarn","p":"WII","y":2010,"s":1.9},
+  {"t":"Metroid: Other M","p":"WII","y":2010,"s":1.4},
+  {"t":"Kirby's Return to Dream Land","p":"WII","y":2011,"s":1.3},
+  {"t":"Punch-Out!!","p":"WII","y":2009,"s":1.3},
+  {"t":"New Super Mario Bros. U","p":"WIIU","y":2012,"s":5.8},
+  {"t":"Nintendo Land","p":"WIIU","y":2012,"s":5.2},
+  {"t":"Minecraft","p":"PC2","y":2011,"s":300.0,"n":"all platforms"},
+  {"t":"The Elder Scrolls V: Skyrim","p":"PC2","y":2011,"s":60.0,"n":"all platforms"},
+  {"t":"Terraria","p":"PC2","y":2011,"s":58.0,"n":"all platforms"},
+  {"t":"Counter-Strike: Global Offensive","p":"PC2","y":2012,"s":40.0,"n":"sold before going F2P"},
+  {"t":"Diablo III","p":"PC2","y":2012,"s":30.0,"n":"all platforms"},
+  {"t":"Left 4 Dead 2","p":"PC2","y":2009,"s":10.0},
+  {"t":"The Sims 3","p":"PC2","y":2009,"s":10.0},
+  {"t":"Portal 2","p":"PC2","y":2011,"s":8.0,"n":"all platforms"},
+  {"t":"Civilization V","p":"PC2","y":2010,"s":8.0},
+  {"t":"StarCraft II: Wings of Liberty","p":"PC2","y":2010,"s":6.0},
+  {"t":"Guild Wars 2","p":"PC2","y":2012,"s":5.0,"n":"16M+ accounts, later F2P"},
+  {"t":"Mass Effect 2","p":"PC2","y":2010,"s":4.0,"n":"all platforms"},
+  {"t":"Dragon Age: Origins","p":"PC2","y":2009,"s":3.0,"n":"all platforms"},
+  {"t":"League of Legends","p":"PC2","y":2009,"s":null,"n":"F2P; 100M+ monthly at peak"},
+  {"t":"Plants vs. Zombies","p":"PC2","y":2009,"s":null},
+  {"t":"Torchlight II","p":"PC2","y":2012,"s":null},
+  {"t":"FTL: Faster Than Light","p":"PC2","y":2012,"s":null},
+
+  {"t":"Mario Kart 8","p":"WIIU","y":2014,"s":8.5},
+  {"t":"Super Mario 3D World","p":"WIIU","y":2013,"s":5.9},
+  {"t":"Super Smash Bros. for Wii U","p":"WIIU","y":2014,"s":5.4},
+  {"t":"Splatoon","p":"WIIU","y":2015,"s":5.0},
+  {"t":"Super Mario Maker","p":"WIIU","y":2015,"s":4.0},
+  {"t":"The Legend of Zelda: The Wind Waker HD","p":"WIIU","y":2013,"s":2.4},
+  {"t":"Donkey Kong Country: Tropical Freeze","p":"WIIU","y":2014,"s":2.0},
+  {"t":"The Legend of Zelda: Breath of the Wild","p":"WIIU","y":2017,"s":1.7},
+  {"t":"Pikmin 3","p":"WIIU","y":2013,"s":1.3},
+  {"t":"Yoshi's Woolly World","p":"WIIU","y":2015,"s":1.3},
+  {"t":"The Legend of Zelda: Twilight Princess HD","p":"WIIU","y":2016,"s":1.1},
+  {"t":"Bayonetta 2","p":"WIIU","y":2014,"s":1.0},
+  {"t":"Xenoblade Chronicles X","p":"WIIU","y":2015,"s":null},
+  {"t":"Mario Kart 8 Deluxe","p":"NSW","y":2017,"s":67.0,"n":"best-selling Switch game"},
+  {"t":"The Legend of Zelda: Breath of the Wild","p":"NSW","y":2017,"s":32.6},
+  {"t":"Super Mario Odyssey","p":"NSW","y":2017,"s":29.0},
+  {"t":"Splatoon 2","p":"NSW","y":2017,"s":13.6},
+  {"t":"1-2-Switch","p":"NSW","y":2017,"s":3.9},
+  {"t":"Arms","p":"NSW","y":2017,"s":2.8},
+  {"t":"Xenoblade Chronicles 2","p":"NSW","y":2017,"s":2.7},
+  {"t":"Grand Theft Auto V","p":"PC2","y":2015,"s":210.0,"n":"all platforms"},
+  {"t":"PUBG: Battlegrounds","p":"PC2","y":2017,"s":75.0,"n":"all platforms"},
+  {"t":"The Witcher 3: Wild Hunt","p":"PC2","y":2015,"s":50.0,"n":"all platforms"},
+  {"t":"Overwatch","p":"PC2","y":2016,"s":50.0,"n":"players"},
+  {"t":"Stardew Valley","p":"PC2","y":2016,"s":41.0,"n":"all platforms"},
+  {"t":"Fallout 4","p":"PC2","y":2015,"s":25.0,"n":"all platforms"},
+  {"t":"Hollow Knight","p":"PC2","y":2017,"s":15.0,"n":"all platforms"},
+  {"t":"Cities: Skylines","p":"PC2","y":2015,"s":12.0},
+  {"t":"Civilization VI","p":"PC2","y":2016,"s":11.0},
+  {"t":"Dark Souls III","p":"PC2","y":2016,"s":10.0,"n":"all platforms"},
+  {"t":"Rocket League","p":"PC2","y":2015,"s":10.0,"n":"sold before going F2P"},
+  {"t":"Divinity: Original Sin 2","p":"PC2","y":2017,"s":7.5},
+  {"t":"Cuphead","p":"PC2","y":2017,"s":6.0,"n":"all platforms"},
+  {"t":"Factorio","p":"PC2","y":2016,"s":3.5},
+  {"t":"Undertale","p":"PC2","y":2015,"s":null},
+  {"t":"Doom (2016)","p":"PC2","y":2016,"s":null},
+  {"t":"Dota 2","p":"PC2","y":2013,"s":null,"n":"F2P"},
+  {"t":"Hearthstone","p":"PC2","y":2014,"s":null,"n":"F2P; 100M+ players"},
+  {"t":"The Sims 4","p":"PC2","y":2014,"s":null,"n":"70M+ players; now F2P"},
+  {"t":"Fortnite","p":"PC2","y":2017,"s":null,"n":"F2P; 400M+ accounts"},
+
+  {"t":"Animal Crossing: New Horizons","p":"NSW","y":2020,"s":47.0},
+  {"t":"Super Smash Bros. Ultimate","p":"NSW","y":2018,"s":36.0},
+  {"t":"Pokémon Sword / Shield","p":"NSW","y":2019,"s":26.6},
+  {"t":"Pokémon Scarlet / Violet","p":"NSW","y":2022,"s":26.3},
+  {"t":"Super Mario Party","p":"NSW","y":2018,"s":21.1},
+  {"t":"New Super Mario Bros. U Deluxe","p":"NSW","y":2019,"s":18.0},
+  {"t":"Monster Hunter Rise","p":"NSW","y":2021,"s":16.0,"n":"incl. PC"},
+  {"t":"Ring Fit Adventure","p":"NSW","y":2019,"s":15.4},
+  {"t":"Pokémon: Let's Go, Pikachu! / Eevee!","p":"NSW","y":2018,"s":15.1},
+  {"t":"Pokémon Brilliant Diamond / Shining Pearl","p":"NSW","y":2021,"s":15.1},
+  {"t":"Pokémon Legends: Arceus","p":"NSW","y":2022,"s":15.0},
+  {"t":"Luigi's Mansion 3","p":"NSW","y":2019,"s":14.3},
+  {"t":"Super Mario 3D World + Bowser's Fury","p":"NSW","y":2021,"s":13.5},
+  {"t":"Mario Party Superstars","p":"NSW","y":2021,"s":12.9},
+  {"t":"Splatoon 3","p":"NSW","y":2022,"s":12.0},
+  {"t":"Super Mario Maker 2","p":"NSW","y":2019,"s":10.1},
+  {"t":"Super Mario 3D All-Stars","p":"NSW","y":2020,"s":9.1},
+  {"t":"Kirby and the Forgotten Land","p":"NSW","y":2022,"s":7.5},
+  {"t":"The Legend of Zelda: Link's Awakening","p":"NSW","y":2019,"s":6.5,"n":"remake"},
+  {"t":"The Legend of Zelda: Skyward Sword HD","p":"NSW","y":2021,"s":4.1},
+  {"t":"Hyrule Warriors: Age of Calamity","p":"NSW","y":2020,"s":4.0},
+  {"t":"Metroid Dread","p":"NSW","y":2021,"s":3.2},
+  {"t":"Elden Ring","p":"PC2","y":2022,"s":30.0,"n":"all platforms"},
+  {"t":"Cyberpunk 2077","p":"PC2","y":2020,"s":30.0,"n":"all platforms"},
+  {"t":"It Takes Two","p":"PC2","y":2021,"s":20.0,"n":"all platforms"},
+  {"t":"Valheim","p":"PC2","y":2021,"s":12.0},
+  {"t":"Fall Guys","p":"PC2","y":2020,"s":11.0,"n":"sold before going F2P"},
+  {"t":"Doom Eternal","p":"PC2","y":2020,"s":6.0,"n":"all platforms"},
+  {"t":"Deep Rock Galactic","p":"PC2","y":2020,"s":5.5,"n":"all platforms"},
+  {"t":"Satisfactory","p":"PC2","y":2019,"s":5.5},
+  {"t":"Diablo II: Resurrected","p":"PC2","y":2021,"s":5.0},
+  {"t":"Hades","p":"PC2","y":2020,"s":3.0},
+  {"t":"Slay the Spire","p":"PC2","y":2019,"s":3.0},
+  {"t":"Half-Life: Alyx","p":"PC2","y":2020,"s":2.0},
+  {"t":"Among Us","p":"PC2","y":2018,"s":null,"n":"500M players at 2020 peak"},
+  {"t":"Apex Legends","p":"PC2","y":2019,"s":null,"n":"F2P; 100M+ players"},
+  {"t":"Call of Duty: Warzone","p":"PC2","y":2020,"s":null,"n":"F2P"},
+  {"t":"Microsoft Flight Simulator","p":"PC2","y":2020,"s":null,"n":"10M+ pilots"},
+  {"t":"Vampire Survivors","p":"PC2","y":2022,"s":null},
+  {"t":"Disco Elysium","p":"PC2","y":2019,"s":null},
+
+  {"t":"The Legend of Zelda: Tears of the Kingdom","p":"NSW","y":2023,"s":21.0},
+  {"t":"Super Mario Bros. Wonder","p":"NSW","y":2023,"s":15.0},
+  {"t":"Mario Kart World","p":"NSW","y":2025,"s":9.0,"n":"Switch 2"},
+  {"t":"Super Mario Party Jamboree","p":"NSW","y":2024,"s":7.3},
+  {"t":"The Legend of Zelda: Echoes of Wisdom","p":"NSW","y":2024,"s":3.9},
+  {"t":"Pikmin 4","p":"NSW","y":2023,"s":3.9},
+  {"t":"Donkey Kong Bananza","p":"NSW","y":2025,"s":3.5,"n":"Switch 2"},
+  {"t":"Super Mario RPG","p":"NSW","y":2023,"s":3.4,"n":"remake"},
+  {"t":"Paper Mario: The Thousand-Year Door","p":"NSW","y":2024,"s":2.1,"n":"remake"},
+  {"t":"Luigi's Mansion 2 HD","p":"NSW","y":2024,"s":1.9},
+  {"t":"Princess Peach: Showtime!","p":"NSW","y":2024,"s":1.7},
+  {"t":"Mario vs. Donkey Kong","p":"NSW","y":2024,"s":1.5,"n":"remake"},
+  {"t":"Black Myth: Wukong","p":"PC2","y":2024,"s":20.0,"n":"all platforms"},
+  {"t":"Baldur's Gate 3","p":"PC2","y":2023,"s":15.0,"n":"all platforms"},
+  {"t":"Palworld","p":"PC2","y":2024,"s":15.0,"n":"32M players w/ Game Pass"},
+  {"t":"Helldivers 2","p":"PC2","y":2024,"s":12.0,"n":"all platforms"},
+  {"t":"Diablo IV","p":"PC2","y":2023,"s":10.0,"n":"players in first months"},
+  {"t":"Lethal Company","p":"PC2","y":2023,"s":10.0},
+  {"t":"Monster Hunter Wilds","p":"PC2","y":2025,"s":10.0,"n":"all platforms"},
+  {"t":"Balatro","p":"PC2","y":2024,"s":5.0},
+  {"t":"Manor Lords","p":"PC2","y":2024,"s":2.5,"n":"Early Access"},
+  {"t":"Hades II","p":"PC2","y":2024,"s":null,"n":"Early Access; 1.0 in 2025"},
+  {"t":"Path of Exile 2","p":"PC2","y":2024,"s":null,"n":"Early Access"},
+  {"t":"Marvel Rivals","p":"PC2","y":2024,"s":null,"n":"F2P; 40M+ players"},
+  {"t":"Sid Meier's Civilization VII","p":"PC2","y":2025,"s":null},
+
+  {"t":"Gyromite","p":"NES","y":1985,"s":null,"n":"R.O.B. pack-in"},
+  {"t":"Hogan's Alley","p":"NES","y":1985,"s":null},
+  {"t":"Wild Gunman","p":"NES","y":1985,"s":null},
+  {"t":"Wrecking Crew","p":"NES","y":1985,"s":null},
+  {"t":"Tennis","p":"NES","y":1985,"s":null},
+  {"t":"Balloon Fight","p":"NES","y":1986,"s":null},
+  {"t":"Ghosts 'n Goblins","p":"NES","y":1986,"s":1.6},
+  {"t":"Gradius","p":"NES","y":1986,"s":null},
+  {"t":"1942","p":"NES","y":1986,"s":null},
+  {"t":"Commando","p":"NES","y":1986,"s":null},
+  {"t":"Rygar","p":"NES","y":1987,"s":null},
+  {"t":"Spy Hunter","p":"NES","y":1987,"s":null},
+  {"t":"Top Gun","p":"NES","y":1987,"s":2.0},
+  {"t":"Pro Wrestling","p":"NES","y":1987,"s":null},
+  {"t":"Double Dribble","p":"NES","y":1987,"s":null},
+
+  {"t":"Mega Man 3","p":"NES","y":1990,"s":1.2},
+  {"t":"Castlevania II: Simon's Quest","p":"NES","y":1988,"s":null},
+  {"t":"Castlevania III: Dracula's Curse","p":"NES","y":1990,"s":null},
+  {"t":"Tecmo Bowl","p":"NES","y":1989,"s":null},
+  {"t":"Tecmo Super Bowl","p":"NES","y":1991,"s":null},
+  {"t":"Double Dragon","p":"NES","y":1988,"s":null},
+  {"t":"Double Dragon II: The Revenge","p":"NES","y":1990,"s":null},
+  {"t":"River City Ransom","p":"NES","y":1990,"s":null},
+  {"t":"Bionic Commando","p":"NES","y":1988,"s":null},
+  {"t":"Bubble Bobble","p":"NES","y":1988,"s":null},
+  {"t":"Chip 'n Dale Rescue Rangers","p":"NES","y":1990,"s":1.2},
+  {"t":"Teenage Mutant Ninja Turtles II: The Arcade Game","p":"NES","y":1990,"s":null},
+  {"t":"Batman: The Video Game","p":"NES","y":1990,"s":null},
+  {"t":"Ninja Gaiden II","p":"NES","y":1990,"s":null},
+  {"t":"Paperboy","p":"NES","y":1988,"s":null},
+  {"t":"Marble Madness","p":"NES","y":1989,"s":null},
+  {"t":"Ice Hockey","p":"NES","y":1988,"s":null},
+  {"t":"Blades of Steel","p":"NES","y":1988,"s":null},
+  {"t":"R.B.I. Baseball","p":"NES","y":1988,"s":null},
+  {"t":"Crystalis","p":"NES","y":1990,"s":null},
+  {"t":"Dragon Warrior III","p":"NES","y":1992,"s":null},
+  {"t":"Maniac Mansion","p":"NES","y":1990,"s":null},
+  {"t":"Alleyway","p":"GB","y":1989,"s":null},
+  {"t":"The Final Fantasy Legend","p":"GB","y":1990,"s":1.4},
+  {"t":"Castlevania: The Adventure","p":"GB","y":1989,"s":null},
+  {"t":"Mega Man: Dr. Wily's Revenge","p":"GB","y":1991,"s":null},
+  {"t":"Qix","p":"GB","y":1990,"s":null},
+  {"t":"Super Ghouls 'n Ghosts","p":"SNES","y":1991,"s":1.1},
+  {"t":"ActRaiser","p":"SNES","y":1991,"s":null},
+  {"t":"Final Fight","p":"SNES","y":1991,"s":1.5},
+  {"t":"Pilotwings","p":"SNES","y":1991,"s":1.1},
+  {"t":"Super R-Type","p":"SNES","y":1991,"s":null},
+  {"t":"Super Star Wars","p":"SNES","y":1992,"s":null},
+  {"t":"The Magical Quest Starring Mickey Mouse","p":"SNES","y":1992,"s":null},
+  {"t":"TMNT IV: Turtles in Time","p":"SNES","y":1992,"s":1.1},
+  {"t":"Solitaire","p":"IBM","y":1990,"s":null,"n":"shipped with Windows 3.0"},
+  {"t":"Minesweeper","p":"IBM","y":1990,"s":null,"n":"Windows Entertainment Pack"},
+  {"t":"Gorillas","p":"IBM","y":1991,"s":null,"n":"QBasic, came with MS-DOS 5"},
+  {"t":"Nibbles","p":"IBM","y":1991,"s":null,"n":"QBasic"},
+  {"t":"Scorched Earth","p":"IBM","y":1991,"s":null,"n":"shareware"},
+  {"t":"Stunts","p":"IBM","y":1990,"s":null},
+  {"t":"Railroad Tycoon","p":"IBM","y":1990,"s":null},
+  {"t":"Battle Chess","p":"IBM","y":1988,"s":null},
+  {"t":"Space Quest IV","p":"IBM","y":1991,"s":null},
+  {"t":"Loom","p":"IBM","y":1990,"s":null},
+  {"t":"Math Blaster!","p":"IBM","y":1990,"s":null,"n":"edutainment"},
+  {"t":"Number Munchers","p":"IBM","y":1990,"s":null,"n":"edutainment"},
+
+  {"t":"Zombies Ate My Neighbors","p":"SNES","y":1993,"s":null},
+  {"t":"Mortal Kombat","p":"SNES","y":1993,"s":2.0},
+  {"t":"Mortal Kombat 3","p":"SNES","y":1995,"s":null},
+  {"t":"Super Street Fighter II","p":"SNES","y":1994,"s":2.0},
+  {"t":"Breath of Fire","p":"SNES","y":1994,"s":null},
+  {"t":"Illusion of Gaia","p":"SNES","y":1994,"s":null},
+  {"t":"Secret of Evermore","p":"SNES","y":1995,"s":null},
+  {"t":"Stunt Race FX","p":"SNES","y":1994,"s":null},
+  {"t":"Kirby's Dream Course","p":"SNES","y":1995,"s":null},
+  {"t":"Harvest Moon","p":"SNES","y":1997,"s":null},
+  {"t":"NHL '94","p":"SNES","y":1993,"s":null},
+  {"t":"Tetris & Dr. Mario","p":"SNES","y":1994,"s":2.3},
+  {"t":"Donkey Kong Land 2","p":"GB","y":1996,"s":null},
+  {"t":"Kirby's Pinball Land","p":"GB","y":1993,"s":null},
+  {"t":"Turok: Dinosaur Hunter","p":"N64","y":1997,"s":1.5},
+  {"t":"Cruis'n USA","p":"N64","y":1996,"s":1.3},
+  {"t":"Star Wars: Shadows of the Empire","p":"N64","y":1996,"s":1.1},
+  {"t":"Killer Instinct Gold","p":"N64","y":1996,"s":null},
+  {"t":"Blast Corps","p":"N64","y":1997,"s":null},
+  {"t":"Doom 64","p":"N64","y":1997,"s":null},
+  {"t":"Bomberman 64","p":"N64","y":1997,"s":null},
+  {"t":"San Francisco Rush","p":"N64","y":1997,"s":null},
+  {"t":"WCW vs. nWo: World Tour","p":"N64","y":1997,"s":null},
+  {"t":"The 7th Guest","p":"PC1","y":1993,"s":2.5},
+  {"t":"X-COM: UFO Defense","p":"PC1","y":1994,"s":null},
+  {"t":"Day of the Tentacle","p":"PC1","y":1993,"s":null},
+  {"t":"Sam & Max Hit the Road","p":"PC1","y":1993,"s":null},
+  {"t":"Full Throttle","p":"PC1","y":1995,"s":1.0},
+  {"t":"Star Wars: Dark Forces","p":"PC1","y":1995,"s":null},
+  {"t":"Star Wars Jedi Knight: Dark Forces II","p":"PC1","y":1997,"s":null},
+  {"t":"Master of Orion","p":"PC1","y":1993,"s":null},
+  {"t":"Master of Magic","p":"PC1","y":1994,"s":null},
+  {"t":"Sid Meier's Colonization","p":"PC1","y":1994,"s":null},
+  {"t":"SimTower","p":"PC1","y":1994,"s":null},
+  {"t":"Theme Park","p":"PC1","y":1994,"s":null},
+  {"t":"Theme Hospital","p":"PC1","y":1997,"s":null},
+  {"t":"Dungeon Keeper","p":"PC1","y":1997,"s":null},
+  {"t":"Heretic","p":"PC1","y":1994,"s":null},
+  {"t":"Hexen","p":"PC1","y":1995,"s":null},
+  {"t":"The Elder Scrolls II: Daggerfall","p":"PC1","y":1996,"s":null},
+  {"t":"Wing Commander III","p":"PC1","y":1994,"s":null},
+  {"t":"The Incredible Machine","p":"PC1","y":1993,"s":null},
+  {"t":"One Must Fall: 2097","p":"PC1","y":1994,"s":null,"n":"shareware"},
+
+  {"t":"Yoshi's Story","p":"N64","y":1998,"s":1.8},
+  {"t":"Kirby 64: The Crystal Shards","p":"N64","y":2000,"s":1.9},
+  {"t":"Mario Party 3","p":"N64","y":2001,"s":1.9},
+  {"t":"Mario Golf","p":"N64","y":1999,"s":1.5},
+  {"t":"Turok 2: Seeds of Evil","p":"N64","y":1998,"s":1.4},
+  {"t":"Star Wars: Episode I Racer","p":"N64","y":1999,"s":3.1},
+  {"t":"Jet Force Gemini","p":"N64","y":1999,"s":null},
+  {"t":"Excitebike 64","p":"N64","y":2000,"s":null},
+  {"t":"Harvest Moon 64","p":"N64","y":1999,"s":null},
+  {"t":"Pokémon Puzzle League","p":"N64","y":2000,"s":null},
+  {"t":"Wario Land II","p":"GB","y":1998,"s":null},
+  {"t":"Pokémon Trading Card Game","p":"GBC","y":2000,"s":1.5},
+  {"t":"Mario Golf","p":"GBC","y":1999,"s":null},
+  {"t":"Dragon Warrior Monsters","p":"GBC","y":2000,"s":null},
+  {"t":"Kirby Tilt 'n' Tumble","p":"GBC","y":2001,"s":null},
+  {"t":"Wario Land 4","p":"GBA","y":2001,"s":null},
+  {"t":"F-Zero: Maximum Velocity","p":"GBA","y":2001,"s":null},
+  {"t":"Sonic Adventure 2: Battle","p":"GCN","y":2002,"s":1.7},
+  {"t":"Mario Party 4","p":"GCN","y":2002,"s":2.2},
+  {"t":"Wave Race: Blue Storm","p":"GCN","y":2001,"s":null},
+  {"t":"Civilization III","p":"PC1","y":2001,"s":2.0},
+  {"t":"C&C: Red Alert 2","p":"PC1","y":2000,"s":1.5},
+  {"t":"C&C: Tiberian Sun","p":"PC1","y":1999,"s":1.5},
+  {"t":"Black & White","p":"PC1","y":2001,"s":2.5},
+  {"t":"EverQuest","p":"PC1","y":1999,"s":null,"n":"550k subs at peak"},
+  {"t":"Sid Meier's Alpha Centauri","p":"PC1","y":1999,"s":null},
+  {"t":"Planescape: Torment","p":"PC1","y":1999,"s":null},
+  {"t":"System Shock 2","p":"PC1","y":1999,"s":null},
+  {"t":"Thief: The Dark Project","p":"PC1","y":1998,"s":null},
+  {"t":"Grim Fandango","p":"PC1","y":1998,"s":null},
+  {"t":"Homeworld","p":"PC1","y":1999,"s":null},
+  {"t":"Icewind Dale","p":"PC1","y":2000,"s":null},
+  {"t":"Empire Earth","p":"PC1","y":2001,"s":null},
+  {"t":"Stronghold","p":"PC1","y":2001,"s":null},
+  {"t":"Caesar III","p":"PC1","y":1998,"s":null},
+  {"t":"Pharaoh","p":"PC1","y":1999,"s":null},
+  {"t":"Starsiege: Tribes","p":"PC1","y":1998,"s":null},
+  {"t":"Max Payne","p":"PC1","y":2001,"s":null},
+  {"t":"Dungeon Siege","p":"PC1","y":2002,"s":null},
+  {"t":"Star Wars Jedi Knight II: Jedi Outcast","p":"PC1","y":2002,"s":null},
+  {"t":"Return to Castle Wolfenstein","p":"PC1","y":2001,"s":null},
+
+  {"t":"Super Mario Advance 4: Super Mario Bros. 3","p":"GBA","y":2003,"s":2.9},
+  {"t":"Kirby & the Amazing Mirror","p":"GBA","y":2004,"s":null},
+  {"t":"Sonic Advance 2","p":"GBA","y":2003,"s":null},
+  {"t":"Pokémon Pinball: Ruby & Sapphire","p":"GBA","y":2003,"s":null},
+  {"t":"Fire Emblem: The Sacred Stones","p":"GBA","y":2005,"s":null},
+  {"t":"Mario Golf: Advance Tour","p":"GBA","y":2004,"s":null},
+  {"t":"Mario Party 5","p":"GCN","y":2003,"s":2.1},
+  {"t":"Mario Party 6","p":"GCN","y":2004,"s":1.6},
+  {"t":"Mario Party 7","p":"GCN","y":2005,"s":1.9},
+  {"t":"Kirby Air Ride","p":"GCN","y":2003,"s":1.4},
+  {"t":"Mario Golf: Toadstool Tour","p":"GCN","y":2003,"s":1.1},
+  {"t":"Mario Power Tennis","p":"GCN","y":2004,"s":1.0},
+  {"t":"Star Fox: Assault","p":"GCN","y":2005,"s":1.0},
+  {"t":"Metal Gear Solid: The Twin Snakes","p":"GCN","y":2004,"s":null},
+  {"t":"Sonic Heroes","p":"GCN","y":2004,"s":null},
+  {"t":"Viewtiful Joe","p":"GCN","y":2003,"s":null},
+  {"t":"Donkey Konga","p":"GCN","y":2004,"s":null},
+  {"t":"Donkey Kong Jungle Beat","p":"GCN","y":2005,"s":null},
+  {"t":"Wario World","p":"GCN","y":2003,"s":null},
+  {"t":"Chibi-Robo!","p":"GCN","y":2006,"s":null},
+  {"t":"Mario Superstar Baseball","p":"GCN","y":2005,"s":null},
+  {"t":"WarioWare: Smooth Moves","p":"WII","y":2007,"s":2.3},
+  {"t":"Rayman Raving Rabbids","p":"WII","y":2006,"s":2.0},
+  {"t":"Big Brain Academy: Wii Degree","p":"WII","y":2007,"s":2.7},
+  {"t":"Excite Truck","p":"WII","y":2006,"s":1.2},
+  {"t":"Link's Crossbow Training","p":"WII","y":2007,"s":5.0,"n":"Wii Zapper pack-in"},
+  {"t":"Garry's Mod","p":"PC2","y":2006,"s":20.0},
+  {"t":"Grand Theft Auto: San Andreas","p":"PC2","y":2005,"s":27.5,"n":"all platforms"},
+  {"t":"Doom 3","p":"PC2","y":2004,"s":3.5},
+  {"t":"Star Wars: Knights of the Old Republic","p":"PC2","y":2003,"s":3.0,"n":"all platforms"},
+  {"t":"C&C: Generals","p":"PC2","y":2003,"s":3.0},
+  {"t":"SimCity 4","p":"PC2","y":2003,"s":2.0},
+  {"t":"Medieval II: Total War","p":"PC2","y":2006,"s":2.0},
+  {"t":"C&C 3: Tiberium Wars","p":"PC2","y":2007,"s":2.0},
+  {"t":"The Witcher","p":"PC2","y":2007,"s":2.0},
+  {"t":"Rise of Nations","p":"PC2","y":2003,"s":1.0},
+  {"t":"Far Cry","p":"PC2","y":2004,"s":1.0},
+  {"t":"F.E.A.R.","p":"PC2","y":2005,"s":null},
+  {"t":"Star Wars: KOTOR II — The Sith Lords","p":"PC2","y":2004,"s":null},
+  {"t":"LotR: The Battle for Middle-earth","p":"PC2","y":2004,"s":null},
+  {"t":"Supreme Commander","p":"PC2","y":2007,"s":null},
+  {"t":"Titan Quest","p":"PC2","y":2006,"s":null},
+  {"t":"Neverwinter Nights 2","p":"PC2","y":2006,"s":null},
+  {"t":"RollerCoaster Tycoon 3","p":"PC2","y":2004,"s":null},
+  {"t":"Peggle","p":"PC2","y":2007,"s":null},
+  {"t":"EVE Online","p":"PC2","y":2003,"s":null,"n":"subscription MMO"},
+  {"t":"Roblox","p":"PC2","y":2006,"s":null,"n":"F2P platform"},
+  {"t":"Dwarf Fortress","p":"PC2","y":2006,"s":null,"n":"freeware classic"},
+  {"t":"Freelancer","p":"PC2","y":2003,"s":null},
+
+  {"t":"Just Dance 3","p":"WII","y":2011,"s":9.9},
+  {"t":"Just Dance","p":"WII","y":2009,"s":4.3},
+  {"t":"Mario & Sonic at the Olympic Winter Games","p":"WII","y":2009,"s":6.0},
+  {"t":"Wii Music","p":"WII","y":2008,"s":3.2},
+  {"t":"Epic Mickey","p":"WII","y":2010,"s":3.0},
+  {"t":"Monster Hunter Tri","p":"WII","y":2010,"s":2.0},
+  {"t":"Mario Super Sluggers","p":"WII","y":2008,"s":2.0},
+  {"t":"GoldenEye 007 (2010)","p":"WII","y":2010,"s":null},
+  {"t":"Xenoblade Chronicles","p":"WII","y":2012,"s":0.9},
+  {"t":"Wario Land: Shake It!","p":"WII","y":2008,"s":null},
+  {"t":"Battlefield 3","p":"PC2","y":2011,"s":17.0,"n":"all platforms"},
+  {"t":"Call of Duty: Modern Warfare 2","p":"PC2","y":2009,"s":22.0,"n":"all platforms"},
+  {"t":"Borderlands 2","p":"PC2","y":2012,"s":26.0,"n":"all platforms"},
+  {"t":"Borderlands","p":"PC2","y":2009,"s":4.5,"n":"all platforms"},
+  {"t":"Fallout 3","p":"PC2","y":2008,"s":12.0,"n":"all platforms"},
+  {"t":"Fallout: New Vegas","p":"PC2","y":2010,"s":12.0,"n":"all platforms"},
+  {"t":"Battlefield: Bad Company 2","p":"PC2","y":2010,"s":9.0,"n":"all platforms"},
+  {"t":"XCOM: Enemy Unknown","p":"PC2","y":2012,"s":4.0,"n":"all platforms"},
+  {"t":"Spore","p":"PC2","y":2008,"s":3.0},
+  {"t":"The Witcher 2: Assassins of Kings","p":"PC2","y":2011,"s":1.7},
+  {"t":"The Binding of Isaac","p":"PC2","y":2011,"s":3.0},
+  {"t":"Bastion","p":"PC2","y":2011,"s":3.0},
+  {"t":"Super Meat Boy","p":"PC2","y":2010,"s":1.0},
+  {"t":"Magicka","p":"PC2","y":2011,"s":1.3},
+  {"t":"Limbo","p":"PC2","y":2011,"s":null},
+  {"t":"Amnesia: The Dark Descent","p":"PC2","y":2010,"s":null},
+  {"t":"Braid","p":"PC2","y":2009,"s":null},
+  {"t":"Empire: Total War","p":"PC2","y":2009,"s":2.0},
+  {"t":"Total War: Shogun 2","p":"PC2","y":2011,"s":null},
+  {"t":"Crusader Kings II","p":"PC2","y":2012,"s":1.0},
+  {"t":"Star Wars: The Old Republic","p":"PC2","y":2011,"s":null,"n":"later F2P"},
+  {"t":"Torchlight","p":"PC2","y":2009,"s":1.0},
+  {"t":"World of Goo","p":"PC2","y":2008,"s":null},
+
+  {"t":"New Super Luigi U","p":"WIIU","y":2013,"s":3.0},
+  {"t":"Mario Party 10","p":"WIIU","y":2015,"s":2.2},
+  {"t":"Captain Toad: Treasure Tracker","p":"WIIU","y":2014,"s":2.0},
+  {"t":"Hyrule Warriors","p":"WIIU","y":2014,"s":1.9},
+  {"t":"Lego City Undercover","p":"WIIU","y":2013,"s":1.7},
+  {"t":"Star Fox Zero","p":"WIIU","y":2016,"s":null},
+  {"t":"Paper Mario: Color Splash","p":"WIIU","y":2016,"s":null},
+  {"t":"Mario + Rabbids Kingdom Battle","p":"NSW","y":2017,"s":5.0},
+  {"t":"Battlefield 1","p":"PC2","y":2016,"s":25.0,"n":"all platforms"},
+  {"t":"BioShock Infinite","p":"PC2","y":2013,"s":11.0,"n":"all platforms"},
+  {"t":"Payday 2","p":"PC2","y":2013,"s":9.0},
+  {"t":"Destiny 2","p":"PC2","y":2017,"s":null,"n":"later F2P"},
+  {"t":"Rainbow Six Siege","p":"PC2","y":2015,"s":null,"n":"85M+ players"},
+  {"t":"Don't Starve","p":"PC2","y":2013,"s":5.0},
+  {"t":"Stellaris","p":"PC2","y":2016,"s":5.0},
+  {"t":"Slime Rancher","p":"PC2","y":2017,"s":4.0},
+  {"t":"Kerbal Space Program","p":"PC2","y":2015,"s":3.5},
+  {"t":"XCOM 2","p":"PC2","y":2016,"s":3.0},
+  {"t":"Enter the Gungeon","p":"PC2","y":2016,"s":3.0},
+  {"t":"Grim Dawn","p":"PC2","y":2016,"s":3.0},
+  {"t":"Shovel Knight","p":"PC2","y":2014,"s":2.7,"n":"all platforms"},
+  {"t":"Starbound","p":"PC2","y":2016,"s":2.5},
+  {"t":"Firewatch","p":"PC2","y":2016,"s":2.5},
+  {"t":"Darkest Dungeon","p":"PC2","y":2016,"s":2.0},
+  {"t":"Ori and the Blind Forest","p":"PC2","y":2015,"s":2.0},
+  {"t":"Total War: Warhammer","p":"PC2","y":2016,"s":2.0},
+  {"t":"Warframe","p":"PC2","y":2013,"s":null,"n":"F2P"},
+  {"t":"Path of Exile","p":"PC2","y":2013,"s":null,"n":"F2P"},
+  {"t":"Titanfall 2","p":"PC2","y":2016,"s":null},
+
+  {"t":"Mario Tennis Aces","p":"NSW","y":2018,"s":4.7},
+  {"t":"Kirby Star Allies","p":"NSW","y":2018,"s":4.2},
+  {"t":"Fire Emblem: Three Houses","p":"NSW","y":2019,"s":4.1},
+  {"t":"Clubhouse Games: 51 Worldwide Classics","p":"NSW","y":2020,"s":4.0},
+  {"t":"Yoshi's Crafted World","p":"NSW","y":2019,"s":3.4},
+  {"t":"Paper Mario: The Origami King","p":"NSW","y":2020,"s":3.3},
+  {"t":"Mario Golf: Super Rush","p":"NSW","y":2021,"s":2.7},
+  {"t":"Mario Strikers: Battle League","p":"NSW","y":2022,"s":2.5},
+  {"t":"Xenoblade Chronicles 3","p":"NSW","y":2022,"s":1.9},
+  {"t":"Red Dead Redemption 2","p":"PC2","y":2019,"s":60.0,"n":"all platforms"},
+  {"t":"Monster Hunter: World","p":"PC2","y":2018,"s":20.0,"n":"all platforms"},
+  {"t":"Rust","p":"PC2","y":2018,"s":12.0},
+  {"t":"Sekiro: Shadows Die Twice","p":"PC2","y":2019,"s":10.0,"n":"all platforms"},
+  {"t":"Dead Cells","p":"PC2","y":2018,"s":10.0,"n":"all platforms"},
+  {"t":"Phasmophobia","p":"PC2","y":2020,"s":10.0},
+  {"t":"Subnautica","p":"PC2","y":2018,"s":5.0},
+  {"t":"Risk of Rain 2","p":"PC2","y":2019,"s":4.0},
+  {"t":"Cult of the Lamb","p":"PC2","y":2022,"s":3.5},
+  {"t":"Frostpunk","p":"PC2","y":2018,"s":3.0},
+  {"t":"RimWorld","p":"PC2","y":2018,"s":3.0},
+  {"t":"Inscryption","p":"PC2","y":2021,"s":2.0},
+  {"t":"Celeste","p":"PC2","y":2018,"s":1.3},
+  {"t":"Untitled Goose Game","p":"PC2","y":2019,"s":1.0},
+  {"t":"Genshin Impact","p":"PC2","y":2020,"s":null,"n":"F2P; 60M+ players"},
+
+  {"t":"Kirby's Return to Dream Land Deluxe","p":"NSW","y":2023,"s":1.5},
+  {"t":"Mario & Luigi: Brothership","p":"NSW","y":2024,"s":1.1},
+  {"t":"Metroid Prime Remastered","p":"NSW","y":2023,"s":1.1},
+  {"t":"Metroid Prime 4: Beyond","p":"NSW","y":2025,"s":null},
+  {"t":"Kirby Air Riders","p":"NSW","y":2025,"s":null,"n":"Switch 2"},
+  {"t":"Hogwarts Legacy","p":"PC2","y":2023,"s":30.0,"n":"all platforms"},
+  {"t":"PEAK","p":"PC2","y":2025,"s":10.0},
+  {"t":"Sons of the Forest","p":"PC2","y":2023,"s":5.0},
+  {"t":"Dave the Diver","p":"PC2","y":2023,"s":4.0},
+  {"t":"Split Fiction","p":"PC2","y":2025,"s":4.0,"n":"all platforms"},
+  {"t":"Clair Obscur: Expedition 33","p":"PC2","y":2025,"s":4.0,"n":"all platforms"},
+  {"t":"Elden Ring: Nightreign","p":"PC2","y":2025,"s":3.5,"n":"all platforms"},
+  {"t":"Hollow Knight: Silksong","p":"PC2","y":2025,"s":3.0,"n":"all platforms"},
+  {"t":"Kingdom Come: Deliverance II","p":"PC2","y":2025,"s":3.0},
+  {"t":"V Rising","p":"PC2","y":2024,"s":3.0},
+  {"t":"Enshrouded","p":"PC2","y":2024,"s":2.0,"n":"Early Access"},
+  {"t":"Starfield","p":"PC2","y":2023,"s":null,"n":"14M+ players w/ Game Pass"},
+  {"t":"Schedule I","p":"PC2","y":2025,"s":null,"n":"Early Access hit"},
+  {"t":"R.E.P.O.","p":"PC2","y":2025,"s":null,"n":"Early Access hit"},
+  {"t":"Doom: The Dark Ages","p":"PC2","y":2025,"s":null,"n":"day one on Game Pass"},
+  {"t":"Sea of Stars","p":"PC2","y":2023,"s":null},
+
+  {"t":"The Last Remnant","p":"PC2","y":2009,"s":null},
+  {"t":"Champions Online","p":"PC2","y":2009,"s":null},
+  {"t":"Recettear: An Item Shop's Tale","p":"PC2","y":2010,"s":null},
+  {"t":"Lara Croft and the Guardian of Light","p":"PC2","y":2010,"s":null},
+  {"t":"Deus Ex: Human Revolution","p":"PC2","y":2011,"s":null},
+  {"t":"Dark Souls","p":"PC2","y":2011,"s":null},
+  {"t":"Kingdoms of Amalur: Reckoning","p":"PC2","y":2012,"s":null},
+  {"t":"Darksiders II","p":"PC2","y":2012,"s":null},
+  {"t":"Quantum Conundrum","p":"PC2","y":2012,"s":null},
+  {"t":"Penny Arcade's On the Rain-Slick Precipice of Darkness 3","p":"PC2","y":2012,"s":null},
+  {"t":"Fortune Summoners: Secret of the Elemental Stone","p":"PC2","y":2012,"s":null},
+  {"t":"Out There Somewhere","p":"PC2","y":2012,"s":null},
+  {"t":"FEZ","p":"PC2","y":2013,"s":null},
+  {"t":"Monaco","p":"PC2","y":2013,"s":null},
+  {"t":"Gunpoint","p":"PC2","y":2013,"s":null},
+  {"t":"The Wolf Among Us","p":"PC2","y":2013,"s":null},
+  {"t":"The Cave","p":"PC2","y":2013,"s":null},
+  {"t":"Reus","p":"PC2","y":2013,"s":null},
+  {"t":"The Yawhg","p":"PC2","y":2013,"s":null},
+  {"t":"Dust: An Elysian Tail","p":"PC2","y":2013,"s":null},
+  {"t":"Knights of Pen and Paper +1","p":"PC2","y":2013,"s":null},
+  {"t":"Penny Arcade's On the Rain-Slick Precipice of Darkness 4","p":"PC2","y":2013,"s":null},
+  {"t":"Brothers: A Tale of Two Sons","p":"PC2","y":2013,"s":null},
+  {"t":"Divinity: Original Sin","p":"PC2","y":2014,"s":null},
+  {"t":"Dark Souls II","p":"PC2","y":2014,"s":null},
+  {"t":"The Banner Saga","p":"PC2","y":2014,"s":null},
+  {"t":"Broken Age","p":"PC2","y":2014,"s":null},
+  {"t":"Child of Light","p":"PC2","y":2014,"s":null},
+  {"t":"Middle-earth: Shadow of Mordor","p":"PC2","y":2014,"s":null},
+  {"t":"Valkyria Chronicles","p":"PC2","y":2014,"s":null},
+  {"t":"Gauntlet","p":"PC2","y":2014,"s":null},
+  {"t":"Hatoful Boyfriend","p":"PC2","y":2014,"s":null},
+  {"t":"TowerFall Ascension","p":"PC2","y":2014,"s":null},
+  {"t":"Road Not Taken","p":"PC2","y":2014,"s":null},
+  {"t":"Gods Will Be Watching","p":"PC2","y":2014,"s":null},
+  {"t":"Lara Croft and the Temple of Osiris","p":"PC2","y":2014,"s":null},
+  {"t":"Magicite","p":"PC2","y":2014,"s":null},
+  {"t":"Axiom Verge","p":"PC2","y":2015,"s":null},
+  {"t":"Crypt of the NecroDancer","p":"PC2","y":2015,"s":null},
+  {"t":"Invisible, Inc.","p":"PC2","y":2015,"s":null},
+  {"t":"Her Story","p":"PC2","y":2015,"s":null},
+  {"t":"Hacknet","p":"PC2","y":2015,"s":null},
+  {"t":"Kingdom: Classic","p":"PC2","y":2015,"s":null},
+  {"t":"Chroma Squad","p":"PC2","y":2015,"s":null},
+  {"t":"SOMA","p":"PC2","y":2015,"s":null},
+  {"t":"Life is Strange","p":"PC2","y":2015,"s":null},
+  {"t":"Caves of Qud","p":"PC2","y":2015,"s":null,"n":"Early Access era"},
+  {"t":"Tabletop Simulator","p":"PC2","y":2015,"s":null},
+  {"t":"The Witness","p":"PC2","y":2016,"s":null},
+  {"t":"INSIDE","p":"PC2","y":2016,"s":null},
+  {"t":"Owlboy","p":"PC2","y":2016,"s":null},
+  {"t":"Hyper Light Drifter","p":"PC2","y":2016,"s":null},
+  {"t":"Salt and Sanctuary","p":"PC2","y":2016,"s":null},
+  {"t":"Dishonored 2","p":"PC2","y":2016,"s":null},
+  {"t":"SHENZHEN I/O","p":"PC2","y":2016,"s":null},
+  {"t":"Offworld Trading Company","p":"PC2","y":2016,"s":null},
+  {"t":"Moon Hunters","p":"PC2","y":2016,"s":null},
+  {"t":"Dead by Daylight","p":"PC2","y":2016,"s":null},
+  {"t":"Glittermitten Grove","p":"PC2","y":2016,"s":null},
+  {"t":"Battlerite","p":"PC2","y":2016,"s":null},
+  {"t":"Danganronpa: Trigger Happy Havoc","p":"PC2","y":2016,"s":null},
+  {"t":"Danganronpa 2: Goodbye Despair","p":"PC2","y":2016,"s":null},
+  {"t":"A Hat in Time","p":"PC2","y":2017,"s":null},
+  {"t":"Hob","p":"PC2","y":2017,"s":null},
+  {"t":"Pyre","p":"PC2","y":2017,"s":null},
+  {"t":"Nioh","p":"PC2","y":2017,"s":null},
+  {"t":"Danganronpa V3: Killing Harmony","p":"PC2","y":2017,"s":null},
+  {"t":"Doki Doki Literature Club","p":"PC2","y":2017,"s":null},
+  {"t":"The Sexy Brutale","p":"PC2","y":2017,"s":null},
+  {"t":"Crawl","p":"PC2","y":2017,"s":null},
+  {"t":"20XX","p":"PC2","y":2017,"s":null},
+  {"t":"Kindergarten","p":"PC2","y":2017,"s":null},
+  {"t":"Epic Tavern","p":"PC2","y":2017,"s":null,"n":"Early Access"},
+  {"t":"The Shrouded Isle","p":"PC2","y":2017,"s":null},
+  {"t":"Into the Breach","p":"PC2","y":2018,"s":null},
+  {"t":"Return of the Obra Dinn","p":"PC2","y":2018,"s":null},
+  {"t":"Moonlighter","p":"PC2","y":2018,"s":null},
+  {"t":"Graveyard Keeper","p":"PC2","y":2018,"s":null},
+  {"t":"Cultist Simulator","p":"PC2","y":2018,"s":null},
+  {"t":"Wizard of Legend","p":"PC2","y":2018,"s":null},
+  {"t":"Timespinner","p":"PC2","y":2018,"s":null},
+  {"t":"Death's Gambit","p":"PC2","y":2018,"s":null},
+  {"t":"Iconoclasts","p":"PC2","y":2018,"s":null},
+  {"t":"Darksiders III","p":"PC2","y":2018,"s":null},
+  {"t":"Terraforming Mars","p":"PC2","y":2018,"s":null},
+  {"t":"Star Control: Origins","p":"PC2","y":2018,"s":null},
+  {"t":"60 Parsecs!","p":"PC2","y":2018,"s":null},
+  {"t":"Headliner: NoviNews","p":"PC2","y":2018,"s":null},
+  {"t":"Space Tyrant","p":"PC2","y":2018,"s":null},
+  {"t":"Unworthy","p":"PC2","y":2018,"s":null},
+  {"t":"Chasm","p":"PC2","y":2018,"s":null},
+  {"t":"Baba Is You","p":"PC2","y":2019,"s":null},
+  {"t":"Noita","p":"PC2","y":2019,"s":null},
+  {"t":"Bloodstained: Ritual of the Night","p":"PC2","y":2019,"s":null},
+  {"t":"Blasphemous","p":"PC2","y":2019,"s":null},
+  {"t":"Children of Morta","p":"PC2","y":2019,"s":null},
+  {"t":"Darksiders Genesis","p":"PC2","y":2019,"s":null},
+  {"t":"Heaven's Vault","p":"PC2","y":2019,"s":null},
+  {"t":"Telling Lies","p":"PC2","y":2019,"s":null},
+  {"t":"Indivisible","p":"PC2","y":2019,"s":null},
+  {"t":"Gato Roboto","p":"PC2","y":2019,"s":null},
+  {"t":"MO:Astray","p":"PC2","y":2019,"s":null},
+  {"t":"Killer Queen Black","p":"PC2","y":2019,"s":null},
+  {"t":"Shortest Trip to Earth","p":"PC2","y":2019,"s":null},
+  {"t":"Vision Soft Reset","p":"PC2","y":2019,"s":null},
+  {"t":"Hardcore Mecha","p":"PC2","y":2019,"s":null},
+  {"t":"Ori and the Will of the Wisps","p":"PC2","y":2020,"s":null},
+  {"t":"UnderMine","p":"PC2","y":2020,"s":null},
+  {"t":"Panzer Paladin","p":"PC2","y":2020,"s":null},
+  {"t":"INMOST","p":"PC2","y":2020,"s":null},
+  {"t":"The Longing","p":"PC2","y":2020,"s":null},
+  {"t":"Morbid: The Seven Acolytes","p":"PC2","y":2020,"s":null},
+  {"t":"Signs of the Sojourner","p":"PC2","y":2020,"s":null},
+  {"t":"Unfortunate Spacemen","p":"PC2","y":2020,"s":null},
+  {"t":"Yes, Your Grace","p":"PC2","y":2020,"s":null},
+  {"t":"Loop Hero","p":"PC2","y":2021,"s":null},
+  {"t":"Timberborn","p":"PC2","y":2021,"s":null,"n":"Early Access"},
+  {"t":"Psychonauts 2","p":"PC2","y":2021,"s":null},
+  {"t":"Deathloop","p":"PC2","y":2021,"s":null},
+  {"t":"Tribes of Midgard","p":"PC2","y":2021,"s":null},
+  {"t":"Death's Door","p":"PC2","y":2021,"s":null},
+  {"t":"Narita Boy","p":"PC2","y":2021,"s":null},
+  {"t":"Eldest Souls","p":"PC2","y":2021,"s":null},
+  {"t":"Curse of the Dead Gods","p":"PC2","y":2021,"s":null},
+  {"t":"UNSIGHTED","p":"PC2","y":2021,"s":null},
+  {"t":"Unpacking","p":"PC2","y":2021,"s":null},
+  {"t":"SNKRX","p":"PC2","y":2021,"s":null},
+  {"t":"Twelve Minutes","p":"PC2","y":2021,"s":null},
+  {"t":"Ocean's Heart","p":"PC2","y":2021,"s":null},
+  {"t":"Webbed","p":"PC2","y":2021,"s":null},
+  {"t":"Spirit Hunters: Infinite Horde","p":"PC2","y":2021,"s":null},
+  {"t":"Space Warlord Organ Trading Simulator","p":"PC2","y":2021,"s":null},
+  {"t":"Hitman: World of Assassination","p":"PC2","y":2021,"s":null},
+  {"t":"Age of Empires IV","p":"PC2","y":2021,"s":null},
+  {"t":"Hardspace: Shipbreaker","p":"PC2","y":2022,"s":null},
+  {"t":"TUNIC","p":"PC2","y":2022,"s":null},
+  {"t":"OlliOlli World","p":"PC2","y":2022,"s":null},
+  {"t":"NORCO","p":"PC2","y":2022,"s":null},
+  {"t":"Stray","p":"PC2","y":2022,"s":null},
+  {"t":"Immortality","p":"PC2","y":2022,"s":null},
+  {"t":"Chained Echoes","p":"PC2","y":2022,"s":null},
+  {"t":"The Case of the Golden Idol","p":"PC2","y":2022,"s":null},
+  {"t":"Stacklands","p":"PC2","y":2022,"s":null},
+  {"t":"Dome Keeper","p":"PC2","y":2022,"s":null},
+  {"t":"Moonscars","p":"PC2","y":2022,"s":null},
+  {"t":"Potionomics","p":"PC2","y":2022,"s":null},
+  {"t":"The Wandering Village","p":"PC2","y":2022,"s":null,"n":"Early Access"},
+  {"t":"Betrayal At Club Low","p":"PC2","y":2022,"s":null},
+  {"t":"I Was a Teenage Exocolonist","p":"PC2","y":2022,"s":null},
+  {"t":"Forward: Escape the Fold","p":"PC2","y":2022,"s":null},
+  {"t":"Against the Storm","p":"PC2","y":2023,"s":null},
+  {"t":"Cobalt Core","p":"PC2","y":2023,"s":null},
+  {"t":"Lies of P","p":"PC2","y":2023,"s":null},
+  {"t":"Dredge","p":"PC2","y":2023,"s":null},
+  {"t":"Dark and Darker","p":"PC2","y":2023,"s":null,"n":"Early Access"},
+  {"t":"Ravenswatch","p":"PC2","y":2023,"s":null},
+  {"t":"Slay the Princess","p":"PC2","y":2023,"s":null},
+  {"t":"WitchHand","p":"PC2","y":2023,"s":null},
+  {"t":"Creepy Redneck Dinosaur Mansion 3","p":"PC2","y":2023,"s":null},
+  {"t":"COCOON","p":"PC2","y":2023,"s":null},
+  {"t":"Ember Knights","p":"PC2","y":2023,"s":null},
+  {"t":"Dragon's Dogma 2","p":"PC2","y":2024,"s":null},
+  {"t":"Animal Well","p":"PC2","y":2024,"s":null},
+  {"t":"No Rest for the Wicked","p":"PC2","y":2024,"s":null,"n":"Early Access"},
+  {"t":"Tactical Breach Wizards","p":"PC2","y":2024,"s":null},
+  {"t":"Another Crab's Treasure","p":"PC2","y":2024,"s":null},
+  {"t":"Eldegarde","p":"PC2","y":2024,"s":null},
+  {"t":"Craftlings","p":"PC2","y":2024,"s":null},
+  {"t":"Desktop Explorer","p":"PC2","y":2024,"s":null},
+  {"t":"Blue Prince","p":"PC2","y":2025,"s":null},
+  {"t":"Mewgenics","p":"PC2","y":2025,"s":null},
+  {"t":"Mina the Hollower","p":"PC2","y":2025,"s":null},
+  {"t":"The Alters","p":"PC2","y":2025,"s":null},
+  {"t":"Subnautica 2","p":"PC2","y":2025,"s":null,"n":"Early Access"},
+  {"t":"Slay the Spire 2","p":"PC2","y":2025,"s":null,"n":"Early Access"},
+  {"t":"Dispatch","p":"PC2","y":2025,"s":null},
+  {"t":"Ball x Pit","p":"PC2","y":2025,"s":null},
+  {"t":"Lootbound","p":"PC2","y":2025,"s":null},
+  {"t":"Shelldiver","p":"PC2","y":2025,"s":null},
+  {"t":"Jump Space","p":"PC2","y":2025,"s":null},
+  {"t":"Space Warlord Baby Trading Simulator","p":"PC2","y":2025,"s":null},
+  {"t":"Overlooting","p":"PC2","y":2025,"s":null},
+  {"t":"Mortal Shell II","p":"PC2","y":2025,"s":null},
+  {"t":"The Artisan of Glimmith","p":"PC2","y":2025,"s":null}
+];
+
+  const PLATFORMS = {
+    NES:  { label: "NES",         color: "#B0453C" },
+    SNES: { label: "SNES",        color: "#7A6FD0" },
+    GB:   { label: "Game Boy",    color: "#8FA04C" },
+    GBC:  { label: "GB Color",    color: "#2FA79A" },
+    GBA:  { label: "GB Advance",  color: "#5E6FD8" },
+    N64:  { label: "N64",         color: "#3E9C5C" },
+    GCN:  { label: "GameCube",    color: "#8C63C8" },
+    WII:  { label: "Wii",         color: "#5CA8DC" },
+    WIIU: { label: "Wii U",       color: "#2F7FC1" },
+    NSW:  { label: "Switch",      color: "#E8443F" },
+    IBM:  { label: "IBM PS/1",    color: "#8A8FA3" },
+    OS2:  { label: "OS/2",        color: "#2AA198" },
+    PC1:  { label: "PC ’94–’02", color: "#C98A2E" },
+    PC2:  { label: "PC ’02–now",      color: "#4E82C6" }
+  };
+
+  const ERAS = [
+    { a: 1983, b: 1987, blurb: "The NES arrives in America. Cartridge-blowing begins." },
+    { a: 1988, b: 1992, blurb: "NES at full power, a Game Boy in every pocket, the SNES lands — and an IBM PS/1 hums in the den." },
+    { a: 1993, b: 1997, blurb: "The 16-bit golden age, the N64 goes 3D, and DOS discovers Doom, Warcraft, and Diablo." },
+    { a: 1998, b: 2002, blurb: "Pokémania, Ocarina of Time, and Blizzard’s PC dynasty: StarCraft, Diablo II, Counter-Strike." },
+    { a: 2003, b: 2007, blurb: "GameCube and GBA in their prime, WoW eats the world, and the Wii gets everyone off the couch." },
+    { a: 2008, b: 2012, blurb: "Peak Wii. Minecraft, Skyrim, and StarCraft II take over the PC." },
+    { a: 2013, b: 2017, blurb: "The Wii U’s cult classics, the Switch’s landmark launch, and Steam’s indie explosion." },
+    { a: 2018, b: 2022, blurb: "Switch dominance — and the co-op and battle-royale PC era." },
+    { a: 2023, b: 2026, blurb: "Tears of the Kingdom, Baldur’s Gate 3, and the Switch 2 era begins." }
+  ];
+
+  const STORE_KEY = "atgipb-played-v1";
+  const eraOf = y => Math.min(8, Math.max(0, Math.floor((y - 1983) / 5)));
+  const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  GAMES.forEach(g => { g.id = g.p + "-" + g.y + "-" + slug(g.t); g.era = eraOf(g.y); });
+
+  let played = new Set();
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) played = new Set(JSON.parse(raw));
+  } catch (e) { /* storage unavailable — page still works, checks just won't persist */ }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify([...played])); } catch (e) {}
+  }
+
+  const state = { platforms: new Set(), query: "", hidePlayed: false };
+  let playedChangedHook = null; // set by the cloud-sync block once db is available
+
+  const fmtSales = s => {
+    if (s == null) return "—";
+    if (s < 1) return "~" + Math.round(s * 1000) + "K";
+    return "~" + (s % 1 ? s.toFixed(1) : s) + "M";
+  };
+
+  // Build era sections. The top sellers show by default; the deeper cut
+  // of each era sits behind a "more" toggle (auto-expanded while searching
+  // or platform-filtering).
+  const VISIBLE_PER_ERA = 16;
+  const erasEl = document.getElementById("eras");
+  const cardEls = new Map();
+  ERAS.forEach((era, i) => {
+    const games = GAMES.filter(g => g.era === i)
+      .sort((x, y) => (y.s ?? -1) - (x.s ?? -1) || x.t.localeCompare(y.t));
+    if (!games.length) return;
+    era.games = games;
+
+    const sec = document.createElement("section");
+    sec.className = "era";
+    sec.innerHTML =
+      '<div class="era-head">' +
+        '<div><span class="era-eyebrow">LEVEL ' + (i + 1) + ' · AGES ' + (era.a - 1983) + "–" + (era.b - 1983) + '</span>' +
+        '<h2 class="era-years">' + era.a + "–" + era.b + '</h2></div>' +
+        '<p class="era-blurb">' + era.blurb + '</p>' +
+        '<span class="era-count"><span class="mono era-n"></span><span class="progress-track"><span class="progress-fill"></span></span></span>' +
+      '</div>' +
+      '<div class="grid"></div>';
+    const grid = sec.querySelector(".grid");
+
+    games.forEach((g, rank) => {
+      const plat = PLATFORMS[g.p];
+      const btn = document.createElement("button");
+      btn.className = "card";
+      btn.type = "button";
+      btn.style.setProperty("--pc", plat.color);
+      btn.setAttribute("aria-pressed", played.has(g.id) ? "true" : "false");
+      btn.innerHTML =
+        '<span class="box" aria-hidden="true">✓</span>' +
+        '<span class="body">' +
+          '<span class="title"></span>' +
+          (g.n ? '<span class="note"></span>' : "") +
+          '<span class="meta"><span class="mono">' + g.y + '</span>' +
+            '<span class="pdot"></span><span class="plat">' + plat.label + '</span>' +
+            '<span class="sales mono">' + fmtSales(g.s) + '</span></span>' +
+        '</span>';
+      btn.querySelector(".title").textContent = g.t;
+      if (g.n) btn.querySelector(".note").textContent = g.n;
+      btn.addEventListener("click", () => {
+        const on = !played.has(g.id);
+        on ? played.add(g.id) : played.delete(g.id);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        save();
+        if (playedChangedHook) playedChangedHook();
+        if (state.hidePlayed) applyFilters(); else updateCounts();
+      });
+      cardEls.set(g.id, { el: btn, g, rank, eraIdx: i });
+      grid.appendChild(btn);
+    });
+
+    era.expanded = false;
+    if (games.length > VISIBLE_PER_ERA) {
+      const more = document.createElement("button");
+      more.className = "more-btn";
+      more.type = "button";
+      more.addEventListener("click", () => {
+        era.expanded = !era.expanded;
+        applyFilters();
+      });
+      grid.appendChild(more);
+      era.moreBtn = more;
+    }
+
+    era.sec = sec;
+    erasEl.appendChild(sec);
+  });
+
+  // Platform chips
+  const chipsEl = document.getElementById("chips");
+  Object.entries(PLATFORMS).forEach(([code, plat]) => {
+    const count = GAMES.filter(g => g.p === code).length;
+    if (!count) return;
+    const chip = document.createElement("button");
+    chip.className = "chip";
+    chip.type = "button";
+    chip.style.setProperty("--pc", plat.color);
+    chip.setAttribute("aria-pressed", "false");
+    chip.innerHTML = '<span class="dot" aria-hidden="true"></span>' + plat.label +
+      ' <span class="n mono">' + count + '</span>';
+    chip.addEventListener("click", () => {
+      const on = !state.platforms.has(code);
+      on ? state.platforms.add(code) : state.platforms.delete(code);
+      chip.setAttribute("aria-pressed", on ? "true" : "false");
+      applyFilters();
+    });
+    chipsEl.appendChild(chip);
+  });
+
+  document.getElementById("search").addEventListener("input", e => {
+    state.query = e.target.value.trim().toLowerCase();
+    applyFilters();
+  });
+  document.getElementById("hide-played").addEventListener("change", e => {
+    state.hidePlayed = e.target.checked;
+    applyFilters();
+  });
+
+  function visible(g) {
+    if (state.platforms.size && !state.platforms.has(g.p)) return false;
+    if (state.query && !g.t.toLowerCase().includes(state.query)) return false;
+    if (state.hidePlayed && played.has(g.id)) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    const searchActive = !!(state.query || state.platforms.size);
+    let any = false;
+    cardEls.forEach(({ el, g, rank, eraIdx }) => {
+      const passes = visible(g);
+      el.style.display =
+        passes && (searchActive || rank < VISIBLE_PER_ERA || ERAS[eraIdx].expanded) ? "" : "none";
+      if (passes) any = true;
+    });
+    ERAS.forEach(era => {
+      if (!era.sec) return;
+      era.sec.style.display = era.games.some(visible) ? "" : "none";
+      if (era.moreBtn) {
+        const hidden = era.games.filter((g, r) => r >= VISIBLE_PER_ERA && visible(g)).length;
+        if (searchActive || !hidden) {
+          era.moreBtn.style.display = "none";
+        } else {
+          era.moreBtn.style.display = "";
+          era.moreBtn.textContent = era.expanded ? "▴ Show fewer" : "▸ " + hidden + " more from this era";
+          era.moreBtn.setAttribute("aria-expanded", era.expanded ? "true" : "false");
+        }
+      }
+    });
+    document.getElementById("main").classList.toggle("no-results", !any);
+    updateCounts();
+  }
+
+  function updateCounts() {
+    const total = GAMES.length;
+    const done = GAMES.filter(g => played.has(g.id)).length;
+    document.getElementById("overall-label").textContent = done + " / " + total;
+    document.getElementById("overall-fill").style.width = (total ? (100 * done / total) : 0) + "%";
+    ERAS.forEach(era => {
+      if (!era.sec) return;
+      const d = era.games.filter(g => played.has(g.id)).length;
+      era.sec.querySelector(".era-n").textContent = d + "/" + era.games.length;
+      era.sec.querySelector(".era-count .progress-fill").style.width =
+        (era.games.length ? (100 * d / era.games.length) : 0) + "%";
+    });
+    renderProfile();
+  }
+
+  // ————— Player profile —————
+  // Coarse genre buckets, matched in order (first hit wins). Used only for
+  // aggregate profiling, never shown per game, so near-misses are fine.
+  const GENRE_RULES = [
+    ["Party & Sports", /mario party|wii sports|wii play|wii fit|wii party|wii music|just dance|1-2-switch|clubhouse|ring fit|mario tennis|mario golf|\bgolf\b|\btennis\b|baseball|soccer|hockey|nba |nhl |tecmo|punch-out|wrestling|wcw|volleyball|strikers|sluggers|jamboree|olympic|double dribble|blades of steel|rocket league|donkey konga|pro wrestling/i],
+    ["Puzzle", /tetris|dr\. mario|puzzle|pinball|minesweeper|solitaire|lemmings|attack\b|balatro|inscryption|portal|incredible machine|world of goo|mario paint|alleyway|qix|gorillas|nibbles|scorched earth|dream course|slay the spire|ftl/i],
+    ["Racing", /kart|racer|racing|cruis'n|wave race|f-zero|excite|1080|san francisco rush|stunts|test drive|rad racer|spy hunter/i],
+    ["RPGs", /final fantasy|dragon quest|dragon warrior|chrono|earthbound|pok[eé]mon|zelda|secret of mana|golden sun|fire emblem|tales of|xenoblade|baldur|icewind|planescape|neverwinter|elder scrolls|morrowind|oblivion|skyrim|fallout|witcher|divinity|disco elysium|mass effect|dragon age|knights of the old republic|kotor|old republic|paper mario|mario & luigi|superstar saga|mario rpg|elden ring|dark souls|sekiro|clair obscur|kingdom come|undertale|breath of fire|illusion of gaia|evermore|crystalis|world of warcraft|everquest|runescape|guild wars|diablo|torchlight|titan quest|grim dawn|path of exile|hades|sea of stars|nightreign|mystery dungeon|fantasy legend|fantasy adventure|brothership|hearthstone/i],
+    ["Strategy", /warcraft|starcraft|command & conquer|c&c|age of empires|age of mythology|civilization|total war|company of heroes|dawn of war|supreme commander|total annihilation|homeworld|red alert|tiberian|generals|stronghold|heroes of might|master of orion|master of magic|x-com|xcom|advance wars|crusader kings|stellaris|rise of nations|empire earth|alpha centauri|colonization|battle for middle-earth|frostpunk|darkest dungeon|dota|league of legends|battle chess|dune|galactic civilizations/i],
+    ["Sim & Builder", /simcity|simtower|the sims|sim for|cities|tycoon|theme park|theme hospital|dungeon keeper|factorio|satisfactory|minecraft|terraria|stardew|harvest moon|animal crossing|roblox|dwarf fortress|rimworld|kerbal|flight simulator|manor lords|valheim|\brust\b|subnautica|sons of the forest|enshrouded|palworld|v rising|starbound|don't starve|slime rancher|spore|black & white|railroad|caesar|pharaoh|eve online|garry's mod|mario maker|dave the diver|schedule i|oregon trail|math blaster|number munchers|ultima online|nintendo land|sim for os/i],
+    ["Fighting", /street fighter|mortal kombat|smash bros|killer instinct|\barms\b|one must fall|final fight|kung fu|double dragon|river city|battletoads/i],
+    ["Adventure & Horror", /monkey island|grim fandango|myst|king's quest|space quest|full throttle|tentacle|sam & max|loom|maniac mansion|carmen|resident evil|eternal darkness|amnesia|phasmophobia|lethal company|among us|firewatch|7th guest|it takes two|split fiction|untitled goose|r\.e\.p\.o|\bpeak\b|starfield|cyberpunk|grand theft|red dead|zombies ate|luigi's mansion|startropics|maniac|myst|shenmue|walking dead|detective/i],
+    ["Shooters", /doom|quake|half-life|goldeneye|counter-strike|wolfenstein|unreal|battlefield|call of duty|warzone|overwatch|apex|titanfall|far cry|crysis|bioshock|duke nukem|perfect dark|turok|heretic|hexen|f\.e\.a\.r|descent|dark forces|jedi|tie fighter|x-wing|wing commander|rogue squadron|star fox|team fortress|left 4 dead|payday|rainbow six|pubg|fortnite|splatoon|destiny|warframe|helldivers|deep rock|metroid prime|contra|gradius|1942|commando|super r-type|mechwarrior|tribes|serious sam|max payne|gungeon|risk of rain|freelancer|marvel rivals|hogan's alley|wild gunman|duck hunt|top gun|crossbow|shadows of the empire|episode i racer|genshin|blast corps|medal of honor|return to castle|world in conflict/i],
+    ["Platformers", /mario|sonic|kirby|donkey kong|yoshi|wario|mega man|castlevania|metroid|banjo|conker|rayman|celeste|meat boy|shovel|hollow knight|silksong|ori and|cuphead|limbo|braid|ninja gaiden|bubble bobble|ducktales|rescue rangers|ghosts 'n|ghouls|actraiser|bionic commando|pikmin|luigi|peach|bananza|prince of persia|dead cells|ice climber|balloon fight|wrecking crew|kid icarus|rygar|epic mickey|magical quest|commander keen|prince|bayonetta|viewtiful|chibi-robo|1-2/i]
+  ];
+  const GENRE_FALLBACK = "Arcade & Action";
+  GAMES.forEach(g => {
+    const rule = GENRE_RULES.find(([, re]) => re.test(g.t));
+    g.genre = rule ? rule[0] : GENRE_FALLBACK;
+  });
+
+  const GENRE_NOUN = {
+    "Party & Sports": "Party Captain", "Puzzle": "Puzzle Master", "Racing": "Speed Demon",
+    "RPGs": "Role-Player", "Strategy": "Strategist", "Sim & Builder": "World Builder",
+    "Fighting": "Brawler", "Adventure & Horror": "Explorer", "Shooters": "Sharpshooter",
+    "Platformers": "Platforming Pro", "Arcade & Action": "Arcade Ace"
+  };
+  const BADGES = [
+    ["🎒", "Pokémon Trainer", gs => gs.filter(g => /pok[eé]mon/i.test(g.t)).length >= 3],
+    ["🗡️", "Hero of Hyrule", gs => gs.filter(g => /zelda/i.test(g.t)).length >= 3],
+    ["🍄", "Plumber's Union", gs => gs.filter(g => /mario/i.test(g.t)).length >= 8],
+    ["🚀", "Bounty Hunter", gs => gs.filter(g => /metroid/i.test(g.t)).length >= 2],
+    ["❄️", "Blizzard Faithful", gs => gs.filter(g => /warcraft|starcraft|diablo|overwatch|hearthstone/i.test(g.t)).length >= 4],
+    ["🏁", "Kart Legend", gs => gs.filter(g => /kart|f-zero|racer/i.test(g.t)).length >= 3],
+    ["🎯", "Trigger Discipline", gs => gs.filter(g => g.genre === "Shooters").length >= 6],
+    ["♟️", "Grand Strategist", gs => gs.filter(g => g.genre === "Strategy").length >= 6],
+    ["🏗️", "City Planner", gs => gs.filter(g => /simcity|tycoon|cities|theme |factorio|satisfactory|manor/i.test(g.t)).length >= 3],
+    ["✨", "Indie Spirit", gs => gs.filter(g => /stardew|hollow|celeste|undertale|hades|terraria|binding|spire|balatro|cuphead|shovel|dead cells|limbo|braid|firewatch|goose|inscryption|meat boy|bastion|gungeon|darkest|vampire/i.test(g.t)).length >= 5],
+    ["⚔️", "Raid Ready", gs => gs.filter(g => /world of warcraft|everquest|runescape|guild wars|old republic|eve online|ultima online|destiny/i.test(g.t)).length >= 2],
+    ["🎉", "Party Starter", gs => gs.filter(g => g.genre === "Party & Sports").length >= 5],
+    ["👾", "8-Bit Native", gs => gs.filter(g => g.y <= 1992).length >= 8],
+    ["🔥", "Still Playing", gs => gs.filter(g => g.y >= 2023).length >= 5],
+    ["📚", "The Historian", gs => new Set(gs.map(g => g.era)).size >= 8],
+    ["💯", "Completionist", gs => gs.length >= GAMES.length * 0.5]
+  ];
+
+  function computeProfile() {
+    const gs = GAMES.filter(g => played.has(g.id));
+    const byPlat = {}, byYear = {}, byGenre = {};
+    gs.forEach(g => {
+      byPlat[g.p] = (byPlat[g.p] || 0) + 1;
+      byYear[g.y] = (byYear[g.y] || 0) + 1;
+      byGenre[g.genre] = (byGenre[g.genre] || 0) + 1;
+    });
+    const years = gs.map(g => g.y);
+    const busiest = Object.entries(byYear).sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
+    const topPlat = Object.entries(byPlat).sort((a, b) => b[1] - a[1])[0];
+    const topGenre = Object.entries(byGenre).sort((a, b) => b[1] - a[1])[0];
+
+    let archetype = "PRESS START", desc = "";
+    if (gs.length) {
+      const share = code => (byPlat[code] || 0) / gs.length;
+      const pcShare = share("IBM") + share("OS2") + share("PC1") + share("PC2");
+      const handheldShare = share("GB") + share("GBC") + share("GBA");
+      const nintendoShare = 1 - pcShare;
+      const platWord = pcShare >= 0.55 ? "PC" : nintendoShare >= 0.65 ? "Nintendo"
+        : handheldShare >= 0.4 ? "Handheld" : "Cross-Platform";
+      const sorted = years.slice().sort((a, b) => a - b);
+      const median = sorted[Math.floor(sorted.length / 2)];
+      const eraWord = median <= 1993 ? "8-Bit-Era" : median <= 1999 ? "'90s" :
+        median <= 2007 ? "2000s" : median <= 2015 ? "2010s" : "Modern-Era";
+      archetype = "The " + eraWord + " " + platWord + " " + GENRE_NOUN[topGenre[0]];
+      const firstY = Math.min(...years), lastY = Math.max(...years);
+      const firstGame = gs.filter(g => g.y === firstY).sort((a, b) => (b.s ?? -1) - (a.s ?? -1))[0];
+      const lastGame = gs.filter(g => g.y === lastY).sort((a, b) => (b.s ?? -1) - (a.s ?? -1))[0];
+      desc = gs.length + " games from " + firstGame.t + " (" + firstY + ") to " + lastGame.t +
+        " (" + lastY + "). Busiest year: " + busiest[0] + " with " + busiest[1] +
+        " games. Top platform: " + PLATFORMS[topPlat[0]].label + ". Leans " + topGenre[0] + ".";
+    }
+    return {
+      gs, byPlat, byYear, byGenre, archetype, desc,
+      firstY: years.length ? Math.min(...years) : 0,
+      lastY: years.length ? Math.max(...years) : 0,
+      busiestYear: busiest ? busiest[0] : "—",
+      platCount: Object.keys(byPlat).length,
+      badges: BADGES.filter(([, , test]) => test(gs)).slice(0, 8)
+    };
+  }
+
+  function timelineSVG(p) {
+    const Y0 = 1983, Y1 = 2026, colW = 24, padL = 10, dotR = 4, rowH = 9.5, cap = 14;
+    const w = padL * 2 + (Y1 - Y0 + 1) * colW;
+    const maxN = Math.max(1, ...Object.values(p.byYear).map(n => Math.min(n, cap)));
+    const base = 26 + maxN * rowH;
+    const h = base + 34;
+    const parts = ['<svg width="' + w + '" height="' + h + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline of played games by year">'];
+    ERAS.forEach((era, i) => {
+      if (i % 2) {
+        const x = padL + (era.a - Y0) * colW;
+        parts.push('<rect x="' + x + '" y="4" width="' + ((Math.min(era.b, Y1) - era.a + 1) * colW) +
+          '" height="' + (base + 6) + '" fill="var(--surface-2)" opacity="0.45"/>');
+      }
+    });
+    parts.push('<line x1="' + padL + '" y1="' + (base + 10) + '" x2="' + (w - padL) + '" y2="' + (base + 10) + '" stroke="var(--line)" stroke-width="1"/>');
+    for (let y = Y0; y <= Y1; y++) {
+      const cx = padL + (y - Y0) * colW + colW / 2;
+      if (y % 5 === 0) {
+        parts.push('<text x="' + cx + '" y="' + (base + 24) + '" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">' + y + '</text>');
+        parts.push('<text x="' + cx + '" y="' + (base + 34) + '" text-anchor="middle" font-size="8.5" fill="var(--muted)" opacity="0.7" font-family="IBM Plex Mono, monospace">age ' + (y - 1983) + '</text>');
+      }
+      const games = p.gs.filter(g => g.y === y).sort((a, b) => a.p.localeCompare(b.p) || a.t.localeCompare(b.t));
+      games.slice(0, cap).forEach((g, i2) => {
+        const cy = base - i2 * rowH;
+        parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + dotR + '" fill="' + PLATFORMS[g.p].color + '"><title>' +
+          g.t.replace(/&/g, "&amp;").replace(/</g, "&lt;") + " (" + g.y + " · " + PLATFORMS[g.p].label + ")</title></circle>");
+      });
+      if (games.length > cap) {
+        parts.push('<text x="' + cx + '" y="' + (base - cap * rowH - 4) + '" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">+' + (games.length - cap) + '</text>');
+      }
+    }
+    parts.push("</svg>");
+    return parts.join("");
+  }
+
+  function barRows(el, entries, total, colorFor) {
+    el.innerHTML = "";
+    const max = entries.length ? entries[0][1] : 1;
+    entries.forEach(([key, n]) => {
+      const row = document.createElement("div");
+      row.className = "prow";
+      const label = colorFor ? PLATFORMS[key].label : key;
+      row.innerHTML =
+        (colorFor ? '<span class="pdot" style="background:' + PLATFORMS[key].color + '"></span>' : "") +
+        '<span class="lbl"></span>' +
+        '<span class="trk"><span class="fill" style="width:' + Math.round(100 * n / max) + '%' +
+        (colorFor ? ";background:" + PLATFORMS[key].color : "") + '"></span></span>' +
+        '<span class="cnt mono">' + n + '</span>';
+      row.querySelector(".lbl").textContent = label;
+      el.appendChild(row);
+    });
+  }
+
+  function renderProfile() {
+    const p = computeProfile();
+    lastProfile = p;
+    const n = p.gs.length;
+    document.getElementById("pcard-count").textContent = "· " + n + " / " + GAMES.length;
+    document.getElementById("pcard-arch").textContent = p.archetype.toUpperCase();
+    const detail = document.getElementById("pcard-detail");
+    const descEl = document.getElementById("pcard-desc");
+    if (!n) {
+      descEl.textContent = "Check off games below and your player card builds itself — timeline, stats, badges and all.";
+      descEl.className = "pcard-desc pcard-empty";
+      detail.hidden = true;
+      document.getElementById("card-btn").hidden = true;
+      return;
+    }
+    descEl.className = "pcard-desc";
+    descEl.textContent = p.desc;
+    detail.hidden = false;
+    document.getElementById("card-btn").hidden = !downloadsNS;
+
+    const stats = document.getElementById("pcard-stats");
+    stats.innerHTML = "";
+    [[n + " / " + GAMES.length, "games played"],
+     [p.platCount + " / 14", "platforms"],
+     [(p.lastY - p.firstY + 1) + " yrs", p.firstY + "–" + p.lastY],
+     [p.busiestYear, "busiest year"],
+     [p.badges.length, "badges earned"]].forEach(([v, k]) => {
+      const d = document.createElement("div");
+      d.className = "stat";
+      d.innerHTML = '<div class="v"></div><div class="k"></div>';
+      d.querySelector(".v").textContent = v;
+      d.querySelector(".k").textContent = k;
+      stats.appendChild(d);
+    });
+
+    document.getElementById("tl").innerHTML = timelineSVG(p);
+    barRows(document.getElementById("pcard-plat"),
+      Object.entries(p.byPlat).sort((a, b) => b[1] - a[1]).slice(0, 7), n, true);
+    barRows(document.getElementById("pcard-genre"),
+      Object.entries(p.byGenre).sort((a, b) => b[1] - a[1]).slice(0, 6), n, false);
+
+    const badgesEl = document.getElementById("pcard-badges");
+    badgesEl.innerHTML = "";
+    p.badges.forEach(([emoji, name]) => {
+      const b = document.createElement("span");
+      b.className = "badge";
+      b.textContent = emoji + " " + name;
+      badgesEl.appendChild(b);
+    });
+  }
+
+  let lastProfile = null;
+  let downloadsNS = null;
+
+  document.getElementById("pcard-toggle").addEventListener("click", e => {
+    const body = document.getElementById("pcard-body");
+    body.hidden = !body.hidden;
+    e.currentTarget.setAttribute("aria-expanded", body.hidden ? "false" : "true");
+    e.currentTarget.firstChild.textContent = (body.hidden ? "+" : "-") + " YOUR PLAYER CARD ";
+  });
+
+  // Share-card infographic: a fixed dark 1200×675 PNG drawn on canvas.
+  async function drawShareCard(p) {
+    try {
+      await document.fonts.load('700 40px "Silkscreen"');
+      await document.fonts.load('400 15px "IBM Plex Mono"');
+      await document.fonts.load('600 17px "IBM Plex Sans"');
+    } catch (e) {}
+    const W = 1200, H = 675;
+    const cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    const c = cv.getContext("2d");
+    c.fillStyle = "#17161B"; c.fillRect(0, 0, W, H);
+    c.strokeStyle = "#34323B"; c.lineWidth = 4; c.strokeRect(14, 14, W - 28, H - 28);
+
+    c.fillStyle = "#FF6A5C";
+    c.font = '700 17px "Silkscreen", monospace';
+    c.fillText("ALL THE GAMES I PLAYED BEFORE", 60, 78);
+
+    let size = 42;
+    c.font = '700 ' + size + 'px "Silkscreen", monospace';
+    const arch = p.archetype.toUpperCase();
+    while (c.measureText(arch).width > W - 120 && size > 20) {
+      size -= 2; c.font = '700 ' + size + 'px "Silkscreen", monospace';
+    }
+    c.fillStyle = "#ECEAE4";
+    c.fillText(arch, 60, 138);
+
+    c.fillStyle = "#98948D";
+    c.font = '400 19px "IBM Plex Mono", monospace';
+    c.fillText(p.gs.length + " / " + GAMES.length + " GAMES · " + p.platCount + " PLATFORMS · " +
+      p.firstY + "–" + p.lastY, 60, 176);
+
+    // Timeline bars by year
+    const tx = 60, tw = W - 120, ty = 215, th = 150, years = 44;
+    const colW = tw / years;
+    const maxN = Math.max(1, ...Object.values(p.byYear));
+    c.strokeStyle = "#34323B"; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(tx, ty + th + 0.5); c.lineTo(tx + tw, ty + th + 0.5); c.stroke();
+    for (let i = 0; i < years; i++) {
+      const y = 1983 + i, cnt = p.byYear[y] || 0;
+      if (cnt) {
+        const bh = Math.max(4, th * cnt / maxN);
+        c.fillStyle = "#E5B84B";
+        c.fillRect(tx + i * colW + 2, ty + th - bh, colW - 4, bh);
+      }
+      if (y % 5 === 0) {
+        c.fillStyle = "#98948D"; c.font = '400 12px "IBM Plex Mono", monospace';
+        c.textAlign = "center";
+        c.fillText(String(y), tx + i * colW + colW / 2, ty + th + 22);
+        c.textAlign = "left";
+      }
+    }
+
+    // Platform and genre columns
+    const rowY = 430, rowH2 = 30;
+    const plats = Object.entries(p.byPlat).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const maxP = plats.length ? plats[0][1] : 1;
+    c.font = '600 15px "IBM Plex Sans", sans-serif';
+    plats.forEach(([code, cnt], i) => {
+      const y = rowY + i * rowH2;
+      c.fillStyle = PLATFORMS[code].color;
+      c.beginPath(); c.arc(68, y - 5, 5, 0, 7); c.fill();
+      c.fillStyle = "#ECEAE4";
+      c.fillText(PLATFORMS[code].label, 84, y);
+      c.fillStyle = "#2A2931"; c.fillRect(220, y - 13, 240, 10);
+      c.fillStyle = PLATFORMS[code].color; c.fillRect(220, y - 13, Math.max(6, 240 * cnt / maxP), 10);
+      c.fillStyle = "#98948D"; c.font = '400 13px "IBM Plex Mono", monospace';
+      c.fillText(String(cnt), 470, y - 3);
+      c.font = '600 15px "IBM Plex Sans", sans-serif';
+    });
+    const genres = Object.entries(p.byGenre).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const maxG = genres.length ? genres[0][1] : 1;
+    genres.forEach(([label, cnt], i) => {
+      const y = rowY + i * rowH2;
+      c.fillStyle = "#ECEAE4"; c.font = '600 15px "IBM Plex Sans", sans-serif';
+      c.fillText(label, 620, y);
+      c.fillStyle = "#2A2931"; c.fillRect(790, y - 13, 250, 10);
+      c.fillStyle = "#E5B84B"; c.fillRect(790, y - 13, Math.max(6, 250 * cnt / maxG), 10);
+      c.fillStyle = "#98948D"; c.font = '400 13px "IBM Plex Mono", monospace';
+      c.fillText(String(cnt), 1050, y - 3);
+    });
+
+    c.fillStyle = "#E5B84B"; c.font = '600 17px "IBM Plex Sans", sans-serif';
+    c.fillText(p.badges.slice(0, 5).map(([e, nm]) => e + " " + nm).join("   "), 60, 622);
+    return cv;
+  }
+
+  document.getElementById("card-btn").addEventListener("click", async () => {
+    if (!downloadsNS || !lastProfile || !lastProfile.gs.length) return;
+    const btn = document.getElementById("card-btn");
+    btn.disabled = true; btn.textContent = "Drawing…";
+    try {
+      const cv = await drawShareCard(lastProfile);
+      const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+      await downloadsNS.save({ filename: "my-player-card.png", data: blob });
+      btn.textContent = "Saved ✓";
+    } catch (e) {
+      btn.textContent = (e && e.code === "declined") ? "Save card as image" : "Save failed";
+    }
+    setTimeout(() => { btn.textContent = "Save card as image"; btn.disabled = false; }, 2200);
+  });
+
+  document.getElementById("subtitle").textContent =
+    "43 years. 14 platforms. " + GAMES.length + " games. Check off everything you ever played — each era sorted by the best-selling games of its day.";
+  applyFilters();
+
+  // Replace the whole played set (from a cloud snapshot) and refresh the UI.
+  function applyPlayed(newSet) {
+    played = newSet;
+    save();
+    cardEls.forEach(({ el, g }) => el.setAttribute("aria-pressed", played.has(g.id) ? "true" : "false"));
+    if (state.hidePlayed) applyFilters(); else updateCounts();
+  }
+
+  const useCap = (window.claude && window.claude.use)
+    ? name => window.claude.use(name)
+    : () => Promise.resolve(null);
+
+  // Cloud save: selections sync to this artifact's database when opened from claude.ai.
+  (async () => {
+    const statusEl = document.getElementById("save-status");
+    const setStatus = (s, txt, title) => {
+      statusEl.dataset.s = s;
+      statusEl.querySelector(".s-txt").textContent = txt;
+      statusEl.title = title || "";
+    };
+    setStatus("local", "Local only", "Checks save in this browser. Open from claude.ai to sync to your account.");
+
+    const db = await useCap("db");
+    if (!db) return;
+
+    const ref = db.doc("checklists/owner");
+    const key = set => [...set].sort().join("|");
+    let saveTimer = null, saving = false;
+
+    async function push(isRetry) {
+      saving = true;
+      setStatus("saving", "Saving…");
+      try {
+        await ref.set({ ids: [...played], count: played.size, updated: new Date().toISOString() });
+        setStatus("ok", "Saved to cloud", "Your selections are saved to this artifact's storage.");
+      } catch (e) {
+        if (e && e.code === "unavailable" && !isRetry) {
+          setTimeout(() => push(true), 1500 + Math.random() * 1500);
+          return;
+        }
+        setStatus("err", "Save failed", (e && e.message) || "Could not reach cloud storage.");
+      } finally {
+        saving = false;
+      }
+    }
+
+    playedChangedHook = () => {
+      setStatus("saving", "Saving…");
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => { saveTimer = null; push(); }, 700);
+    };
+
+    try {
+      const snap = await ref.get();
+      if (snap.exists) {
+        const server = (snap.data().ids || []).filter(id => typeof id === "string");
+        const union = new Set([...server, ...played]);
+        applyPlayed(union);
+        if (union.size !== server.length) push();
+        else setStatus("ok", "Saved to cloud", "Your selections are saved to this artifact's storage.");
+      } else if (played.size) {
+        push(); // first cloud save of what this browser already had
+      } else {
+        setStatus("ok", "Cloud sync on", "Selections will save to this artifact's storage as you check games.");
+      }
+    } catch (e) {
+      setStatus("err", "Sync error", (e && e.message) || "");
+      return;
+    }
+
+    // Live updates from other devices/tabs; skip while a local save is pending.
+    ref.onSnapshot(snap => {
+      if (!snap.exists || snap.metadata.hasPendingWrites || saveTimer || saving) return;
+      const ids = (snap.data().ids || []).filter(id => typeof id === "string");
+      if (key(new Set(ids)) === key(played)) return;
+      applyPlayed(new Set(ids));
+      setStatus("ok", "Saved to cloud", "Updated from another device.");
+    }, e => setStatus("err", "Sync lost", (e && e.message) || ""));
+  })();
+
+  // Export: download the played list as a JSON file.
+  (async () => {
+    const downloads = await useCap("downloads");
+    if (!downloads) return;
+    downloadsNS = downloads;
+    renderProfile(); // reveal the share-card button now that saving files works
+    const btn = document.getElementById("export-btn");
+    btn.hidden = false;
+    const reset = () => setTimeout(() => { btn.textContent = "Export"; btn.disabled = false; }, 2200);
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      btn.textContent = "Exporting…";
+      const checked = GAMES.filter(g => played.has(g.id))
+        .sort((a, b) => a.y - b.y || a.t.localeCompare(b.t))
+        .map(g => ({ title: g.t, platform: PLATFORMS[g.p].label, year: g.y }));
+      const payload = {
+        exported: new Date().toISOString(),
+        gamesPlayed: checked.length,
+        gamesListed: GAMES.length,
+        games: checked
+      };
+      try {
+        await downloads.save({ filename: "my-games-played.json", data: JSON.stringify(payload, null, 2) });
+        btn.textContent = "Exported ✓";
+      } catch (e) {
+        btn.textContent = (e && e.code === "declined") ? "Export" : "Export failed";
+      }
+      reset();
+    });
+  })();
+</script>

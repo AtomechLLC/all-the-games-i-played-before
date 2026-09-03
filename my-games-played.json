@@ -1,0 +1,1302 @@
+{
+  "exported": "2026-09-02T22:39:24.196Z",
+  "gamesPlayed": 259,
+  "gamesListed": 673,
+  "games": [
+    {
+      "title": "Duck Hunt",
+      "platform": "NES",
+      "year": 1985
+    },
+    {
+      "title": "Excitebike",
+      "platform": "NES",
+      "year": 1985
+    },
+    {
+      "title": "Super Mario Bros.",
+      "platform": "NES",
+      "year": 1985
+    },
+    {
+      "title": "Gradius",
+      "platform": "NES",
+      "year": 1986
+    },
+    {
+      "title": "Castlevania",
+      "platform": "NES",
+      "year": 1987
+    },
+    {
+      "title": "Kid Icarus",
+      "platform": "NES",
+      "year": 1987
+    },
+    {
+      "title": "Mega Man",
+      "platform": "NES",
+      "year": 1987
+    },
+    {
+      "title": "Metroid",
+      "platform": "NES",
+      "year": 1987
+    },
+    {
+      "title": "The Legend of Zelda",
+      "platform": "NES",
+      "year": 1987
+    },
+    {
+      "title": "Bubble Bobble",
+      "platform": "NES",
+      "year": 1988
+    },
+    {
+      "title": "Contra",
+      "platform": "NES",
+      "year": 1988
+    },
+    {
+      "title": "Paperboy",
+      "platform": "NES",
+      "year": 1988
+    },
+    {
+      "title": "Super Mario Bros. 2",
+      "platform": "NES",
+      "year": 1988
+    },
+    {
+      "title": "Zelda II: The Adventure of Link",
+      "platform": "NES",
+      "year": 1988
+    },
+    {
+      "title": "Dragon Warrior",
+      "platform": "NES",
+      "year": 1989
+    },
+    {
+      "title": "DuckTales",
+      "platform": "NES",
+      "year": 1989
+    },
+    {
+      "title": "Mega Man 2",
+      "platform": "NES",
+      "year": 1989
+    },
+    {
+      "title": "SimCity",
+      "platform": "IBM PS/1",
+      "year": 1989
+    },
+    {
+      "title": "Super Mario Land",
+      "platform": "Game Boy",
+      "year": 1989
+    },
+    {
+      "title": "Teenage Mutant Ninja Turtles",
+      "platform": "NES",
+      "year": 1989
+    },
+    {
+      "title": "Tetris",
+      "platform": "NES",
+      "year": 1989
+    },
+    {
+      "title": "Tetris",
+      "platform": "Game Boy",
+      "year": 1989
+    },
+    {
+      "title": "Chip 'n Dale Rescue Rangers",
+      "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "Commander Keen: Invasion of the Vorticons",
+      "platform": "IBM PS/1",
+      "year": 1990
+    },
+    {
+      "title": "Crystalis",
+      "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "Dr. Mario",
+      "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "Dr. Mario",
+      "platform": "Game Boy",
+      "year": 1990
+    },
+    {
+      "title": "Final Fantasy",
+      "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "Mega Man 3",
+      "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "Minesweeper",
+      "platform": "IBM PS/1",
+      "year": 1990
+    },
+    {
+      "title": "River City Ransom",
+      "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "StarTropics",
+      "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "Super Mario Bros. 3",
+      "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "Teenage Mutant Ninja Turtles II: The Arcade Game",
+      "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "The Oregon Trail",
+      "platform": "IBM PS/1",
+      "year": 1990
+    },
+    {
+      "title": "The Secret of Monkey Island",
+      "platform": "IBM PS/1",
+      "year": 1990
+    },
+    {
+      "title": "Where in the World Is Carmen Sandiego?",
+      "platform": "IBM PS/1",
+      "year": 1990
+    },
+    {
+      "title": "Final Fantasy Adventure",
+      "platform": "Game Boy",
+      "year": 1991
+    },
+    {
+      "title": "Final Fantasy II (IV)",
+      "platform": "SNES",
+      "year": 1991
+    },
+    {
+      "title": "Lemmings",
+      "platform": "IBM PS/1",
+      "year": 1991
+    },
+    {
+      "title": "Mega Man: Dr. Wily's Revenge",
+      "platform": "Game Boy",
+      "year": 1991
+    },
+    {
+      "title": "Metroid II: Return of Samus",
+      "platform": "Game Boy",
+      "year": 1991
+    },
+    {
+      "title": "SimCity",
+      "platform": "SNES",
+      "year": 1991
+    },
+    {
+      "title": "Space Quest IV",
+      "platform": "IBM PS/1",
+      "year": 1991
+    },
+    {
+      "title": "Super Mario World",
+      "platform": "SNES",
+      "year": 1991
+    },
+    {
+      "title": "Kirby's Dream Land",
+      "platform": "Game Boy",
+      "year": 1992
+    },
+    {
+      "title": "Mario Paint",
+      "platform": "SNES",
+      "year": 1992
+    },
+    {
+      "title": "Street Fighter II: The World Warrior",
+      "platform": "SNES",
+      "year": 1992
+    },
+    {
+      "title": "Super Mario Kart",
+      "platform": "SNES",
+      "year": 1992
+    },
+    {
+      "title": "Super Mario Land 2: 6 Golden Coins",
+      "platform": "Game Boy",
+      "year": 1992
+    },
+    {
+      "title": "The Legend of Zelda: A Link to the Past",
+      "platform": "SNES",
+      "year": 1992
+    },
+    {
+      "title": "Doom",
+      "platform": "PC ’94–’02",
+      "year": 1993
+    },
+    {
+      "title": "Kirby's Adventure",
+      "platform": "NES",
+      "year": 1993
+    },
+    {
+      "title": "Kirby's Pinball Land",
+      "platform": "Game Boy",
+      "year": 1993
+    },
+    {
+      "title": "Mega Man X",
+      "platform": "SNES",
+      "year": 1993
+    },
+    {
+      "title": "Myst",
+      "platform": "PC ’94–’02",
+      "year": 1993
+    },
+    {
+      "title": "Secret of Mana",
+      "platform": "SNES",
+      "year": 1993
+    },
+    {
+      "title": "SimCity 2000",
+      "platform": "PC ’94–’02",
+      "year": 1993
+    },
+    {
+      "title": "Star Fox",
+      "platform": "SNES",
+      "year": 1993
+    },
+    {
+      "title": "Street Fighter II Turbo",
+      "platform": "SNES",
+      "year": 1993
+    },
+    {
+      "title": "Super Mario All-Stars",
+      "platform": "SNES",
+      "year": 1993
+    },
+    {
+      "title": "The Legend of Zelda: Link's Awakening",
+      "platform": "Game Boy",
+      "year": 1993
+    },
+    {
+      "title": "Breath of Fire",
+      "platform": "SNES",
+      "year": 1994
+    },
+    {
+      "title": "Donkey Kong",
+      "platform": "Game Boy",
+      "year": 1994
+    },
+    {
+      "title": "Donkey Kong Country",
+      "platform": "SNES",
+      "year": 1994
+    },
+    {
+      "title": "Final Fantasy III (VI)",
+      "platform": "SNES",
+      "year": 1994
+    },
+    {
+      "title": "Illusion of Gaia",
+      "platform": "SNES",
+      "year": 1994
+    },
+    {
+      "title": "Stunt Race FX",
+      "platform": "SNES",
+      "year": 1994
+    },
+    {
+      "title": "Super Metroid",
+      "platform": "SNES",
+      "year": 1994
+    },
+    {
+      "title": "Super Punch-Out!!",
+      "platform": "SNES",
+      "year": 1994
+    },
+    {
+      "title": "Warcraft: Orcs & Humans",
+      "platform": "PC ’94–’02",
+      "year": 1994
+    },
+    {
+      "title": "Wario Land: Super Mario Land 3",
+      "platform": "Game Boy",
+      "year": 1994
+    },
+    {
+      "title": "Chrono Trigger",
+      "platform": "SNES",
+      "year": 1995
+    },
+    {
+      "title": "Command & Conquer",
+      "platform": "PC ’94–’02",
+      "year": 1995
+    },
+    {
+      "title": "Donkey Kong Country 2: Diddy's Kong Quest",
+      "platform": "SNES",
+      "year": 1995
+    },
+    {
+      "title": "Donkey Kong Land",
+      "platform": "Game Boy",
+      "year": 1995
+    },
+    {
+      "title": "EarthBound",
+      "platform": "SNES",
+      "year": 1995
+    },
+    {
+      "title": "Kirby's Dream Course",
+      "platform": "SNES",
+      "year": 1995
+    },
+    {
+      "title": "Kirby's Dream Land 2",
+      "platform": "Game Boy",
+      "year": 1995
+    },
+    {
+      "title": "Super Mario World 2: Yoshi's Island",
+      "platform": "SNES",
+      "year": 1995
+    },
+    {
+      "title": "Warcraft II: Tides of Darkness",
+      "platform": "PC ’94–’02",
+      "year": 1995
+    },
+    {
+      "title": "Donkey Kong Country 3",
+      "platform": "SNES",
+      "year": 1996
+    },
+    {
+      "title": "Donkey Kong Land 2",
+      "platform": "Game Boy",
+      "year": 1996
+    },
+    {
+      "title": "Duke Nukem 3D",
+      "platform": "PC ’94–’02",
+      "year": 1996
+    },
+    {
+      "title": "Kirby Super Star",
+      "platform": "SNES",
+      "year": 1996
+    },
+    {
+      "title": "Quake",
+      "platform": "PC ’94–’02",
+      "year": 1996
+    },
+    {
+      "title": "Super Mario 64",
+      "platform": "N64",
+      "year": 1996
+    },
+    {
+      "title": "Super Mario RPG: Legend of the Seven Stars",
+      "platform": "SNES",
+      "year": 1996
+    },
+    {
+      "title": "Diablo",
+      "platform": "PC ’94–’02",
+      "year": 1997
+    },
+    {
+      "title": "GoldenEye 007",
+      "platform": "N64",
+      "year": 1997
+    },
+    {
+      "title": "Mario Kart 64",
+      "platform": "N64",
+      "year": 1997
+    },
+    {
+      "title": "Star Fox 64",
+      "platform": "N64",
+      "year": 1997
+    },
+    {
+      "title": "Half-Life",
+      "platform": "PC ’94–’02",
+      "year": 1998
+    },
+    {
+      "title": "Pokémon Red / Blue",
+      "platform": "Game Boy",
+      "year": 1998
+    },
+    {
+      "title": "StarCraft",
+      "platform": "PC ’94–’02",
+      "year": 1998
+    },
+    {
+      "title": "Starsiege: Tribes",
+      "platform": "PC ’94–’02",
+      "year": 1998
+    },
+    {
+      "title": "The Legend of Zelda: Link's Awakening DX",
+      "platform": "GB Color",
+      "year": 1998
+    },
+    {
+      "title": "The Legend of Zelda: Ocarina of Time",
+      "platform": "N64",
+      "year": 1998
+    },
+    {
+      "title": "Wario Land II",
+      "platform": "Game Boy",
+      "year": 1998
+    },
+    {
+      "title": "Yoshi's Story",
+      "platform": "N64",
+      "year": 1998
+    },
+    {
+      "title": "Donkey Kong 64",
+      "platform": "N64",
+      "year": 1999
+    },
+    {
+      "title": "Homeworld",
+      "platform": "PC ’94–’02",
+      "year": 1999
+    },
+    {
+      "title": "Mario Party",
+      "platform": "N64",
+      "year": 1999
+    },
+    {
+      "title": "Planescape: Torment",
+      "platform": "PC ’94–’02",
+      "year": 1999
+    },
+    {
+      "title": "Pokémon Yellow",
+      "platform": "Game Boy",
+      "year": 1999
+    },
+    {
+      "title": "Super Smash Bros.",
+      "platform": "N64",
+      "year": 1999
+    },
+    {
+      "title": "Unreal Tournament",
+      "platform": "PC ’94–’02",
+      "year": 1999
+    },
+    {
+      "title": "Counter-Strike",
+      "platform": "PC ’94–’02",
+      "year": 2000
+    },
+    {
+      "title": "Deus Ex",
+      "platform": "PC ’94–’02",
+      "year": 2000
+    },
+    {
+      "title": "Diablo II",
+      "platform": "PC ’94–’02",
+      "year": 2000
+    },
+    {
+      "title": "Kirby 64: The Crystal Shards",
+      "platform": "N64",
+      "year": 2000
+    },
+    {
+      "title": "Mario Party 2",
+      "platform": "N64",
+      "year": 2000
+    },
+    {
+      "title": "Perfect Dark",
+      "platform": "N64",
+      "year": 2000
+    },
+    {
+      "title": "Pokémon Gold / Silver",
+      "platform": "GB Color",
+      "year": 2000
+    },
+    {
+      "title": "Pokémon Stadium",
+      "platform": "N64",
+      "year": 2000
+    },
+    {
+      "title": "The Legend of Zelda: Majora's Mask",
+      "platform": "N64",
+      "year": 2000
+    },
+    {
+      "title": "Wario Land 3",
+      "platform": "GB Color",
+      "year": 2000
+    },
+    {
+      "title": "Advance Wars",
+      "platform": "GB Advance",
+      "year": 2001
+    },
+    {
+      "title": "Pokémon Stadium 2",
+      "platform": "N64",
+      "year": 2001
+    },
+    {
+      "title": "Super Smash Bros. Melee",
+      "platform": "GameCube",
+      "year": 2001
+    },
+    {
+      "title": "Wario Land 4",
+      "platform": "GB Advance",
+      "year": 2001
+    },
+    {
+      "title": "Zelda: Oracle of Seasons / Oracle of Ages",
+      "platform": "GB Color",
+      "year": 2001
+    },
+    {
+      "title": "Metroid Fusion",
+      "platform": "GB Advance",
+      "year": 2002
+    },
+    {
+      "title": "Metroid Prime",
+      "platform": "GameCube",
+      "year": 2002
+    },
+    {
+      "title": "Super Mario Sunshine",
+      "platform": "GameCube",
+      "year": 2002
+    },
+    {
+      "title": "Super Mario World: Super Mario Advance 2",
+      "platform": "GB Advance",
+      "year": 2002
+    },
+    {
+      "title": "Warcraft III: Reign of Chaos",
+      "platform": "PC ’02–now",
+      "year": 2002
+    },
+    {
+      "title": "Yoshi's Island: Super Mario Advance 3",
+      "platform": "GB Advance",
+      "year": 2002
+    },
+    {
+      "title": "Zelda: A Link to the Past & Four Swords",
+      "platform": "GB Advance",
+      "year": 2002
+    },
+    {
+      "title": "Final Fantasy Tactics Advance",
+      "platform": "GB Advance",
+      "year": 2003
+    },
+    {
+      "title": "Kirby Air Ride",
+      "platform": "GameCube",
+      "year": 2003
+    },
+    {
+      "title": "Pokémon Ruby / Sapphire",
+      "platform": "GB Advance",
+      "year": 2003
+    },
+    {
+      "title": "The Legend of Zelda: The Wind Waker",
+      "platform": "GameCube",
+      "year": 2003
+    },
+    {
+      "title": "Warcraft III: The Frozen Throne",
+      "platform": "PC ’02–now",
+      "year": 2003
+    },
+    {
+      "title": "Half-Life 2",
+      "platform": "PC ’02–now",
+      "year": 2004
+    },
+    {
+      "title": "Metroid Prime 2: Echoes",
+      "platform": "GameCube",
+      "year": 2004
+    },
+    {
+      "title": "Metroid: Zero Mission",
+      "platform": "GB Advance",
+      "year": 2004
+    },
+    {
+      "title": "World of Warcraft",
+      "platform": "PC ’02–now",
+      "year": 2004
+    },
+    {
+      "title": "F.E.A.R.",
+      "platform": "PC ’02–now",
+      "year": 2005
+    },
+    {
+      "title": "Super Mario Strikers",
+      "platform": "GameCube",
+      "year": 2005
+    },
+    {
+      "title": "Dwarf Fortress",
+      "platform": "PC ’02–now",
+      "year": 2006
+    },
+    {
+      "title": "The Legend of Zelda: Twilight Princess",
+      "platform": "GameCube",
+      "year": 2006
+    },
+    {
+      "title": "Wii Sports",
+      "platform": "Wii",
+      "year": 2006
+    },
+    {
+      "title": "BioShock",
+      "platform": "PC ’02–now",
+      "year": 2007
+    },
+    {
+      "title": "Call of Duty 4: Modern Warfare",
+      "platform": "PC ’02–now",
+      "year": 2007
+    },
+    {
+      "title": "Metroid Prime 3: Corruption",
+      "platform": "Wii",
+      "year": 2007
+    },
+    {
+      "title": "Portal",
+      "platform": "PC ’02–now",
+      "year": 2007
+    },
+    {
+      "title": "Super Mario Galaxy",
+      "platform": "Wii",
+      "year": 2007
+    },
+    {
+      "title": "Super Paper Mario",
+      "platform": "Wii",
+      "year": 2007
+    },
+    {
+      "title": "Team Fortress 2",
+      "platform": "PC ’02–now",
+      "year": 2007
+    },
+    {
+      "title": "The Witcher",
+      "platform": "PC ’02–now",
+      "year": 2007
+    },
+    {
+      "title": "Wii Play",
+      "platform": "Wii",
+      "year": 2007
+    },
+    {
+      "title": "Fallout 3",
+      "platform": "PC ’02–now",
+      "year": 2008
+    },
+    {
+      "title": "Mario Kart Wii",
+      "platform": "Wii",
+      "year": 2008
+    },
+    {
+      "title": "Mario Super Sluggers",
+      "platform": "Wii",
+      "year": 2008
+    },
+    {
+      "title": "Spore",
+      "platform": "PC ’02–now",
+      "year": 2008
+    },
+    {
+      "title": "Super Smash Bros. Brawl",
+      "platform": "Wii",
+      "year": 2008
+    },
+    {
+      "title": "Wii Fit",
+      "platform": "Wii",
+      "year": 2008
+    },
+    {
+      "title": "Braid",
+      "platform": "PC ’02–now",
+      "year": 2009
+    },
+    {
+      "title": "Call of Duty: Modern Warfare 2",
+      "platform": "PC ’02–now",
+      "year": 2009
+    },
+    {
+      "title": "Dragon Age: Origins",
+      "platform": "PC ’02–now",
+      "year": 2009
+    },
+    {
+      "title": "League of Legends",
+      "platform": "PC ’02–now",
+      "year": 2009
+    },
+    {
+      "title": "New Super Mario Bros. Wii",
+      "platform": "Wii",
+      "year": 2009
+    },
+    {
+      "title": "Plants vs. Zombies",
+      "platform": "PC ’02–now",
+      "year": 2009
+    },
+    {
+      "title": "Wii Sports Resort",
+      "platform": "Wii",
+      "year": 2009
+    },
+    {
+      "title": "Epic Mickey",
+      "platform": "Wii",
+      "year": 2010
+    },
+    {
+      "title": "Mass Effect 2",
+      "platform": "PC ’02–now",
+      "year": 2010
+    },
+    {
+      "title": "StarCraft II: Wings of Liberty",
+      "platform": "PC ’02–now",
+      "year": 2010
+    },
+    {
+      "title": "Super Mario Galaxy 2",
+      "platform": "Wii",
+      "year": 2010
+    },
+    {
+      "title": "Super Meat Boy",
+      "platform": "PC ’02–now",
+      "year": 2010
+    },
+    {
+      "title": "Bastion",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
+      "title": "Kirby's Return to Dream Land",
+      "platform": "Wii",
+      "year": 2011
+    },
+    {
+      "title": "Magicka",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
+      "title": "Minecraft",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
+      "title": "Terraria",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
+      "title": "The Binding of Isaac",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
+      "title": "The Elder Scrolls V: Skyrim",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
+      "title": "The Witcher 2: Assassins of Kings",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
+      "title": "Borderlands 2",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
+      "title": "Counter-Strike: Global Offensive",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
+      "title": "Diablo III",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
+      "title": "FTL: Faster Than Light",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
+      "title": "Mario Party 9",
+      "platform": "Wii",
+      "year": 2012
+    },
+    {
+      "title": "New Super Mario Bros. U",
+      "platform": "Wii U",
+      "year": 2012
+    },
+    {
+      "title": "Nintendo Land",
+      "platform": "Wii U",
+      "year": 2012
+    },
+    {
+      "title": "XCOM: Enemy Unknown",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
+      "title": "Xenoblade Chronicles",
+      "platform": "Wii",
+      "year": 2012
+    },
+    {
+      "title": "BioShock Infinite",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "Don't Starve",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "New Super Luigi U",
+      "platform": "Wii U",
+      "year": 2013
+    },
+    {
+      "title": "Super Mario 3D World",
+      "platform": "Wii U",
+      "year": 2013
+    },
+    {
+      "title": "Bayonetta 2",
+      "platform": "Wii U",
+      "year": 2014
+    },
+    {
+      "title": "Hearthstone",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Shovel Knight",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Fallout 4",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Ori and the Blind Forest",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Rainbow Six Siege",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Super Mario Maker",
+      "platform": "Wii U",
+      "year": 2015
+    },
+    {
+      "title": "Undertale",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Xenoblade Chronicles X",
+      "platform": "Wii U",
+      "year": 2015
+    },
+    {
+      "title": "Dark Souls III",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Darkest Dungeon",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Enter the Gungeon",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Factorio",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Firewatch",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Overwatch",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Stardew Valley",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Stellaris",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Titanfall 2",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "XCOM 2",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Cuphead",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Divinity: Original Sin 2",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Hollow Knight",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Super Mario Odyssey",
+      "platform": "Switch",
+      "year": 2017
+    },
+    {
+      "title": "The Legend of Zelda: Breath of the Wild",
+      "platform": "Wii U",
+      "year": 2017
+    },
+    {
+      "title": "The Legend of Zelda: Breath of the Wild",
+      "platform": "Switch",
+      "year": 2017
+    },
+    {
+      "title": "Xenoblade Chronicles 2",
+      "platform": "Switch",
+      "year": 2017
+    },
+    {
+      "title": "Among Us",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Frostpunk",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Monster Hunter: World",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Rust",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Subnautica",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Super Smash Bros. Ultimate",
+      "platform": "Switch",
+      "year": 2018
+    },
+    {
+      "title": "Apex Legends",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Disco Elysium",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Risk of Rain 2",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Sekiro: Shadows Die Twice",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Slay the Spire",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Untitled Goose Game",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Call of Duty: Warzone",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Cyberpunk 2077",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Genshin Impact",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Hades",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Hyrule Warriors: Age of Calamity",
+      "platform": "Switch",
+      "year": 2020
+    },
+    {
+      "title": "Inscryption",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "It Takes Two",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Metroid Dread",
+      "platform": "Switch",
+      "year": 2021
+    },
+    {
+      "title": "Valheim",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Cult of the Lamb",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Elden Ring",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Vampire Survivors",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Baldur's Gate 3",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Dave the Diver",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Diablo IV",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Metroid Prime Remastered",
+      "platform": "Switch",
+      "year": 2023
+    },
+    {
+      "title": "Sea of Stars",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Sons of the Forest",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Super Mario Bros. Wonder",
+      "platform": "Switch",
+      "year": 2023
+    },
+    {
+      "title": "The Legend of Zelda: Tears of the Kingdom",
+      "platform": "Switch",
+      "year": 2023
+    },
+    {
+      "title": "Balatro",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "Black Myth: Wukong",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "Hades II",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "Palworld",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "V Rising",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "Clair Obscur: Expedition 33",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Elden Ring: Nightreign",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Hollow Knight: Silksong",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Metroid Prime 4: Beyond",
+      "platform": "Switch",
+      "year": 2025
+    },
+    {
+      "title": "Split Fiction",
+      "platform": "PC ’02–now",
+      "year": 2025
+    }
+  ]
+}
