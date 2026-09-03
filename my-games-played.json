@@ -1,7 +1,7 @@
 {
-  "exported": "2026-09-02T22:39:24.196Z",
-  "gamesPlayed": 259,
-  "gamesListed": 673,
+  "exported": "2026-09-03T03:37:24.038Z",
+  "gamesPlayed": 462,
+  "gamesListed": 857,
   "games": [
     {
       "title": "Duck Hunt",
@@ -144,6 +144,11 @@
       "year": 1990
     },
     {
+      "title": "Loom",
+      "platform": "IBM PS/1",
+      "year": 1990
+    },
+    {
       "title": "Mega Man 3",
       "platform": "NES",
       "year": 1990
@@ -154,8 +159,18 @@
       "year": 1990
     },
     {
+      "title": "Number Munchers",
+      "platform": "IBM PS/1",
+      "year": 1990
+    },
+    {
       "title": "River City Ransom",
       "platform": "NES",
+      "year": 1990
+    },
+    {
+      "title": "Solitaire",
+      "platform": "IBM PS/1",
       "year": 1990
     },
     {
@@ -274,6 +289,11 @@
       "year": 1993
     },
     {
+      "title": "Master of Orion",
+      "platform": "PC ’94–’02",
+      "year": 1993
+    },
+    {
       "title": "Mega Man X",
       "platform": "SNES",
       "year": 1993
@@ -334,6 +354,11 @@
       "year": 1994
     },
     {
+      "title": "Galactic Civilizations",
+      "platform": "OS/2",
+      "year": 1994
+    },
+    {
       "title": "Illusion of Gaia",
       "platform": "SNES",
       "year": 1994
@@ -374,6 +399,11 @@
       "year": 1995
     },
     {
+      "title": "Descent",
+      "platform": "PC ’94–’02",
+      "year": 1995
+    },
+    {
       "title": "Donkey Kong Country 2: Diddy's Kong Quest",
       "platform": "SNES",
       "year": 1995
@@ -396,6 +426,11 @@
     {
       "title": "Kirby's Dream Land 2",
       "platform": "Game Boy",
+      "year": 1995
+    },
+    {
+      "title": "SimCity for OS/2",
+      "platform": "OS/2",
       "year": 1995
     },
     {
@@ -444,6 +479,16 @@
       "year": 1996
     },
     {
+      "title": "Age of Empires",
+      "platform": "PC ’94–’02",
+      "year": 1997
+    },
+    {
+      "title": "Bomberman 64",
+      "platform": "N64",
+      "year": 1997
+    },
+    {
       "title": "Diablo",
       "platform": "PC ’94–’02",
       "year": 1997
@@ -471,6 +516,11 @@
     {
       "title": "Pokémon Red / Blue",
       "platform": "Game Boy",
+      "year": 1998
+    },
+    {
+      "title": "Star Wars: Rogue Squadron",
+      "platform": "N64",
       "year": 1998
     },
     {
@@ -594,6 +644,11 @@
       "year": 2001
     },
     {
+      "title": "Paper Mario",
+      "platform": "N64",
+      "year": 2001
+    },
+    {
       "title": "Pokémon Stadium 2",
       "platform": "N64",
       "year": 2001
@@ -709,6 +764,11 @@
       "year": 2006
     },
     {
+      "title": "The Elder Scrolls IV: Oblivion",
+      "platform": "PC ’02–now",
+      "year": 2006
+    },
+    {
       "title": "The Legend of Zelda: Twilight Princess",
       "platform": "GameCube",
       "year": 2006
@@ -794,12 +854,22 @@
       "year": 2008
     },
     {
+      "title": "Borderlands",
+      "platform": "PC ’02–now",
+      "year": 2009
+    },
+    {
       "title": "Braid",
       "platform": "PC ’02–now",
       "year": 2009
     },
     {
       "title": "Call of Duty: Modern Warfare 2",
+      "platform": "PC ’02–now",
+      "year": 2009
+    },
+    {
+      "title": "Champions Online",
       "platform": "PC ’02–now",
       "year": 2009
     },
@@ -824,6 +894,11 @@
       "year": 2009
     },
     {
+      "title": "The Last Remnant",
+      "platform": "PC ’02–now",
+      "year": 2009
+    },
+    {
       "title": "Wii Sports Resort",
       "platform": "Wii",
       "year": 2009
@@ -834,7 +909,17 @@
       "year": 2010
     },
     {
+      "title": "Lara Croft and the Guardian of Light",
+      "platform": "PC ’02–now",
+      "year": 2010
+    },
+    {
       "title": "Mass Effect 2",
+      "platform": "PC ’02–now",
+      "year": 2010
+    },
+    {
+      "title": "Recettear: An Item Shop's Tale",
       "platform": "PC ’02–now",
       "year": 2010
     },
@@ -859,6 +944,16 @@
       "year": 2011
     },
     {
+      "title": "Dark Souls",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
+      "title": "Deus Ex: Human Revolution",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
       "title": "Kirby's Return to Dream Land",
       "platform": "Wii",
       "year": 2011
@@ -870,6 +965,11 @@
     },
     {
       "title": "Minecraft",
+      "platform": "PC ’02–now",
+      "year": 2011
+    },
+    {
+      "title": "Portal 2",
       "platform": "PC ’02–now",
       "year": 2011
     },
@@ -904,12 +1004,27 @@
       "year": 2012
     },
     {
+      "title": "Darksiders II",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
       "title": "Diablo III",
       "platform": "PC ’02–now",
       "year": 2012
     },
     {
+      "title": "Fortune Summoners: Secret of the Elemental Stone",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
       "title": "FTL: Faster Than Light",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
+      "title": "Kingdoms of Amalur: Reckoning",
       "platform": "PC ’02–now",
       "year": 2012
     },
@@ -929,6 +1044,21 @@
       "year": 2012
     },
     {
+      "title": "Out There Somewhere",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
+      "title": "Penny Arcade's On the Rain-Slick Precipice of Darkness 3",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
+      "title": "Quantum Conundrum",
+      "platform": "PC ’02–now",
+      "year": 2012
+    },
+    {
       "title": "XCOM: Enemy Unknown",
       "platform": "PC ’02–now",
       "year": 2012
@@ -944,7 +1074,42 @@
       "year": 2013
     },
     {
+      "title": "Brothers: A Tale of Two Sons",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
       "title": "Don't Starve",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "Dota 2",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "Dust: An Elysian Tail",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "FEZ",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "Gunpoint",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "Knights of Pen and Paper +1",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "Monaco",
       "platform": "PC ’02–now",
       "year": 2013
     },
@@ -954,8 +1119,33 @@
       "year": 2013
     },
     {
+      "title": "Penny Arcade's On the Rain-Slick Precipice of Darkness 4",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "Reus",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
       "title": "Super Mario 3D World",
       "platform": "Wii U",
+      "year": 2013
+    },
+    {
+      "title": "The Cave",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "The Wolf Among Us",
+      "platform": "PC ’02–now",
+      "year": 2013
+    },
+    {
+      "title": "The Yawhg",
+      "platform": "PC ’02–now",
       "year": 2013
     },
     {
@@ -964,7 +1154,62 @@
       "year": 2014
     },
     {
+      "title": "Broken Age",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Child of Light",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Dark Souls II",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Divinity: Original Sin",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Gauntlet",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Gods Will Be Watching",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Hatoful Boyfriend",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
       "title": "Hearthstone",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Lara Croft and the Temple of Osiris",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Magicite",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Middle-earth: Shadow of Mordor",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Road Not Taken",
       "platform": "PC ’02–now",
       "year": 2014
     },
@@ -974,7 +1219,67 @@
       "year": 2014
     },
     {
+      "title": "The Banner Saga",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "TowerFall Ascension",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Valkyria Chronicles",
+      "platform": "PC ’02–now",
+      "year": 2014
+    },
+    {
+      "title": "Axiom Verge",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Caves of Qud",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Chroma Squad",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Crypt of the NecroDancer",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
       "title": "Fallout 4",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Hacknet",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Her Story",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Invisible, Inc.",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Kingdom: Classic",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "Life is Strange",
       "platform": "PC ’02–now",
       "year": 2015
     },
@@ -989,8 +1294,23 @@
       "year": 2015
     },
     {
+      "title": "SOMA",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
       "title": "Super Mario Maker",
       "platform": "Wii U",
+      "year": 2015
+    },
+    {
+      "title": "Tabletop Simulator",
+      "platform": "PC ’02–now",
+      "year": 2015
+    },
+    {
+      "title": "The Witcher 3: Wild Hunt",
+      "platform": "PC ’02–now",
       "year": 2015
     },
     {
@@ -1004,12 +1324,37 @@
       "year": 2015
     },
     {
+      "title": "Battlerite",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Danganronpa 2: Goodbye Despair",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Danganronpa: Trigger Happy Havoc",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
       "title": "Dark Souls III",
       "platform": "PC ’02–now",
       "year": 2016
     },
     {
       "title": "Darkest Dungeon",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Dead by Daylight",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Dishonored 2",
       "platform": "PC ’02–now",
       "year": 2016
     },
@@ -1029,7 +1374,47 @@
       "year": 2016
     },
     {
+      "title": "Glittermitten Grove",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Hyper Light Drifter",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "INSIDE",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Moon Hunters",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Offworld Trading Company",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
       "title": "Overwatch",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Owlboy",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "Salt and Sanctuary",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
+      "title": "SHENZHEN I/O",
       "platform": "PC ’02–now",
       "year": 2016
     },
@@ -1044,6 +1429,11 @@
       "year": 2016
     },
     {
+      "title": "The Witness",
+      "platform": "PC ’02–now",
+      "year": 2016
+    },
+    {
       "title": "Titanfall 2",
       "platform": "PC ’02–now",
       "year": 2016
@@ -1054,7 +1444,27 @@
       "year": 2016
     },
     {
+      "title": "20XX",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "A Hat in Time",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Crawl",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
       "title": "Cuphead",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Danganronpa V3: Killing Harmony",
       "platform": "PC ’02–now",
       "year": 2017
     },
@@ -1064,7 +1474,37 @@
       "year": 2017
     },
     {
+      "title": "Doki Doki Literature Club",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Epic Tavern",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Hob",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
       "title": "Hollow Knight",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Kindergarten",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Nioh",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "Pyre",
       "platform": "PC ’02–now",
       "year": 2017
     },
@@ -1084,12 +1524,57 @@
       "year": 2017
     },
     {
+      "title": "The Sexy Brutale",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
+      "title": "The Shrouded Isle",
+      "platform": "PC ’02–now",
+      "year": 2017
+    },
+    {
       "title": "Xenoblade Chronicles 2",
       "platform": "Switch",
       "year": 2017
     },
     {
+      "title": "60 Parsecs!",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
       "title": "Among Us",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Celeste",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Chasm",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Cultist Simulator",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Darksiders III",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Dead Cells",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Death's Gambit",
       "platform": "PC ’02–now",
       "year": 2018
     },
@@ -1099,12 +1584,52 @@
       "year": 2018
     },
     {
+      "title": "Graveyard Keeper",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Headliner: NoviNews",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Iconoclasts",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Into the Breach",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
       "title": "Monster Hunter: World",
       "platform": "PC ’02–now",
       "year": 2018
     },
     {
+      "title": "Moonlighter",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Return of the Obra Dinn",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
       "title": "Rust",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Space Tyrant",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Star Control: Origins",
       "platform": "PC ’02–now",
       "year": 2018
     },
@@ -1119,12 +1644,92 @@
       "year": 2018
     },
     {
+      "title": "Terraforming Mars",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Timespinner",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Unworthy",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
+      "title": "Wizard of Legend",
+      "platform": "PC ’02–now",
+      "year": 2018
+    },
+    {
       "title": "Apex Legends",
       "platform": "PC ’02–now",
       "year": 2019
     },
     {
+      "title": "Baba Is You",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Blasphemous",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Bloodstained: Ritual of the Night",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Children of Morta",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Darksiders Genesis",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
       "title": "Disco Elysium",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Gato Roboto",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Hardcore Mecha",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Heaven's Vault",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Indivisible",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Killer Queen Black",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "MO:Astray",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Noita",
       "platform": "PC ’02–now",
       "year": 2019
     },
@@ -1139,12 +1744,27 @@
       "year": 2019
     },
     {
+      "title": "Shortest Trip to Earth",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
       "title": "Slay the Spire",
       "platform": "PC ’02–now",
       "year": 2019
     },
     {
+      "title": "Telling Lies",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
       "title": "Untitled Goose Game",
+      "platform": "PC ’02–now",
+      "year": 2019
+    },
+    {
+      "title": "Vision Soft Reset",
       "platform": "PC ’02–now",
       "year": 2019
     },
@@ -1174,6 +1794,86 @@
       "year": 2020
     },
     {
+      "title": "INMOST",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Morbid: The Seven Acolytes",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Ori and the Will of the Wisps",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Panzer Paladin",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Phasmophobia",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Signs of the Sojourner",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "The Longing",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "UnderMine",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Unfortunate Spacemen",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Yes, Your Grace",
+      "platform": "PC ’02–now",
+      "year": 2020
+    },
+    {
+      "title": "Age of Empires IV",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Curse of the Dead Gods",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Death's Door",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Deathloop",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Eldest Souls",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Hitman: World of Assassination",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
       "title": "Inscryption",
       "platform": "PC ’02–now",
       "year": 2021
@@ -1184,8 +1884,68 @@
       "year": 2021
     },
     {
+      "title": "Loop Hero",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
       "title": "Metroid Dread",
       "platform": "Switch",
+      "year": 2021
+    },
+    {
+      "title": "Narita Boy",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Ocean's Heart",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Psychonauts 2",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "SNKRX",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Space Warlord Organ Trading Simulator",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Spirit Hunters: Infinite Horde",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Timberborn",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Tribes of Midgard",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Twelve Minutes",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Unpacking",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "UNSIGHTED",
+      "platform": "PC ’02–now",
       "year": 2021
     },
     {
@@ -1194,7 +1954,27 @@
       "year": 2021
     },
     {
+      "title": "Webbed",
+      "platform": "PC ’02–now",
+      "year": 2021
+    },
+    {
+      "title": "Betrayal At Club Low",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Chained Echoes",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
       "title": "Cult of the Lamb",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Dome Keeper",
       "platform": "PC ’02–now",
       "year": 2022
     },
@@ -1204,12 +1984,102 @@
       "year": 2022
     },
     {
+      "title": "Forward: Escape the Fold",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Hardspace: Shipbreaker",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "I Was a Teenage Exocolonist",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Immortality",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Moonscars",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "NORCO",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "OlliOlli World",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Potionomics",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Stacklands",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "Stray",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "The Case of the Golden Idol",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "The Wandering Village",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
+      "title": "TUNIC",
+      "platform": "PC ’02–now",
+      "year": 2022
+    },
+    {
       "title": "Vampire Survivors",
       "platform": "PC ’02–now",
       "year": 2022
     },
     {
+      "title": "Against the Storm",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
       "title": "Baldur's Gate 3",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Cobalt Core",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "COCOON",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Creepy Redneck Dinosaur Mansion 3",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Dark and Darker",
       "platform": "PC ’02–now",
       "year": 2023
     },
@@ -1224,12 +2094,37 @@
       "year": 2023
     },
     {
+      "title": "Dredge",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Ember Knights",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Lies of P",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
       "title": "Metroid Prime Remastered",
       "platform": "Switch",
       "year": 2023
     },
     {
+      "title": "Ravenswatch",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
       "title": "Sea of Stars",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Slay the Princess",
       "platform": "PC ’02–now",
       "year": 2023
     },
@@ -1249,6 +2144,21 @@
       "year": 2023
     },
     {
+      "title": "WitchHand",
+      "platform": "PC ’02–now",
+      "year": 2023
+    },
+    {
+      "title": "Animal Well",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "Another Crab's Treasure",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
       "title": "Balatro",
       "platform": "PC ’02–now",
       "year": 2024
@@ -1259,7 +2169,32 @@
       "year": 2024
     },
     {
+      "title": "Craftlings",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "Desktop Explorer",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "Dragon's Dogma 2",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "Eldegarde",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
       "title": "Hades II",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
+      "title": "No Rest for the Wicked",
       "platform": "PC ’02–now",
       "year": 2024
     },
@@ -1269,12 +2204,32 @@
       "year": 2024
     },
     {
+      "title": "Tactical Breach Wizards",
+      "platform": "PC ’02–now",
+      "year": 2024
+    },
+    {
       "title": "V Rising",
       "platform": "PC ’02–now",
       "year": 2024
     },
     {
+      "title": "Ball x Pit",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Blue Prince",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
       "title": "Clair Obscur: Expedition 33",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Dispatch",
       "platform": "PC ’02–now",
       "year": 2025
     },
@@ -1289,12 +2244,72 @@
       "year": 2025
     },
     {
+      "title": "Jump Space",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Lootbound",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
       "title": "Metroid Prime 4: Beyond",
       "platform": "Switch",
       "year": 2025
     },
     {
+      "title": "Mewgenics",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Mina the Hollower",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Mortal Shell II",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Overlooting",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Shelldiver",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Slay the Spire 2",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Space Warlord Baby Trading Simulator",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
       "title": "Split Fiction",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "Subnautica 2",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "The Alters",
+      "platform": "PC ’02–now",
+      "year": 2025
+    },
+    {
+      "title": "The Artisan of Glimmith",
       "platform": "PC ’02–now",
       "year": 2025
     }

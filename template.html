@@ -217,7 +217,7 @@
     margin-bottom: 4px;
   }
   .pcard-arch { font-size: clamp(17px, 2.6vw, 26px); line-height: 1.25; margin: 0 0 7px; text-wrap: balance; }
-  .pcard-desc { color: var(--muted); font-size: 13px; margin: 0; max-width: 72ch; }
+  .pcard-desc { color: var(--muted); font-size: 13px; margin: 0; max-width: 72ch; min-height: 39px; }
   .pcard-head { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
   .pcard-empty { color: var(--muted); font-size: 13.5px; margin: 2px 0 10px; }
   .pcard-stats {
@@ -246,7 +246,7 @@
   .prow .trk { flex: 1; height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
   .prow .fill { display: block; height: 100%; border-radius: 99px; background: var(--gold-strong); }
   .prow .cnt { flex: 0 0 auto; color: var(--muted); font-size: 11px; }
-  .pcard-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .pcard-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; min-height: 30px; align-content: flex-start; }
   .badge {
     display: inline-flex;
     align-items: center;
@@ -448,8 +448,8 @@
 <main id="main">
   <section class="pcard">
     <div class="pcard-inner">
-      <button class="pcard-toggle" id="pcard-toggle" type="button" aria-expanded="true">- YOUR PLAYER CARD <span class="mono" id="pcard-count"></span></button>
-      <div class="pcard-body" id="pcard-body">
+      <button class="pcard-toggle" id="pcard-toggle" type="button" aria-expanded="false">+ YOUR PLAYER CARD <span class="mono" id="pcard-count"></span></button>
+      <div class="pcard-body" id="pcard-body" hidden>
         <div class="pcard-head">
           <div>
             <span class="pcard-eyebrow">PLAYER PROFILE</span>
@@ -778,7 +778,9 @@
   function timelineSVG(p) {
     const Y0 = 1983, Y1 = 2026, colW = 24, padL = 10, dotR = 4, rowH = 9.5, cap = 14;
     const w = padL * 2 + (Y1 - Y0 + 1) * colW;
-    const maxN = Math.max(1, ...Object.values(p.byYear).map(n => Math.min(n, cap)));
+    // Constant height (space for a full stack) so the panel never resizes as
+    // checks are added — reserve space instead of reflowing click targets.
+    const maxN = cap;
     const base = 26 + maxN * rowH;
     const h = base + 34;
     const parts = ['<svg width="' + w + '" height="' + h + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline of played games by year">'];
@@ -882,12 +884,20 @@
   let lastProfile = null;
   let downloadsNS = null;
 
-  document.getElementById("pcard-toggle").addEventListener("click", e => {
+  // The card is collapsed by default so checking games never reflows the page
+  // under the cursor; the open/closed choice is remembered per browser.
+  function setPcardOpen(open) {
     const body = document.getElementById("pcard-body");
-    body.hidden = !body.hidden;
-    e.currentTarget.setAttribute("aria-expanded", body.hidden ? "false" : "true");
-    e.currentTarget.firstChild.textContent = (body.hidden ? "+" : "-") + " YOUR PLAYER CARD ";
+    const btn = document.getElementById("pcard-toggle");
+    body.hidden = !open;
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    btn.firstChild.textContent = (open ? "-" : "+") + " YOUR PLAYER CARD ";
+    try { localStorage.setItem("atgipb-pcard-open", open ? "1" : "0"); } catch (e) {}
+  }
+  document.getElementById("pcard-toggle").addEventListener("click", () => {
+    setPcardOpen(document.getElementById("pcard-body").hidden);
   });
+  try { if (localStorage.getItem("atgipb-pcard-open") === "1") setPcardOpen(true); } catch (e) {}
 
   // Share-card infographic: a fixed dark 1200×675 PNG drawn on canvas.
   async function drawShareCard(p) {
