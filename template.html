@@ -476,6 +476,7 @@
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
       <button class="export" id="import-btn" type="button">Import</button>
       <button class="export" id="compare-btn" type="button">Compare</button>
+      <button class="export" id="owner-compare-btn" type="button" hidden></button>
       <button class="export" id="export-btn" type="button" hidden>Export</button>
       <input type="file" id="import-file" accept="application/json,.json" hidden>
       <input type="file" id="compare-file" accept="application/json,.json" hidden>
@@ -542,6 +543,7 @@
 
 <script>
   const GAMES = __GAMES_DATA__;
+  const OWNER = __OWNER_DATA__; // the site owner's own checklist, for default comparison
 
   const PLATFORMS = {
     ARC:  { label: "Arcade",      color: "#F0C020" },
@@ -1438,6 +1440,15 @@
     const panel = document.getElementById("compare");
     panel.hidden = false;
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // The owner's list ships with the site, so anyone can compare by default.
+  const ownerBtn = document.getElementById("owner-compare-btn");
+  if (OWNER && Array.isArray(OWNER.ids) && OWNER.ids.length) {
+    ownerBtn.hidden = false;
+    ownerBtn.textContent = "Compare vs " + OWNER.name;
+    ownerBtn.addEventListener("click", () =>
+      renderCompare(resolveIds({ ids: OWNER.ids }), OWNER.name));
   }
 
   const compareBtn = document.getElementById("compare-btn");
