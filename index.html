@@ -439,7 +439,9 @@
       <input class="search" id="search" type="search" placeholder="Search games…" aria-label="Search games">
       <label class="hide-played"><input type="checkbox" id="hide-played"> Hide played</label>
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
+      <button class="export" id="import-btn" type="button">Import</button>
       <button class="export" id="export-btn" type="button" hidden>Export</button>
+      <input type="file" id="import-file" accept="application/json,.json" hidden>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Filter by platform"></div>
   </div>
@@ -1950,6 +1952,60 @@
       setStatus("ok", "Saved to cloud", "Updated from another device.");
     }, e => setStatus("err", "Sync lost", (e && e.message) || ""));
   })();
+
+  // Import: read a played-list JSON file (this page's own export format, or a
+  // raw {ids: [...]} save) and check everything in it. Works everywhere — no
+  // cloud capability needed — so the public copy of the site can be seeded too.
+  function importPlayedData(data) {
+    const ids = new Set();
+    if (Array.isArray(data && data.ids)) {
+      data.ids.forEach(id => { if (cardEls.has(id)) ids.add(id); });
+    }
+    const labelToCode = {};
+    Object.entries(PLATFORMS).forEach(([code, plat]) => { labelToCode[plat.label] = code; });
+    if (Array.isArray(data && data.games)) {
+      data.games.forEach(item => {
+        if (!item || !item.title) return;
+        const code = labelToCode[item.platform] || item.platform;
+        const exact = GAMES.find(g => g.t === item.title && g.p === code && g.y === item.year) ||
+          GAMES.find(g => g.t === item.title && g.y === item.year) ||
+          GAMES.find(g => g.t === item.title);
+        if (exact) ids.add(exact.id);
+      });
+    }
+    const before = played.size;
+    const union = new Set(played);
+    ids.forEach(id => union.add(id));
+    applyPlayed(union);
+    if (playedChangedHook) playedChangedHook();
+    return { recognized: ids.size, added: union.size - before };
+  }
+
+  const importBtn = document.getElementById("import-btn");
+  const importFile = document.getElementById("import-file");
+  importBtn.addEventListener("click", () => importFile.click());
+  importFile.addEventListener("change", () => {
+    const file = importFile.files && importFile.files[0];
+    importFile.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      let msg;
+      try {
+        const res = importPlayedData(JSON.parse(reader.result));
+        msg = res.recognized ? "Imported +" + res.added + " ✓" : "No games recognized";
+      } catch (e) {
+        msg = "Invalid file";
+      }
+      importBtn.textContent = msg;
+      setTimeout(() => { importBtn.textContent = "Import"; }, 2600);
+    };
+    reader.onerror = () => {
+      importBtn.textContent = "Couldn't read file";
+      setTimeout(() => { importBtn.textContent = "Import"; }, 2600);
+    };
+    reader.readAsText(file);
+  });
 
   // Export: download the played list as a JSON file.
   (async () => {
