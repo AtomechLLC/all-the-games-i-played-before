@@ -696,7 +696,7 @@
 <footer>
   <div class="inner">
     <p>Sales figures are approximate lifetime totals from mixed public sources — some are franchise, all-platform, or player counts (noted on the card). Within each era, games are sorted best-selling first; “—” means no reliable number. Eras follow North American release years; age labels use the birth year set on your player card (default 1983).</p>
-    <p>Your checkmarks save automatically: to your account's cloud storage when the page is opened from claude.ai (the indicator above shows sync state), and always to this browser as a backup. Export downloads your played list as a JSON file. Coming later: Steam &amp; Epic import, sharing with friends, and play-history profiles.</p>
+    <p>Your checkmarks save automatically: to cloud storage where the hosted page supports it (the indicator above shows sync state), and always to this browser as a backup. Export downloads your played list as a JSON file. Coming later: Steam &amp; Epic import, sharing with friends, and play-history profiles.</p>
     <p>A <a href="https://funsmith.club" target="_blank" rel="noopener">Funsmith Club</a> project — join the game design community on Discord.</p>
   </div>
 </footer>
@@ -1603,7 +1603,7 @@
     ? name => window.claude.use(name)
     : () => Promise.resolve(null);
 
-  // Cloud save: selections sync to this artifact's database when opened from claude.ai.
+  // Cloud save: selections sync to a shared database when the host provides one.
   (async () => {
     const statusEl = document.getElementById("save-status");
     const setStatus = (s, txt, title) => {
@@ -1611,7 +1611,7 @@
       statusEl.querySelector(".s-txt").textContent = txt;
       statusEl.title = title || "";
     };
-    setStatus("local", "Local only", "Checks save in this browser. Open from claude.ai to sync to your account.");
+    setStatus("local", "Local only", "On this copy of the site, checks save in this browser. Export to back them up or move them.");
 
     const db = await useCap("db");
     if (!db) return;
