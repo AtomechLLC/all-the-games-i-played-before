@@ -274,6 +274,17 @@
   .stat .v { font-family: "IBM Plex Mono", Consolas, monospace; font-variant-numeric: tabular-nums; font-size: 19px; font-weight: 600; }
   .stat .k { font-size: 10.5px; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; margin-top: 2px; }
   .tl-wrap { margin-top: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+  .psyche { margin-top: 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 12px 16px 16px; }
+  .psyche .pcol-h { margin-top: 0; }
+  .psyche-grid { display: grid; grid-template-columns: 280px 1fr; gap: 8px 24px; align-items: start; }
+  @media (max-width: 800px) { .psyche-grid { grid-template-columns: 1fr; } }
+  .psy-radar-wrap { display: flex; justify-content: center; }
+  .psy-title { font-size: clamp(15px, 2vw, 20px); line-height: 1.3; margin: 2px 0 8px; color: var(--gold); }
+  .psy-prose { font-size: 13px; color: var(--muted); margin: 0 0 12px; max-width: 64ch; min-height: 57px; }
+  .psy-cluster { border-top: 1px solid var(--line); padding: 9px 0 7px; }
+  .psy-cluster .pc-name { font-family: "Silkscreen", "Courier New", monospace; font-size: 10px; letter-spacing: 1.5px; color: var(--ink); }
+  .psy-cluster .pc-line { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .psy-cluster .pc-line b { color: var(--ink); font-weight: 600; }
   .tl-scroll { overflow-x: auto; padding: 10px 8px 4px; scrollbar-width: thin; }
   .pcard-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 6px 22px; margin-top: 14px; }
   .pcol-h {
@@ -659,6 +670,17 @@
         <div id="pcard-detail">
           <div class="pcard-stats" id="pcard-stats"></div>
           <div class="tl-wrap"><div class="tl-scroll" id="tl"></div><p class="mini-caption" id="tl-caption">Tap a dot to see the game.</p></div>
+          <div class="psyche" id="psyche">
+            <h3 class="pcol-h">PSYCHE — WHAT YOUR GAMES SAY ABOUT YOU</h3>
+            <div class="psyche-grid">
+              <div class="psy-radar-wrap"><div id="psy-radar"></div></div>
+              <div class="psy-main">
+                <h3 class="psy-title px" id="psy-title"></h3>
+                <p class="psy-prose" id="psy-prose"></p>
+                <div id="psy-clusters"></div>
+              </div>
+            </div>
+          </div>
           <div class="pcard-cols">
             <div><h3 class="pcol-h">PLATFORMS</h3><div id="pcard-plat"></div></div>
             <div><h3 class="pcol-h">GENRE LEANINGS</h3><div id="pcard-genre"></div></div>
@@ -1135,6 +1157,180 @@
   const LISTED_BY_YEAR = {};
   GAMES.forEach(g => { LISTED_BY_YEAR[g.y] = (LISTED_BY_YEAR[g.y] || 0) + 1; });
 
+  // ————— Psyche: player psychology from what they chose to play —————
+  // Twelve clusters, each a knot of related emotions and the traits the
+  // cluster's games demand. Every game gets a weighted vector (genre baseline
+  // plus curated franchise rules); a player's psyche is their average vector
+  // measured against the whole list's average, so it reads as a lean, not an
+  // echo of whatever the list has most of.
+  const CLUSTERS = {
+    GRIT:     { name: "GRIT",     emoji: "🔥", adj: "Undaunted",   noun: "Trialborn",
+      emotions: ["triumph", "flow", "defiance", "hard-won relief"],
+      traits: ["persistence", "frustration tolerance", "humility before failure"],
+      blurb: "You pick fights you might lose. The games you love withhold their approval until it's earned, and you keep coming back for the exact moment a wall becomes a door.",
+      sec: "a stubborn streak that treats failure as information",
+      shadow: "You rarely play just to suffer — difficulty for its own sake doesn't tempt you." },
+    MIND:     { name: "MIND",     emoji: "🧠", adj: "Calculating", noun: "Tactician",
+      emotions: ["clarity", "the aha moment", "quiet control", "foresight"],
+      traits: ["planning", "pattern recognition", "systems thinking"],
+      blurb: "You play to out-think, not out-react. Give you a system with rules and you'll quietly take it apart, turn it over, and hand it back solved.",
+      sec: "a planner's calm that shows up three turns before it's needed",
+      shadow: "Pure planning games leave you cold — you'd rather feel it than chart it." },
+    ORDER:    { name: "ORDER",    emoji: "🏗️", adj: "Methodical",  noun: "Architect",
+      emotions: ["satisfaction", "calm", "pride of making", "tidiness"],
+      traits: ["optimization", "long-horizon thinking", "craftsmanship"],
+      blurb: "You leave every world tidier than you found it. Broken economies, tangled factories, empty lots — you see the finished version and can't rest until it exists.",
+      sec: "a builder's itch that turns chaos into throughput",
+      shadow: "You build little for its own sake — a world has to move you before you'll reorganize it." },
+    WONDER:   { name: "WONDER",   emoji: "🌌", adj: "Wandering",   noun: "Cartographer",
+      emotions: ["awe", "curiosity", "mystery", "feeling small in the best way"],
+      traits: ["curiosity", "self-direction", "comfort with being lost"],
+      blurb: "The map's edge is the point. You play for the moment a place admits it's bigger than you thought.",
+      sec: "a compass needle that always finds the unexplored corner",
+      shadow: "Aimless wandering isn't your mode — you like your mysteries with momentum." },
+    HEART:    { name: "HEART",    emoji: "💔", adj: "Soulful",     noun: "Storykeeper",
+      emotions: ["catharsis", "melancholy", "tenderness", "connection"],
+      traits: ["empathy", "attention", "willingness to sit with sadness"],
+      blurb: "You let games hurt you on purpose. Story isn't decoration to you; it's the cargo — and you'll carry a character's grief around for weeks.",
+      sec: "an open door where other players keep armor",
+      shadow: "You don't often play to be moved — feelings are a bonus, not the mission." },
+    RIVALRY:  { name: "RIVALRY",  emoji: "⚔️", adj: "Sharpened",   noun: "Gladiator",
+      emotions: ["adrenaline", "vindication", "respect for rivals", "composure"],
+      traits: ["composure under pressure", "reading opponents", "a short memory for losses"],
+      blurb: "You want a worthy opponent more than a win. The scoreboard is just how the conversation is kept — and you remember every rival who made you better.",
+      sec: "a competitor's pulse that steadies exactly when it matters",
+      shadow: "Ranked ladders hold little pull — you'd rather master the game than the lobby." },
+    KINSHIP:  { name: "KINSHIP",  emoji: "🎪", adj: "Convivial",   noun: "Ringleader",
+      emotions: ["laughter", "belonging", "shared chaos", "in-jokes"],
+      traits: ["coordination", "communication", "reading the room"],
+      blurb: "Games are your table, not your cave. The nights you remember are the ones with four controllers, one shared screen, and somebody screaming about a blue shell.",
+      sec: "a host's instinct for making chaos feel like belonging",
+      shadow: "You mostly play alone — multiplayer is an occasion, not a habit." },
+    RUSH:     { name: "RUSH",     emoji: "⚡", adj: "Kinetic",     noun: "Daredevil",
+      emotions: ["exhilaration", "power", "momentum", "abandon"],
+      traits: ["reflexes", "decisiveness", "nerve"],
+      blurb: "You play at the speed of your own heartbeat. Momentum, muzzle flash, a corner taken flat-out — you trust your hands, and they've earned it.",
+      sec: "a throttle that only knows one direction",
+      shadow: "Twitch alone doesn't hook you — speed needs a reason." },
+    NERVE:    { name: "NERVE",    emoji: "🕯️", adj: "Unflinching", noun: "Lanternbearer",
+      emotions: ["dread", "tension", "relief", "morbid curiosity"],
+      traits: ["courage", "stress regulation", "trust in preparation"],
+      blurb: "You walk toward the sound. Fear, for you, is a controlled substance — measured out in dark hallways and held breath, then released as the purest relief in games.",
+      sec: "a steady hand that reaches for the door anyway",
+      shadow: "Horror rarely makes your list — you prefer your dread metaphorical." },
+    HOARD:    { name: "HOARD",    emoji: "💎", adj: "Devoted",     noun: "Curator",
+      emotions: ["anticipation", "completeness", "stewardship", "the last missing piece"],
+      traits: ["thoroughness", "memory", "follow-through"],
+      blurb: "One more entry, one more shiny, one more percent. You play like an archivist of your own joy — the set complete, the checklist clean, nothing left behind.",
+      sec: "a curator's patience for the last missing piece",
+      shadow: "Completion doesn't own you — you take what a game offers and leave the rest." },
+    HEARTH:   { name: "HEARTH",   emoji: "🌱", adj: "Gentle",      noun: "Caretaker",
+      emotions: ["comfort", "warmth", "safety", "small kindnesses"],
+      traits: ["patience", "care", "contentment"],
+      blurb: "You've built a small warm room inside your hobby. Some people play to conquer; you play the way other people keep a garden — daily, gently, and for its own sake.",
+      sec: "a caretaker's rhythm that turns routine into ritual",
+      shadow: "Cozy isn't your resting state — you relax by doing, not dwelling." },
+    MISCHIEF: { name: "MISCHIEF", emoji: "🃏", adj: "Impish",      noun: "Jester",
+      emotions: ["mischief", "surprise", "absurdity", "delight"],
+      traits: ["playfulness", "improvisation", "comic timing"],
+      blurb: "You read the rules mostly to find the gaps. Physics engines fear you, geese answer to you, and every sandbox eventually files a complaint.",
+      sec: "a jester's eye for the funniest possible outcome",
+      shadow: "You play it fairly straight — the joke isn't the point for you." }
+  };
+  const CKEYS = Object.keys(CLUSTERS);
+
+  const GENRE_PSYCHE = {
+    "Shooters":           { RUSH: 1.0, RIVALRY: 0.3 },
+    "Platformers":        { GRIT: 0.6, RUSH: 0.4, WONDER: 0.2 },
+    "RPGs":               { HEART: 0.5, WONDER: 0.5, HOARD: 0.3 },
+    "Strategy":           { MIND: 1.0, ORDER: 0.3 },
+    "Puzzle":             { MIND: 1.0 },
+    "Sim & Builder":      { ORDER: 0.8, HEARTH: 0.4 },
+    "Party & Sports":     { KINSHIP: 1.0, RIVALRY: 0.3 },
+    "Racing":             { RUSH: 0.8, RIVALRY: 0.4 },
+    "Fighting":           { RIVALRY: 1.0, GRIT: 0.3 },
+    "Adventure & Horror": { WONDER: 0.5, HEART: 0.4, NERVE: 0.3 },
+    "Arcade & Action":    { RUSH: 0.7, GRIT: 0.2 }
+  };
+
+  // Curated overrides, additive on top of the genre baseline.
+  const PSYCHE_RULES = [
+    [/dark souls|demon's souls|bloodborne|sekiro|elden ring|nioh|lies of p|salt and sanct|blasphemous|eldest souls|nine sols|hollow knight|silksong|celeste|cuphead|getting over it|jump king|ninja gaiden|super meat boy|furi|devil daggers|kaizo|i wanna/i, { GRIT: 1.2 }],
+    [/binding of isaac|slay the spire|ftl|gungeon|nuclear throne|risk of rain|dead cells|rogue legacy|noita|spelunky|darkest dungeon|monster train|luck be a landlord|peglin|balatro/i, { GRIT: 0.6, MIND: 0.4 }],
+    [/pok[eé]mon/i, { HOARD: 1.0, KINSHIP: 0.2 }],
+    [/animal crossing|stardew|harvest moon|nintendogs|spiritfarer|unpacking|a short hike|slime rancher|dave the diver|coffee talk|little kitty|a little to the left|townscaper|tomodachi|my time at portia|forager|webfishing/i, { HEARTH: 1.2 }],
+    [/kirby|yoshi/i, { HEARTH: 0.5 }],
+    [/zelda|metroid|outer wilds|subnautica|no man's sky|myst\b|riven|the witness|tunic|fez\b|hyper light|rain world|journey\b|shadow of the colossus|\bico\b|okami|animal well|starbound|valheim/i, { WONDER: 1.0 }],
+    [/counter-strike|overwatch|league of legends|dota|starcraft|street fighter|tekken|smash bros|mortal kombat|rocket league|apex|pubg|fortnite|quake iii|unreal tournament|marvel rivals|halo (2|3|infinite)|virtua fighter|soulcalibur|killer instinct|mordhau|warcraft ii|warcraft iii|age of empires ii/i, { RIVALRY: 1.0 }],
+    [/mario party|jackbox|among us|overcooked|gang beasts|pico park|chained together|wii sports|wii play|wii party|it takes two|a way out|split fiction|keep talking|we were here|left 4 dead|deep rock|helldivers|pummel|plateup|unrailed|stick fight|duck game|nidhogg|rounds\b|golf with your friends|golf it|ultimate chicken|moving out|castle crashers|magicka|gauntlet/i, { KINSHIP: 1.0 }],
+    [/world of warcraft|everquest|runescape|final fantasy xiv|guild wars|old republic|ultima online|lost ark|new world|sea of thieves|monster hunter|gtfo|barotrauma|phasmophobia|lethal company|content warning|devour|escape simulator/i, { KINSHIP: 0.7 }],
+    [/doom|quake\b|quake ii|serious sam|ultrakill|burnout|f-zero|need for speed|motorstorm|crazy taxi|road rash|star fox|sonic|ghostrunner|neon white|titanfall|doom eternal|vampire survivors|brotato|soulstone|crimson skies/i, { RUSH: 0.8 }],
+    [/resident evil|silent hill|amnesia|soma\b|darkwood|dead space|eternal darkness|mouthwashing|signalis|inmost|until dawn|dredge|alien|outlast|faith|dead by daylight|carrion|scorn/i, { NERVE: 1.2 }],
+    [/disco elysium|to the moon|undertale|omori|oneshot|night in the woods|gone home|edith finch|firewatch|kentucky route|last of us|life is strange|walking dead|heavy rain|detroit|nier|norco|citizen sleeper|lisa: the|slay the princess|dispatch|her story|immortality|telling lies|planescape|chrono trigger|chrono cross|deltarune|spiritfarer|red dead|heaven's vault|eastward|celeste|hades\b|gris\b|sea of stars|xenogears|earthbound|mother 3|final fantasy vii|persona/i, { HEART: 1.0 }],
+    [/minecraft|terraria|factorio|satisfactory|dyson sphere|rimworld|dwarf fortress|cities|simcity|rollercoaster|zoo tycoon|prison architect|oxygen not|timberborn|banished|\bfoundation\b|going medieval|kingdoms and castles|theme park|theme hospital|house flipper|powerwash|pc building|supermarket sim|astroneer|scrap mechanic|besiege|kerbal|core keeper|raft\b|the forest|7 days|project zomboid|ark: survival|green hell|craftopia|palworld|enshrouded|mario maker/i, { ORDER: 1.0 }],
+    [/goat simulator|untitled goose|garry's mod|worms|totally accurate|human: fall flat|trombone champ|warioware|wario ware|katamari|frogger|snake\b|octodad|surgeon|muck|crab game|goat|simpsons hit|earthworm jim|toejam|conker|banjo|psychonauts|the sims\b|sims 2|sims 3|sims 4/i, { MISCHIEF: 0.9 }],
+    [/portal|talos|antichamber|superliminal|baba is you|obra dinn|golden idol|sennaar|manifold|the room|myst/i, { MIND: 1.0, WONDER: 0.4 }],
+    [/monkey island|grim fandango|day of the tentacle|sam & max|space quest|king's quest|full throttle|loom\b|maniac mansion|frog detective/i, { MISCHIEF: 0.6, HEART: 0.3, MIND: 0.3 }],
+    [/papers, please|this war of mine|frostpunk|60 parsecs|gods will be watching|beholder/i, { HEART: 0.8, MIND: 0.4 }],
+    [/diablo|path of exile|torchlight|grim dawn|borderlands|destiny|loot|deep rock galactic: survivor/i, { HOARD: 0.9, RUSH: 0.3 }],
+    [/mario kart|diddy kong racing|crash team racing/i, { KINSHIP: 0.6 }],
+    [/wii fit|ring fit|brain age|dance dance|just dance|beat saber|guitar hero|parappa|rock band|rhythm|trombone/i, { RUSH: 0.4, KINSHIP: 0.4 }],
+    [/tetris|puyo|dr\. mario|columns|lumines|2048|candy crush|bejeweled|peggle/i, { MIND: 0.4, RUSH: 0.3 }],
+    [/animal crossing|cozy grove|ooblets/i, { HOARD: 0.4 }],
+    [/xcom|into the breach|fire emblem|advance wars|battle brothers|darkest/i, { NERVE: 0.3, MIND: 0.4 }],
+    [/civilization|crusader kings|europa universalis|stellaris|total war|age of (empires|mythology|wonders)|master of (orion|magic)|galactic civ|homeworld|supreme commander|sins of a solar/i, { MIND: 0.5, ORDER: 0.3 }],
+    [/pikmin|lemmings|overlord\b/i, { MIND: 0.4, HEARTH: 0.3 }],
+    [/animal well|la-mulana|noita|tunic|outer wilds|blue prince|lorelei/i, { MIND: 0.5 }],
+    [/gran turismo|forza motorsport|flight simulator|kerbal/i, { MIND: 0.4, ORDER: 0.3 }],
+    [/wario land|mario party|1-2-switch|nintendo land|switch sports|kinect/i, { MISCHIEF: 0.3 }],
+    [/skyrim|oblivion|morrowind|daggerfall|witcher|baldur|elden ring|dragon age|mass effect|kotor|fallout|red dead|kingdom come|cyberpunk|starfield|dragon quest|final fantasy/i, { WONDER: 0.5 }],
+    [/half-life|bioshock|deus ex|dishonored|prey\b|system shock|thief|control\b|soma/i, { MIND: 0.5, WONDER: 0.4 }]
+  ];
+
+  // Precompute each game's normalized psyche vector, plus the list baseline.
+  const PSY_BASE = {};
+  CKEYS.forEach(k => { PSY_BASE[k] = 0; });
+  GAMES.forEach(g => {
+    const v = {};
+    CKEYS.forEach(k => { v[k] = 0; });
+    const base = GENRE_PSYCHE[g.genre] || {};
+    Object.keys(base).forEach(k => { v[k] += base[k]; });
+    PSYCHE_RULES.forEach(([re, w]) => {
+      if (re.test(g.t)) Object.keys(w).forEach(k => { v[k] += w[k]; });
+    });
+    let sum = 0;
+    CKEYS.forEach(k => { sum += v[k]; });
+    if (sum === 0) { v.RUSH = 1; sum = 1; }
+    CKEYS.forEach(k => { v[k] /= sum; PSY_BASE[k] += v[k]; });
+    g.psy = v;
+  });
+  CKEYS.forEach(k => { PSY_BASE[k] /= GAMES.length; });
+
+  // Average psyche vector for a set of played ids, plus lean vs the baseline.
+  function computePsyche(ids) {
+    const P = {};
+    CKEYS.forEach(k => { P[k] = 0; });
+    let n = 0;
+    ids.forEach(id => {
+      const entry = cardEls.get(id);
+      if (!entry) return;
+      n++;
+      CKEYS.forEach(k => { P[k] += entry.g.psy[k]; });
+    });
+    if (!n) return null;
+    CKEYS.forEach(k => { P[k] /= n; });
+    const R = {};
+    CKEYS.forEach(k => { R[k] = PSY_BASE[k] ? P[k] / PSY_BASE[k] : 1; });
+    const ranked = CKEYS.slice().sort((a, b) => R[b] - R[a]);
+    return { P, R, ranked, n };
+  }
+
+  function psycheSimilarity(a, b) {
+    let dot = 0, ma = 0, mb = 0;
+    CKEYS.forEach(k => { dot += a.P[k] * b.P[k]; ma += a.P[k] * a.P[k]; mb += b.P[k] * b.P[k]; });
+    return ma && mb ? Math.round(100 * dot / Math.sqrt(ma * mb)) : 0;
+  }
+
   function computeProfile() {
     const gs = GAMES.filter(g => played.has(g.id));
     const byPlat = {}, byYear = {}, byGenre = {};
@@ -1298,6 +1494,8 @@
 
     // Emoji mosaic in fixed definition order: every badge keeps its spot on the
     // wall forever — earned tiles light up gold, locked ones sit grayscaled.
+    renderPsyche();
+
     const badgesEl = document.getElementById("pcard-badges");
     badgesEl.innerHTML = "";
     const earnedSet = new Set(p.badges.map(b => b[1]));
@@ -1319,6 +1517,83 @@
       b.textContent = emoji;
       b.title = name + " — " + hint + (earned ? "" : " (locked)");
       badgesEl.appendChild(b);
+    });
+  }
+
+  // The psyche panel: radar of all twelve clusters vs the list average, a
+  // generated portrait, and the top clusters with their emotions, the traits
+  // their games demand, and the played games that prove it.
+  let lastPsyche = null;
+  function radarSVG(R) {
+    const S = 280, cx = S / 2, cy = S / 2 + 4, rMax = 96;
+    const pt = (i, r) => {
+      const a = (Math.PI * 2 * i) / CKEYS.length - Math.PI / 2;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    };
+    const parts = ['<svg width="' + S + '" height="' + S + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Psyche radar vs the average player">'];
+    [0.5, 1.0, 1.5].forEach(ring => {
+      const pts = CKEYS.map((k, i) => pt(i, (ring / 1.9) * rMax).join(",")).join(" ");
+      parts.push('<polygon points="' + pts + '" fill="none" stroke="var(--line)" stroke-width="1"' +
+        (ring === 1.0 ? ' stroke-dasharray="3 3" stroke="var(--muted)" opacity="0.7"' : "") + "/>");
+    });
+    CKEYS.forEach((k, i) => {
+      const [x, y] = pt(i, rMax);
+      parts.push('<line x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y + '" stroke="var(--line)" stroke-width="0.5" opacity="0.6"/>');
+      const [lx, ly] = pt(i, rMax + 16);
+      parts.push('<text x="' + lx + '" y="' + (ly + 3) + '" text-anchor="middle" font-size="7.5" letter-spacing="0.5" fill="var(--muted)" font-family="IBM Plex Mono, monospace">' + CLUSTERS[k].name + '</text>');
+    });
+    const poly = CKEYS.map((k, i) => {
+      const r = Math.max(0.15, Math.min(1.9, R[k]));
+      return pt(i, (r / 1.9) * rMax).join(",");
+    }).join(" ");
+    parts.push('<polygon points="' + poly + '" fill="var(--gold-strong)" fill-opacity="0.22" stroke="var(--gold-strong)" stroke-width="1.5"/>');
+    CKEYS.forEach((k, i) => {
+      const r = Math.max(0.15, Math.min(1.9, R[k]));
+      const [x, y] = pt(i, (r / 1.9) * rMax);
+      parts.push('<circle cx="' + x + '" cy="' + y + '" r="2.5" fill="var(--gold-strong)"><title>' + CLUSTERS[k].name + ": " + Math.round(R[k] * 100) + "% of the average player's lean</title></circle>");
+    });
+    parts.push('<text x="' + cx + '" y="' + (cy + 3) + '" text-anchor="middle" font-size="7" fill="var(--muted)" opacity="0.8" font-family="IBM Plex Mono, monospace">AVG = dashed</text>');
+    parts.push("</svg>");
+    return parts.join("");
+  }
+
+  function renderPsyche() {
+    const panel = document.getElementById("psyche");
+    const titleEl = document.getElementById("psy-title");
+    const proseEl = document.getElementById("psy-prose");
+    const clustersEl = document.getElementById("psy-clusters");
+    const psy = computePsyche(played);
+    lastPsyche = psy;
+    if (!psy || psy.n < 10) {
+      document.getElementById("psy-radar").innerHTML = "";
+      titleEl.textContent = "PSYCHE LOCKED";
+      proseEl.textContent = "Check at least 10 games and your psychological profile appears here — the emotions you chase, the traits your games demand, and how your taste leans against the average player.";
+      clustersEl.innerHTML = "";
+      return;
+    }
+    const [c1, c2] = psy.ranked;
+    const low = psy.ranked[psy.ranked.length - 1];
+    titleEl.textContent = "THE " + CLUSTERS[c2].adj.toUpperCase() + " " + CLUSTERS[c1].noun.toUpperCase();
+    proseEl.textContent = CLUSTERS[c1].blurb + " Beneath it runs " + CLUSTERS[c2].sec + ". " + CLUSTERS[low].shadow;
+    document.getElementById("psy-radar").innerHTML = radarSVG(psy.R);
+
+    clustersEl.innerHTML = "";
+    psy.ranked.slice(0, 3).forEach(key => {
+      const c = CLUSTERS[key];
+      const evidence = GAMES.filter(g => played.has(g.id) && g.psy[key] >= 0.3)
+        .sort((a, b) => (b.s ?? -1) - (a.s ?? -1));
+      const d = document.createElement("div");
+      d.className = "psy-cluster";
+      d.innerHTML = '<div class="pc-name"></div>' +
+        '<div class="pc-line"><b>Feels like:</b> <span class="e"></span></div>' +
+        '<div class="pc-line"><b>Beating them takes:</b> <span class="t"></span></div>' +
+        '<div class="pc-line"><b>Evidence:</b> <span class="g"></span></div>';
+      d.querySelector(".pc-name").textContent = c.emoji + " " + c.name + " · " + Math.round(psy.R[key] * 100) + "% of avg lean";
+      d.querySelector(".e").textContent = c.emotions.join(" · ");
+      d.querySelector(".t").textContent = c.traits.join(", ");
+      d.querySelector(".g").textContent = evidence.slice(0, 3).map(g => g.t).join(", ") +
+        (evidence.length > 3 ? " +" + (evidence.length - 3) + " more" : (evidence.length ? "" : "—"));
+      clustersEl.appendChild(d);
     });
   }
 
@@ -1371,6 +1646,13 @@
     c.font = '400 19px "IBM Plex Mono", monospace';
     c.fillText(p.gs.length + " / " + GAMES.length + " GAMES · " + p.platCount + " PLATFORMS · " +
       p.firstY + "–" + p.lastY, 60, 176);
+    if (lastPsyche && lastPsyche.n >= 10) {
+      const [pc1, pc2] = lastPsyche.ranked;
+      c.fillStyle = "#E5B84B";
+      c.font = '400 15px "IBM Plex Mono", monospace';
+      c.fillText("PSYCHE: THE " + CLUSTERS[pc2].adj.toUpperCase() + " " + CLUSTERS[pc1].noun.toUpperCase() +
+        " · " + CLUSTERS[pc1].emotions[0].toUpperCase() + " / " + CLUSTERS[pc2].emotions[0].toUpperCase(), 60, 202);
+    }
 
     // Timeline bars by year
     const tx = 60, tw = W - 120, ty = 215, th = 150, years = 55;
@@ -1764,16 +2046,29 @@
     const similarity = union ? Math.round(100 * both.length / union) : 0;
 
     document.getElementById("cmp-title").textContent = "YOU × " + label.toUpperCase();
+    const myPsy = computePsyche(played);
+    const theirPsy = computePsyche(theirIds);
+    let psyLine = "";
+    let psyMatch = "—";
+    if (myPsy && theirPsy && myPsy.n >= 10 && theirPsy.n >= 10) {
+      psyMatch = psycheSimilarity(myPsy, theirPsy) + "%";
+      const mine = myPsy.ranked[0], theirs = theirPsy.ranked[0];
+      psyLine = mine === theirs
+        ? " You both lead with " + CLUSTERS[mine].emoji + " " + CLUSTERS[mine].name + "."
+        : " You lead with " + CLUSTERS[mine].emoji + " " + CLUSTERS[mine].name +
+          "; they lead with " + CLUSTERS[theirs].emoji + " " + CLUSTERS[theirs].name + ".";
+    }
     document.getElementById("cmp-desc").textContent =
       "You share " + both.length + " games. They bring " + onlyThem.length +
-      " you haven't played; you bring " + onlyYou.length + " they haven't.";
+      " you haven't played; you bring " + onlyYou.length + " they haven't." + psyLine;
 
     const stats = document.getElementById("cmp-stats");
     stats.innerHTML = "";
     [[both.length, "played by both"],
      [onlyThem.length, "only them"],
      [onlyYou.length, "only you"],
-     [similarity + "%", "taste overlap"]].forEach(([v, k]) => {
+     [similarity + "%", "taste overlap"],
+     [psyMatch, "psyche match"]].forEach(([v, k]) => {
       const d = document.createElement("div");
       d.className = "stat";
       d.innerHTML = '<div class="v mono"></div><div class="k"></div>';
