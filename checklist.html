@@ -3299,6 +3299,67 @@
     return { P, R, ranked, n };
   }
 
+  // ————— Titles: psyche × library —————
+  // Layer 1: legendary titles for iconic cluster+franchise combinations.
+  // Layer 2: hand-written pair titles — primary cluster crossed with the
+  // secondary cluster's tone (fierce / thoughtful / warm / wild).
+  // Layer 3: franchise epithets earned from the library, prefixed on.
+  const TONE = { GRIT: "fierce", RIVALRY: "fierce", RUSH: "fierce", NERVE: "fierce",
+    MIND: "thoughtful", ORDER: "thoughtful", HOARD: "thoughtful",
+    HEART: "warm", KINSHIP: "warm", HEARTH: "warm",
+    WONDER: "wild", MISCHIEF: "wild" };
+  const PAIR_TITLES = {
+    GRIT:     { fierce: "The Wall-Breaker", thoughtful: "The Patient Blade", warm: "The Gentle Veteran", wild: "The Wandering Trialborn" },
+    MIND:     { fierce: "The Battle Mathematician", thoughtful: "The Grand Schemer", warm: "The Kindly Mastermind", wild: "The Riddle Chaser" },
+    ORDER:    { fierce: "The Iron Foreman", thoughtful: "The Blueprint Monk", warm: "The Village Builder", wild: "The Mad Architect" },
+    WONDER:   { fierce: "The Stormchaser", thoughtful: "The Star Charter", warm: "The Homesick Voyager", wild: "The Horizon Addict" },
+    HEART:    { fierce: "The Battle Poet", thoughtful: "The Quiet Biographer", warm: "The Keeper of Feelings", wild: "The Runaway Romantic" },
+    RIVALRY:  { fierce: "The Apex Duelist", thoughtful: "The Cold Reader", warm: "The Friendly Menace", wild: "The Showboat" },
+    KINSHIP:  { fierce: "The Party Warlord", thoughtful: "The Table Captain", warm: "The Campfire Keeper", wild: "The Chaos Host" },
+    RUSH:     { fierce: "The Redline Demon", thoughtful: "The Precision Missile", warm: "The Joyrider", wild: "The Blur" },
+    NERVE:    { fierce: "The Doorkicker", thoughtful: "The Candlelit Scholar", warm: "The Flashlight Friend", wild: "The Grinning Ghosthunter" },
+    HOARD:    { fierce: "The Conquering Completionist", thoughtful: "The Grand Archivist", warm: "The Shiny Keeper", wild: "The Magpie" },
+    HEARTH:   { fierce: "The Armored Gardener", thoughtful: "The Tidy Homesteader", warm: "The Innkeeper", wild: "The Free-Range Villager" },
+    MISCHIEF: { fierce: "The Menace", thoughtful: "The Calculated Clown", warm: "The Party Goblin", wild: "The Unlicensed Goose" }
+  };
+  const FROMSOFT_RE = /dark souls|demon's souls|bloodborne|sekiro|elden ring|nioh|lies of p/i;
+  const LEGENDARY = [
+    ["GRIT",     g => cRe(g, FROMSOFT_RE) >= 5, "The Emberborn"],
+    ["HOARD",    g => cRe(g, /pok[eé]mon/i) >= 8, "The Living Pokédex"],
+    ["WONDER",   g => cRe(g, /zelda/i) >= 8, "The Courage-Bearer"],
+    ["MIND",     g => cRe(g, /warcraft: orcs|warcraft ii|warcraft iii|starcraft/i) >= 3, "The Macro Mind"],
+    ["KINSHIP",  g => cRe(g, /mario party/i) >= 4, "The Blue-Shell Diplomat"],
+    ["ORDER",    g => cRe(g, /factorio|satisfactory|dyson sphere/i) >= 2, "The Throughput Monk"],
+    ["RUSH",     g => cRe(g, /doom|quake/i) >= 4, "The Hellsprinter"],
+    ["HEART",    g => cRe(g, /to the moon|undertale|omori|celeste|gris\b|spiritfarer|deltarune/i) >= 4, "The Glass-Heart Keeper"],
+    ["NERVE",    g => cRe(g, /phasmophobia|lethal company|content warning|devour|gtfo|barotrauma/i) >= 3, "The Flashlight Friend"],
+    ["MISCHIEF", g => cRe(g, /goose|goat simulator|garry's mod/i) >= 2, "The Physics Criminal"]
+  ];
+  const EPITHETS = [
+    [g => cRe(g, FROMSOFT_RE) >= 4, "Ash-Tempered"],
+    [g => cRe(g, /zelda/i) >= 6, "Hyrule-Sworn"],
+    [g => cRe(g, /pok[eé]mon/i) >= 5, "Pokédex-Bound"],
+    [g => cRe(g, /metroid/i) >= 4, "Chozo-Trained"],
+    [g => cRe(g, /warcraft|starcraft|diablo|overwatch|hearthstone/i) >= 6, "Storm-Forged"],
+    [g => cRe(g, /mario/i) >= 12, "Mushroom-Raised"],
+    [g => cRe(g, /final fantasy/i) >= 5, "Crystal-Called"],
+    [g => cRe(g, /halo|gears of war|forza/i) >= 5, "Spartan-Drilled"],
+    [g => cRe(g, /counter-strike|league of legends|dota|overwatch/i) >= 4, "Ladder-Scarred"],
+    [g => cRe(g, INDIE_RE) >= 30, "Indie-Hearted"],
+    [g => g.filter(x => x.y <= 1992).length >= 15, "Arcade-Born"]
+  ];
+  function psycheTitle(psy, pg) {
+    const [c1, c2] = psy.ranked;
+    for (const [cluster, test, title] of LEGENDARY) {
+      if (c1 === cluster && test(pg)) return title;
+    }
+    let title = PAIR_TITLES[c1][TONE[c2]];
+    for (const [test, ep] of EPITHETS) {
+      if (test(pg)) { title = title.replace(/^The /, "The " + ep + " "); break; }
+    }
+    return title;
+  }
+
   function psycheSimilarity(a, b) {
     let dot = 0, ma = 0, mb = 0;
     CKEYS.forEach(k => { dot += a.P[k] * b.P[k]; ma += a.P[k] * a.P[k]; mb += b.P[k] * b.P[k]; });
@@ -3564,7 +3625,9 @@
     }
     const [c1, c2] = psy.ranked;
     const low = psy.ranked[psy.ranked.length - 1];
-    titleEl.textContent = "THE " + CLUSTERS[c2].adj.toUpperCase() + " " + CLUSTERS[c1].noun.toUpperCase();
+    const pg = GAMES.filter(g => played.has(g.id));
+    psy.title = psycheTitle(psy, pg);
+    titleEl.textContent = psy.title.toUpperCase();
     proseEl.textContent = CLUSTERS[c1].blurb + " Beneath it runs " + CLUSTERS[c2].sec + ". " + CLUSTERS[low].shadow;
     document.getElementById("psy-radar").innerHTML = radarSVG(psy.R);
 
@@ -3639,9 +3702,10 @@
       p.firstY + "–" + p.lastY, 60, 176);
     if (lastPsyche && lastPsyche.n >= 10) {
       const [pc1, pc2] = lastPsyche.ranked;
+      const psyTitle = lastPsyche.title || PAIR_TITLES[pc1][TONE[pc2]];
       c.fillStyle = "#E5B84B";
       c.font = '400 15px "IBM Plex Mono", monospace';
-      c.fillText("PSYCHE: THE " + CLUSTERS[pc2].adj.toUpperCase() + " " + CLUSTERS[pc1].noun.toUpperCase() +
+      c.fillText("PSYCHE: " + psyTitle.toUpperCase() +
         " · " + CLUSTERS[pc1].emotions[0].toUpperCase() + " / " + CLUSTERS[pc2].emotions[0].toUpperCase(), 60, 202);
     }
 
