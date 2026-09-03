@@ -65,6 +65,7 @@
     max-width: 1180px;
     margin: 0 auto;
     padding: 44px 24px 18px;
+    position: relative;
   }
   .hero h1 {
     font-family: "Silkscreen", "Courier New", monospace;
@@ -85,7 +86,9 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 14px;
+    position: absolute;
+    top: 48px;
+    right: 24px;
     padding: 6px 14px;
     border: 1px solid var(--line);
     border-radius: 99px;
@@ -96,6 +99,9 @@
     font-weight: 600;
   }
   .funsmith:hover { border-color: #5865F2; }
+  @media (max-width: 700px) {
+    .funsmith { position: static; margin-top: 14px; }
+  }
   .funsmith:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   footer a { color: var(--accent); }
 
