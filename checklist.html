@@ -4247,8 +4247,12 @@
     acc = (acc >= 0) === (dy >= 0) ? acc + dy : dy;
     const slim = barEl.classList.contains("slim");
     let want = slim;
-    if (!slim && y > 320 && acc > 30) want = true;
-    else if (slim && (acc < -140 || y < 120)) want = false;
+    // Collapse only once we're deep enough that the height-compensation
+    // counter-scroll can never land back inside the expand zone — the full
+    // bar can be ~260px tall on narrow phones, and a fixed 320px trigger
+    // left the two thresholds close enough to oscillate.
+    if (!slim && y > 260 + barEl.offsetHeight && acc > 30) want = true;
+    else if (slim && (acc < -140 || y < 60)) want = false;
     if (want !== slim) {
       const before = barEl.offsetHeight;
       barEl.classList.toggle("slim", want);
