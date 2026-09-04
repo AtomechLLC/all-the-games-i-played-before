@@ -1823,5 +1823,7 @@
 {"t":"Naruto Shippuden: Ultimate Ninja Storm 4","p":"PC2","y":2016,"s":8},
 {"t":"Little Nightmares","p":"PC2","y":2017,"s":12},
 {"t":"Little Nightmares II","p":"PC2","y":2021,"s":6},
-{"t":"Code Vein","p":"PC2","y":2019,"s":3}
+{"t":"Code Vein","p":"PC2","y":2019,"s":3},
+{"t":"Xenosaga Episode II: Jenseits von Gut und Böse","p":"PS2","y":2005,"s":0.3},
+{"t":"Xenosaga Episode III: Also sprach Zarathustra","p":"PS2","y":2006,"s":0.2}
 ]
