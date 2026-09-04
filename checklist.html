@@ -352,6 +352,10 @@
   }
   .cmp-chip .pdot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 7px; }
   .cmp-more { color: var(--muted); font-size: 12px; align-self: center; }
+  .psy-evo { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .psy-evo-item { text-align: center; font-size: 11px; color: var(--muted); width: 96px; }
+  .psy-evo-item .ey { letter-spacing: 1px; margin-top: 2px; }
+  .psy-evo-item .ec { margin-top: 2px; }
 
   .chips {
     display: flex;
@@ -629,6 +633,7 @@
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
       <button class="export" id="import-btn" type="button" title="Load a played-list .json (made by Export) — checks everything in it">Import</button>
       <button class="export" id="compare-btn" type="button" title="Load a friend's exported .json to see your overlap">Compare</button>
+      <button class="export" id="share-btn" type="button" title="Copy a link that lets anyone compare against your checklist">Share link</button>
       <button class="export" id="owner-compare-btn" type="button" hidden></button>
       <button class="export" id="export-btn" type="button" title="Download your played list as a .json file">Export</button>
       <input type="file" id="import-file" accept="application/json,.json" hidden>
@@ -681,6 +686,10 @@
                 <div id="psy-clusters"></div>
               </div>
             </div>
+            <div id="psy-evo-wrap" hidden>
+              <h3 class="pcol-h">DNA OVER TIME</h3>
+              <div class="psy-evo" id="psy-evo"></div>
+            </div>
           </div>
           <div class="tl-wrap"><div class="tl-scroll" id="tl"></div><p class="mini-caption" id="tl-caption">Tap a dot to see the game.</p></div>
           <div class="pcard-cols">
@@ -701,6 +710,7 @@
           <h2 class="pcard-arch px" id="cmp-title"></h2>
           <p class="pcard-desc" id="cmp-desc"></p>
         </div>
+        <button class="export" id="vs-gif-btn" type="button" title="Render this head-to-head as an animated GIF">⚔️ VS GIF</button>
         <button class="export" id="cmp-close" type="button">Close</button>
       </div>
       <div class="pcard-stats" id="cmp-stats"></div>
@@ -3389,6 +3399,33 @@
     return parts.join("");
   }
 
+  // Label-free thumbnail radar for the DNA-over-time strip.
+  function miniRadarSVG(R, size) {
+    const cx = 50, cy = 50, rMax = 46;
+    const pt = (i, r) => {
+      const a = Math.PI * 2 * i / CKEYS.length - Math.PI / 2;
+      return (cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1);
+    };
+    const ring = f => CKEYS.map((k, i) => pt(i, f / 1.9 * rMax)).join(" ");
+    const poly = CKEYS.map((k, i) => pt(i, Math.max(0.15, Math.min(1.9, R[k])) / 1.9 * rMax)).join(" ");
+    return '<svg viewBox="0 0 100 100" width="' + size + '" height="' + size + '" aria-hidden="true">' +
+      '<polygon points="' + ring(1.9) + '" fill="none" stroke="var(--line)" stroke-width="1"/>' +
+      '<polygon points="' + ring(1.0) + '" fill="none" stroke="var(--muted)" stroke-width="0.7" stroke-dasharray="2 2" opacity="0.7"/>' +
+      '<polygon points="' + poly + '" fill="var(--gold-strong)" fill-opacity="0.25" stroke="var(--gold-strong)" stroke-width="1.2"/></svg>';
+  }
+
+  // One psyche snapshot per era with enough checked games to read a signal.
+  function eraPsycheSnaps(pg) {
+    const snaps = [];
+    ERAS.forEach((e, i) => {
+      const eraIds = new Set(pg.filter(g => g.era === i).map(g => g.id));
+      if (eraIds.size < 10) return;
+      const p = computePsyche(eraIds);
+      if (p && p.n >= 10) snaps.push([i, p]);
+    });
+    return snaps;
+  }
+
   function renderPsyche() {
     const panel = document.getElementById("psyche");
     const titleEl = document.getElementById("psy-title");
@@ -3401,6 +3438,7 @@
       titleEl.textContent = "PSYCHE LOCKED";
       proseEl.textContent = "Check at least 10 games and your psychological profile appears here — the emotions you chase, the traits your games demand, and how your taste leans against the average player.";
       clustersEl.innerHTML = "";
+      document.getElementById("psy-evo-wrap").hidden = true;
       return;
     }
     const [c1, c2] = psy.ranked;
@@ -3428,6 +3466,24 @@
       d.querySelector(".g").textContent = evidence.slice(0, 3).map(g => g.t).join(", ") +
         (evidence.length > 3 ? " +" + (evidence.length - 3) + " more" : (evidence.length ? "" : "—"));
       clustersEl.appendChild(d);
+    });
+
+    // DNA over time: how the radar drifted era by era.
+    const evoWrap = document.getElementById("psy-evo-wrap");
+    const evoEl = document.getElementById("psy-evo");
+    evoEl.innerHTML = "";
+    const snaps = eraPsycheSnaps(pg);
+    evoWrap.hidden = snaps.length < 2;
+    snaps.forEach(([i, p]) => {
+      const top = p.ranked[0];
+      const d = document.createElement("div");
+      d.className = "psy-evo-item";
+      d.innerHTML = miniRadarSVG(p.R, 96) + '<div class="ey mono"></div><div class="ec"></div>';
+      d.querySelector(".ey").textContent = ERAS[i].a + "–" + String(ERAS[i].b).slice(2);
+      d.querySelector(".ec").textContent = CLUSTERS[top].emoji + " " + CLUSTERS[top].name;
+      d.title = ERAS[i].a + "–" + ERAS[i].b + ": " + p.n + " games, leads " + CLUSTERS[top].name +
+        " at " + Math.round(p.R[top] * 100) + "% of the average lean";
+      evoEl.appendChild(d);
     });
   }
 
@@ -3658,7 +3714,7 @@
     return cv;
   }
 
-  function gifRadar(c, cx, cy, rMax, R) {
+  function gifRadar(c, cx, cy, rMax, R, skipLabels) {
     const pt = (i, r) => {
       const a = Math.PI * 2 * i / CKEYS.length - Math.PI / 2;
       return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
@@ -3671,8 +3727,10 @@
       c.setLineDash(ring === 1 ? [4, 4] : []);
       c.lineWidth = 1; c.stroke(); c.setLineDash([]);
     });
-    c.font = '400 9px "IBM Plex Mono", monospace'; c.textAlign = "center";
-    CKEYS.forEach((k, i) => { const [x, y] = pt(i, rMax + 15); c.fillStyle = "#98948D"; c.fillText(CLUSTERS[k].name, x, y + 3); });
+    if (!skipLabels) {
+      c.font = '400 9px "IBM Plex Mono", monospace'; c.textAlign = "center";
+      CKEYS.forEach((k, i) => { const [x, y] = pt(i, rMax + 15); c.fillStyle = "#98948D"; c.fillText(CLUSTERS[k].name, x, y + 3); });
+    }
     c.beginPath();
     CKEYS.forEach((k, i) => {
       const r = Math.max(0.15, Math.min(1.9, R[k]));
@@ -3709,8 +3767,9 @@
     pg.forEach(g => { platCount[g.p] = (platCount[g.p] || 0) + 1; });
     const topPlats = Object.entries(platCount).sort((a, b) => b[1] - a[1]).slice(0, 3);
     const earned = lastProfile.badges;
+    const eraSnaps = eraPsycheSnaps(pg);
     const frames = [];
-    const cardTotal = 3 + (years.length ? 1 : 0) + (topPlats.length ? 1 : 0) + (earned.length ? 1 : 0);
+    const cardTotal = 3 + (years.length ? 1 : 0) + (topPlats.length ? 1 : 0) + (earned.length ? 1 : 0) + (eraSnaps.length >= 2 ? 1 : 0);
     let cardIdx = 0;
 
     const bootLines = [
@@ -3848,6 +3907,33 @@
       c.textAlign = "left";
       gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 4600]);
+    }
+
+    if (eraSnaps.length >= 2) {
+      const [cv, c] = gifBase("EVOLUTION");
+      c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+      c.fillText("YOUR DNA OVER TIME", 70, 150);
+      const shown = eraSnaps.slice(-5);
+      const w = 1060 / shown.length;
+      shown.forEach(([i, p], idx) => {
+        const cx = 70 + w * idx + w / 2;
+        gifRadar(c, cx, 350, Math.min(85, w / 2 - 30), p.R, true);
+        c.textAlign = "center";
+        c.fillStyle = "#98948D"; c.font = '400 13px "IBM Plex Mono", monospace';
+        c.fillText(ERAS[i].a + "-" + String(ERAS[i].b).slice(2), cx, 240);
+        const top = p.ranked[0];
+        c.fillStyle = "#E5B84B"; c.font = '700 14px "Silkscreen", monospace';
+        c.fillText(CLUSTERS[top].name, cx, 480);
+        c.fillStyle = "#98948D"; c.font = '400 12px "IBM Plex Mono", monospace';
+        c.fillText(Math.round(p.R[top] * 100) + "% LEAN", cx, 500);
+        if (idx < shown.length - 1) {
+          c.fillStyle = "#5E5B64"; c.font = '700 20px "Silkscreen", monospace';
+          c.fillText(">", 70 + w * (idx + 1), 356);
+        }
+        c.textAlign = "left";
+      });
+      gifDots(c, cardIdx++, cardTotal);
+      frames.push([cv, 4200]);
     }
 
     if (earned.length) {
@@ -4030,7 +4116,8 @@
   (() => {
     let seen = false;
     try { seen = localStorage.getItem("atgipb-onboarded") === "1"; } catch (e) {}
-    if (seen || played.size > 0) return;
+    // A share link should land straight on the comparison, not the platform picker.
+    if (seen || played.size > 0 || location.hash.indexOf("#v=") === 0) return;
     const wrap = document.getElementById("ob-plats");
     const obSel = new Set();
     Object.entries(PLATFORMS).forEach(([code, plat]) => {
@@ -4210,7 +4297,9 @@
   });
 
   // Compare: load someone else's export and show the overlap instead of merging.
+  let lastCompare = null;
   function renderCompare(theirIds, label) {
+    lastCompare = { ids: theirIds, label };
     const both = [...theirIds].filter(id => played.has(id));
     const onlyThem = [...theirIds].filter(id => !played.has(id));
     const onlyYou = [...played].filter(id => !theirIds.has(id));
@@ -4313,6 +4402,276 @@
       }
     };
     reader.readAsText(file);
+  });
+
+  // Share links: the whole checked set as a bitmap over GAMES order, base64url'd
+  // into the URL hash. games.json must stay append-only — reordering or removing
+  // entries would break every link already shared.
+  const SITE_URL = "https://atomechllc.github.io/all-the-games-i-played-before/";
+  const b64u = {
+    enc: bytes => btoa(String.fromCharCode.apply(null, bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""),
+    dec: s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), ch => ch.charCodeAt(0))
+  };
+  function getShareName(interactive) {
+    let n = "";
+    try { n = localStorage.getItem("atgipb-sharename") || ""; } catch (e) {}
+    if (!n && interactive) {
+      n = (window.prompt("Name to show with your shared list:", "") || "").trim().slice(0, 24);
+      if (n) { try { localStorage.setItem("atgipb-sharename", n); } catch (e) {} }
+    }
+    return n;
+  }
+  function buildShareLink(name) {
+    const bytes = new Uint8Array(Math.ceil(GAMES.length / 8));
+    GAMES.forEach((g, i) => { if (played.has(g.id)) bytes[i >> 3] |= 1 << (i & 7); });
+    const nameB = b64u.enc(new TextEncoder().encode(name || ""));
+    return SITE_URL + "#v=1." + nameB + "." + BIRTH_YEAR + "." + GAMES.length + "." + b64u.enc(bytes);
+  }
+  document.getElementById("share-btn").addEventListener("click", async () => {
+    const btn = document.getElementById("share-btn");
+    if (!played.size) { showToast("Check some games first — the link shares your list", false); return; }
+    const url = buildShareLink(getShareName(true));
+    let ok = false;
+    try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {}
+    if (!ok) window.prompt("Copy your share link:", url);
+    btn.textContent = ok ? "Link copied ✓" : "Share link";
+    if (ok) showToast("Link copied — anyone who opens it lands in compare mode against your list", false);
+    setTimeout(() => { btn.textContent = "Share link"; }, 2600);
+  });
+  function tryShareHash() {
+    const m = /^#v=1\.([A-Za-z0-9_-]*)\.(\d+)\.(\d+)\.([A-Za-z0-9_-]+)$/.exec(location.hash);
+    if (!m) return;
+    try {
+      const name = (m[1] ? new TextDecoder().decode(b64u.dec(m[1])) : "").trim().slice(0, 24) || "A friend";
+      const n = Math.min(parseInt(m[3], 10) || 0, GAMES.length);
+      const bytes = b64u.dec(m[4]);
+      const ids = new Set();
+      for (let i = 0; i < n; i++) {
+        if (bytes[i >> 3] & (1 << (i & 7))) ids.add(GAMES[i].id);
+      }
+      if (!ids.size) return;
+      renderCompare(ids, name);
+      showToast("Comparing against " + name + "'s shared list (" + ids.size + " games)", false);
+    } catch (e) {}
+  }
+  tryShareHash();
+  addEventListener("hashchange", tryShareHash);
+
+  // VS GIF: the head-to-head as slamming blocks. Shared games shatter,
+  // exclusives pop into the side of the player who has them. Capped at 24
+  // marquee slams; the rest resolves in a fast-forward.
+  function buildVsFrames(nameA, idsA, nameB, idsB) {
+    const bySales = (a, b) => (b.s ?? -1) - (a.s ?? -1);
+    const shared = GAMES.filter(g => idsA.has(g.id) && idsB.has(g.id)).sort(bySales);
+    const onlyA = GAMES.filter(g => idsA.has(g.id) && !idsB.has(g.id)).sort(bySales);
+    const onlyB = GAMES.filter(g => !idsA.has(g.id) && idsB.has(g.id)).sort(bySales);
+    const events = [];
+    const queues = [[shared, "both"], [onlyB, "B"], [onlyA, "A"]];
+    const qi = [0, 0, 0];
+    while (events.length < 24) {
+      let pushed = false;
+      queues.forEach(([q, type], k) => {
+        if (events.length < 24 && qi[k] < Math.min(q.length, 8)) { events.push({ g: q[qi[k]++], type }); pushed = true; }
+      });
+      if (!pushed) break;
+    }
+    let seed = 7;
+    const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+    const mkRnd = s0 => { let x = s0; return () => (x = (x * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff; };
+    const A = (nameA || "YOU").toUpperCase().slice(0, 14);
+    const B = (nameB || "THEM").toUpperCase().slice(0, 14);
+    let matched = 0, pileA = 0, pileB = 0;
+    const debris = [];
+    function vsBlock(c, x, y, name, gold) {
+      const w = 300;
+      c.fillStyle = gold ? "#3A3320" : "#1E2A38";
+      c.fillRect(x - w / 2, y - 22, w, 44);
+      c.strokeStyle = gold ? "#E5B84B" : "#5CA8DC"; c.lineWidth = 2;
+      c.strokeRect(x - w / 2, y - 22, w, 44);
+      c.fillStyle = gold ? "#E5B84B" : "#8CC4E8";
+      c.font = '400 13px "IBM Plex Mono", monospace'; c.textAlign = "center";
+      let t = name.toUpperCase(); if (t.length > 30) t = t.slice(0, 29) + "…";
+      c.fillText(t, x, y + 5); c.textAlign = "left";
+    }
+    function vsStreaks(c, x, y, dir, col, len) {
+      c.strokeStyle = col; c.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {
+        const sy = y - 10 + i * 10;
+        c.beginPath(); c.moveTo(x, sy); c.lineTo(x - dir * len, sy); c.stroke();
+      }
+    }
+    function vsBase() {
+      const [cv, c] = gifBase("HEAD TO HEAD // BLOCK BY BLOCK");
+      c.textAlign = "center";
+      c.fillStyle = "#E5B84B"; c.font = '700 26px "Silkscreen", monospace';
+      c.fillText(A, 240, 140);
+      c.fillStyle = "#5CA8DC"; c.fillText(B, 960, 140);
+      c.fillStyle = "#FF6A5C"; c.font = '700 22px "Silkscreen", monospace';
+      c.fillText("VS", 600, 140);
+      c.fillStyle = "#98948D"; c.font = '400 14px "IBM Plex Mono", monospace';
+      c.fillText("SHARED GAMES SHATTER — EXCLUSIVES JOIN THEIR OWNER", 600, 168);
+      c.font = '700 18px "Silkscreen", monospace';
+      c.fillStyle = "#E5B84B"; c.fillText("KEEPS " + pileA, 240, 590);
+      c.fillStyle = "#ECEAE4"; c.fillText("SHARED " + matched, 600, 590);
+      c.fillStyle = "#5CA8DC"; c.fillText("KEEPS " + pileB, 960, 590);
+      debris.forEach(d => { c.globalAlpha = d.a; c.fillStyle = d.col; c.fillRect(d.x, d.y, d.s, d.s); });
+      c.globalAlpha = 1;
+      for (let i = 0; i < Math.min(pileB, 14); i++) {
+        c.fillStyle = "#1E2A38"; c.fillRect(1040, 545 - i * 17, 110, 13);
+        c.strokeStyle = "#5CA8DC"; c.lineWidth = 1; c.strokeRect(1040, 545 - i * 17, 110, 13);
+      }
+      for (let i = 0; i < Math.min(pileA, 14); i++) {
+        c.fillStyle = "#3A3320"; c.fillRect(50, 545 - i * 17, 110, 13);
+        c.strokeStyle = "#E5B84B"; c.lineWidth = 1; c.strokeRect(50, 545 - i * 17, 110, 13);
+      }
+      c.textAlign = "left";
+      return [cv, c];
+    }
+    const frames = [];
+    {
+      const [cv, c] = vsBase();
+      c.textAlign = "center";
+      c.fillStyle = "#ECEAE4"; c.font = '700 30px "Silkscreen", monospace';
+      c.fillText("READY?", 600, 340);
+      c.textAlign = "left";
+      frames.push([cv, 1400]);
+    }
+    const LANES = [260, 380, 500];
+    const waves = Math.ceil(events.length / 3);
+    for (let w = 0; w < waves; w++) {
+      const wave = events.slice(w * 3, w * 3 + 3);
+      [0.3, 0.6, 0.85, 1.0].forEach((t, fi) => {
+        const [cv, c] = vsBase();
+        wave.forEach((ev, l) => {
+          const y = LANES[l];
+          const ease = t * t;
+          const lx = 250 + (448 - 250) * ease;
+          const rx = 950 - (950 - 752) * ease;
+          if (fi > 0) {
+            vsStreaks(c, lx - 150, y, 1, "rgba(229,184,75,0.30)", 40 + 60 * t);
+            vsStreaks(c, rx + 150, y, -1, "rgba(92,168,220,0.30)", 40 + 60 * t);
+          }
+          vsBlock(c, lx, y, ev.g.t, true);
+          vsBlock(c, rx, y, ev.g.t, false);
+          if (t === 1) { c.fillStyle = "rgba(255,255,255,0.55)"; c.fillRect(594, y - 28, 12, 56); }
+        });
+        frames.push([cv, t === 1 ? 90 : 70]);
+      });
+      for (let k = 1; k <= 3; k++) {
+        if (k === 3) {
+          wave.forEach(ev => {
+            if (ev.type === "both") {
+              matched++;
+              for (let i = 0; i < 3; i++) debris.push({ x: 480 + rnd() * 240, y: 430 + rnd() * 120, s: 3 + rnd() * 5, col: rnd() > 0.5 ? "#E5B84B" : "#5CA8DC", a: 0.5 + rnd() * 0.5 });
+            } else if (ev.type === "B") pileB++;
+            else pileA++;
+          });
+        }
+        const [cv, c] = vsBase();
+        wave.forEach((ev, l) => {
+          const y = LANES[l];
+          if (ev.type === "both") {
+            const pr = mkRnd(w * 100 + l * 7 + 13);
+            for (let i = 0; i < 34; i++) {
+              const ang = pr() * Math.PI * 2;
+              const spd = 25 + pr() * 65;
+              const sz = 3 + pr() * 6;
+              const col = ["#E5B84B", "#5CA8DC", "#ECEAE4"][Math.floor(pr() * 3)];
+              c.globalAlpha = Math.max(0.1, 1 - k * 0.26) * (0.5 + pr() * 0.5);
+              c.fillStyle = col;
+              c.fillRect(600 + Math.cos(ang) * spd * k, y + Math.sin(ang) * spd * k * 0.6, sz, sz);
+            }
+            c.globalAlpha = 1;
+            if (k >= 2) {
+              c.textAlign = "center"; c.fillStyle = "#ECEAE4"; c.font = '700 16px "Silkscreen", monospace';
+              c.globalAlpha = k === 2 ? 0.6 : 1;
+              c.fillText("SHATTERED", 600, y - 44);
+              c.globalAlpha = 1; c.textAlign = "left";
+            }
+          } else {
+            const toRight = ev.type === "B";
+            const from = 600, to = toRight ? 950 : 250;
+            const tt = k / 3;
+            const x = from + (to - from) * (tt * (2 - tt));
+            vsStreaks(c, toRight ? x - 155 : x + 155, y, toRight ? 1 : -1, toRight ? "rgba(92,168,220,0.35)" : "rgba(229,184,75,0.35)", 50 + 40 * (1 - tt));
+            vsBlock(c, x, y, ev.g.t, !toRight);
+            if (k === 3) {
+              c.textAlign = "center"; c.fillStyle = toRight ? "#8CC4E8" : "#E5B84B"; c.font = '700 14px "Silkscreen", monospace';
+              c.fillText((toRight ? B : A) + " KEEPS IT", x, y - 40); c.textAlign = "left";
+            }
+          }
+        });
+        frames.push([cv, k === 3 ? 220 : 90]);
+      }
+    }
+    const rest = shared.length + onlyA.length + onlyB.length - events.length;
+    if (rest > 0) {
+      const [cv, c] = vsBase();
+      c.textAlign = "center";
+      c.fillStyle = "#ECEAE4"; c.font = '700 24px "Silkscreen", monospace';
+      c.fillText("RESOLVING THE OTHER " + rest + " GAMES...", 600, 330);
+      c.fillStyle = "#98948D"; c.font = '400 15px "IBM Plex Mono", monospace';
+      c.fillText(">>> FAST FORWARD >>>", 600, 370);
+      c.textAlign = "left";
+      frames.push([cv, 900]);
+      matched = Math.round(shared.length * 0.55); pileA = Math.round(onlyA.length * 0.55); pileB = Math.round(onlyB.length * 0.55);
+      for (let i = 0; i < 60; i++) debris.push({ x: 180 + rnd() * 840, y: 300 + rnd() * 260, s: 2 + rnd() * 6, col: rnd() > 0.5 ? "#E5B84B" : "#5CA8DC", a: 0.25 + rnd() * 0.6 });
+      const [cv2, c2] = vsBase();
+      c2.textAlign = "center";
+      c2.fillStyle = "#98948D"; c2.font = '400 15px "IBM Plex Mono", monospace';
+      c2.fillText(">>> FAST FORWARD >>>", 600, 370);
+      c2.textAlign = "left";
+      frames.push([cv2, 500]);
+    }
+    matched = shared.length; pileA = onlyA.length; pileB = onlyB.length;
+    for (let i = 0; i < 70; i++) debris.push({ x: 180 + rnd() * 840, y: 300 + rnd() * 260, s: 2 + rnd() * 6, col: rnd() > 0.5 ? "#E5B84B" : "#5CA8DC", a: 0.25 + rnd() * 0.6 });
+    {
+      const [cv, c] = vsBase();
+      c.textAlign = "center";
+      c.fillStyle = "#ECEAE4"; c.font = '700 44px "Silkscreen", monospace';
+      c.fillText(shared.length + " SHARED — SHATTERED", 600, 300);
+      c.fillStyle = "#E5B84B"; c.font = '700 20px "Silkscreen", monospace';
+      c.fillText(A + " KEEPS " + onlyA.length, 370, 350);
+      c.fillStyle = "#8CC4E8"; c.fillText(B + " KEEPS " + onlyB.length, 830, 350);
+      const union = shared.length + onlyA.length + onlyB.length;
+      const overlap = union ? Math.round(100 * shared.length / union) : 0;
+      const pa = computePsyche(idsA), pb = computePsyche(idsB);
+      let line = "TASTE OVERLAP " + overlap + "%";
+      if (pa && pb && pa.n >= 10 && pb.n >= 10) line += "   ·   PSYCHE MATCH " + psycheSimilarity(pa, pb) + "%";
+      c.fillStyle = "#98948D"; c.font = '400 15px "IBM Plex Mono", monospace';
+      c.fillText(line, 600, 400);
+      c.fillText("atomechllc.github.io/all-the-games-i-played-before", 600, 460);
+      c.textAlign = "left";
+      frames.push([cv, 5400]);
+    }
+    return frames;
+  }
+
+  document.getElementById("vs-gif-btn").addEventListener("click", async () => {
+    if (!lastCompare) return;
+    const btn = document.getElementById("vs-gif-btn");
+    const idle = "⚔️ VS GIF";
+    btn.disabled = true; btn.textContent = "Booting…";
+    try {
+      const eng = await loadGifEngine();
+      await document.fonts.ready;
+      const frames = buildVsFrames(getShareName(false) || "You", played, lastCompare.label, lastCompare.ids);
+      btn.textContent = "Encoding 0%";
+      const blob = await new Promise((res, rej) => {
+        const gif = new eng.GIF({ workers: 2, quality: 10, width: 1200, height: 630, workerScript: eng.workerUrl, repeat: 0 });
+        frames.forEach(([cv, delay]) => gif.addFrame(cv, { delay, copy: true }));
+        gif.on("progress", p => { btn.textContent = "Encoding " + Math.round(p * 100) + "%"; });
+        gif.on("finished", res);
+        setTimeout(() => rej(new Error("encode timed out")), 120000);
+        gif.render();
+      });
+      await saveFile("vs-" + slug(lastCompare.label) + ".gif", blob, "image/gif");
+      btn.textContent = "Saved ✓";
+    } catch (e) {
+      btn.textContent = (e && e.code === "declined") ? idle : "GIF failed";
+      if (!(e && e.code === "declined")) showToast("Couldn't render the GIF here — try the site in a regular browser.", false);
+    }
+    setTimeout(() => { btn.textContent = idle; btn.disabled = false; }, 2600);
   });
 
   // Saving files: the artifact viewer needs its downloads capability (plain
