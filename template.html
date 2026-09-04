@@ -821,12 +821,14 @@
   // Build era sections. The top sellers show by default; the deeper cut
   // of each era sits behind a "more" toggle (auto-expanded while searching
   // or platform-filtering).
-  const VISIBLE_PER_ERA = 16;
+  const VISIBLE_PER_ERA = 20;
   const erasEl = document.getElementById("eras");
   const cardEls = new Map();
   ERAS.forEach((era, i) => {
+    // Sort by sales, falling back to w — a millions-equivalent weight for F2P
+    // and MMO titles whose scale is player counts, not copies sold.
     const games = GAMES.filter(g => g.era === i)
-      .sort((x, y) => (y.s ?? -1) - (x.s ?? -1) || x.t.localeCompare(y.t));
+      .sort((x, y) => (y.s ?? y.w ?? -1) - (x.s ?? x.w ?? -1) || x.t.localeCompare(y.t));
     if (!games.length) return;
     era.games = games;
 
@@ -850,7 +852,7 @@
       btn.style.setProperty("--pc", plat.color);
       btn.setAttribute("aria-pressed", played.has(g.id) ? "true" : "false");
       btn.innerHTML =
-        (rank < 3 && g.s != null ? '<span class="rank px" aria-hidden="true">0' + (rank + 1) + '</span>' : "") +
+        (rank < 3 && (g.s != null || g.w != null) ? '<span class="rank px" aria-hidden="true">0' + (rank + 1) + '</span>' : "") +
         '<span class="box" aria-hidden="true">✓</span>' +
         '<span class="body">' +
           '<span class="title"></span>' +
