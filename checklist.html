@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#17161B">
 <meta property="og:type" content="website">
 <meta property="og:title" content="All The Games I Played Before">
-<meta property="og:description" content="What makes up your gamer DNA? 1,495 games, 33 platforms, Pong to now — check off everything you ever played and get your player card.">
+<meta property="og:description" content="What are the games that built your taste? 1,800+ games, 33 platforms, Pong to now — check off everything you ever played and get your player card.">
 <meta property="og:url" content="https://atomechllc.github.io/all-the-games-i-played-before/">
 <meta property="og:image" content="https://atomechllc.github.io/all-the-games-i-played-before/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -610,7 +610,7 @@
 
 <header class="hero">
   <h1>ALL THE GAMES<br>I PLAYED <span class="dim">BEFORE</span></h1>
-  <p id="subtitle">Check off everything you ever played and find out what makes up your gamer DNA — each era sorted by the best-selling games of its day.</p>
+  <p id="subtitle">Check off everything you ever played and find the games that built your taste — each era sorted by the best-selling games of its day.</p>
   <div class="hero-stats">
     <span><b class="px" id="hs-years">43</b> YEARS</span>
     <span><b class="px" id="hs-plats">33</b> PLATFORMS</span>
@@ -671,13 +671,13 @@
           <div class="pcard-actions">
             <label class="hide-played">Born <input id="birth-year" class="search" type="number" min="1930" max="2020" step="1" style="width:76px;flex:0 0 auto;"></label>
             <button class="export" id="card-btn" type="button" hidden>Save card as image</button>
-            <button class="export" id="gif-btn" type="button" hidden>🧬 Gamer DNA GIF</button>
+            <button class="export" id="gif-btn" type="button" hidden>🧱 What Built My Taste</button>
           </div>
         </div>
         <div id="pcard-detail">
           <div class="pcard-stats" id="pcard-stats"></div>
           <div class="psyche" id="psyche">
-            <h3 class="pcol-h">GAMER DNA — WHAT YOUR GAMES SAY ABOUT YOU</h3>
+            <h3 class="pcol-h">THE GAMES THAT BUILT YOUR TASTE</h3>
             <div class="psyche-grid">
               <div class="psy-radar-wrap"><div id="psy-radar"></div></div>
               <div class="psy-main">
@@ -687,7 +687,7 @@
               </div>
             </div>
             <div id="psy-evo-wrap" hidden>
-              <h3 class="pcol-h">DNA OVER TIME</h3>
+              <h3 class="pcol-h">YOUR TASTE OVER TIME</h3>
               <div class="psy-evo" id="psy-evo"></div>
             </div>
           </div>
@@ -3561,7 +3561,7 @@
     lastPsyche = psy;
     if (!psy || psy.n < 10) {
       document.getElementById("psy-radar").innerHTML = "";
-      titleEl.textContent = "PSYCHE LOCKED";
+      titleEl.textContent = "TASTE LOCKED";
       proseEl.textContent = "Check at least 10 games and your psychological profile appears here — the emotions you chase, the traits your games demand, and how your taste leans against the average player.";
       clustersEl.innerHTML = "";
       document.getElementById("psy-evo-wrap").hidden = true;
@@ -3902,7 +3902,7 @@
       "> LOADING " + (saveName || "PLAYER_1") + ".SAV",
       "> " + pg.length + " GAMES FOUND",
       "> " + span + " YEARS DETECTED",
-      "> SEQUENCING GAMER DNA...",
+      "> ASSEMBLING YOUR TASTE, BLOCK BY BLOCK...",
       "  OK"
     ];
     for (let i = 1; i <= 4; i++) frames.push([gifBoot(bootLines.slice(0, i), true, false), 700]);
@@ -4018,7 +4018,7 @@
       const STEPS = 14;
       const DRIFT = 7 / STEPS;
       for (let s = 1; s <= STEPS; s++) {
-        const [cv, c] = gifBase("SEQUENCING COMPLETE");
+        const [cv, c] = gifBase("TASTE ASSEMBLED");
         flyers.forEach(f => {
           c.globalAlpha = 0.10 + rnd() * (0.50 - 0.12 * f.tier);
           c.fillStyle = tierCol[f.tier];
@@ -4027,15 +4027,15 @@
         });
         c.globalAlpha = 1;
         c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
-        c.fillText("YOUR GAMER DNA RESOLVES TO:", 70, 160);
+        c.fillText("YOUR TASTE RESOLVES TO:", 70, 160);
         c.fillStyle = "#E5B84B"; c.font = '700 44px "Silkscreen", monospace';
         c.fillText(dnaTitle.slice(0, Math.ceil(dnaTitle.length * s / STEPS)) + (s < STEPS ? "_" : ""), 70, 225);
         gifDots(c, cardIdx, cardTotal);
         frames.push([cv, s === STEPS ? 900 : 170]);
       }
-      const [cv, c] = gifBase("SEQUENCING COMPLETE");
+      const [cv, c] = gifBase("TASTE ASSEMBLED");
       c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
-      c.fillText("YOUR GAMER DNA RESOLVES TO:", 70, 160);
+      c.fillText("YOUR TASTE RESOLVES TO:", 70, 160);
       c.fillStyle = "#E5B84B"; c.font = '700 44px "Silkscreen", monospace';
       c.fillText(dnaTitle, 70, 225);
       psy.ranked.slice(0, 3).forEach((k, i) => {
@@ -4050,17 +4050,17 @@
       });
       const low = psy.ranked[psy.ranked.length - 1];
       c.fillStyle = "#5E5B64"; c.font = '400 13px "IBM Plex Mono", monospace';
-      c.fillText("RECESSIVE GENE: " + CLUSTERS[low].name, 70, 596);
+      c.fillText("THE MISSING BLOCK: " + CLUSTERS[low].name, 70, 596);
       gifRadar(c, 950, 400, 140, psy.R);
       gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 5200]);
     } else {
-      const [cv, c] = gifBase("SEQUENCING COMPLETE");
+      const [cv, c] = gifBase("TASTE ASSEMBLED");
       c.textAlign = "center";
       c.fillStyle = "#ECEAE4"; c.font = '700 40px "Silkscreen", monospace';
-      c.fillText("DNA LOCKED", 600, 300);
+      c.fillText("TASTE LOCKED", 600, 300);
       c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
-      c.fillText("CHECK AT LEAST 10 GAMES TO SEQUENCE YOUR GAMER DNA", 600, 350);
+      c.fillText("CHECK AT LEAST 10 GAMES TO TRACE WHAT BUILT YOUR TASTE", 600, 350);
       c.textAlign = "left";
       gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 4600]);
@@ -4069,7 +4069,7 @@
     if (eraSnaps.length >= 2) {
       const [cv, c] = gifBase("EVOLUTION");
       c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
-      c.fillText("YOUR DNA OVER TIME", 70, 150);
+      c.fillText("YOUR TASTE OVER TIME", 70, 150);
       const shown = eraSnaps.slice(-5);
       const w = 1060 / shown.length;
       shown.forEach(([i, p], idx) => {
@@ -4114,8 +4114,8 @@
       const [cv, c] = gifBase("YOUR TURN");
       c.textAlign = "center";
       c.fillStyle = "#ECEAE4"; c.font = '700 46px "Silkscreen", monospace';
-      c.fillText("WHAT MAKES UP", 600, 240);
-      c.fillStyle = "#E5B84B"; c.fillText("YOUR GAMER DNA?", 600, 310);
+      c.fillText("WHAT ARE THE GAMES", 600, 240);
+      c.fillStyle = "#E5B84B"; c.fillText("THAT BUILT YOUR TASTE?", 600, 310);
       const bw = 480;
       c.fillStyle = "#2A2931"; c.fillRect(600 - bw / 2, 370, bw, 58);
       c.strokeStyle = "#FF6A5C"; c.lineWidth = 3; c.strokeRect(600 - bw / 2, 370, bw, 58);
@@ -4133,7 +4133,7 @@
   document.getElementById("gif-btn").addEventListener("click", async () => {
     if (!lastProfile || !lastProfile.gs.length) return;
     const btn = document.getElementById("gif-btn");
-    const idle = "🧬 Gamer DNA GIF";
+    const idle = "🧱 What Built My Taste";
     btn.disabled = true; btn.textContent = "Booting…";
     try {
       const eng = await loadGifEngine();
@@ -4148,7 +4148,7 @@
         setTimeout(() => rej(new Error("encode timed out")), 90000);
         gif.render();
       });
-      await saveFile("my-gamer-dna.gif", blob, "image/gif");
+      await saveFile("what-built-my-taste.gif", blob, "image/gif");
       btn.textContent = "Saved ✓";
     } catch (e) {
       btn.textContent = (e && e.code === "declined") ? idle : "GIF failed";
