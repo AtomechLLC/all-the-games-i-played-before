@@ -2097,7 +2097,7 @@
     if (years.length) {
       // Block rain: every game's block falls from the sky into its year
       // column, piling into the full timeline wall.
-      const X0 = 70, W = 1060, TY0 = 1972, TY1 = 2026, colW = W / (TY1 - TY0 + 1);
+      const X0 = 70, W = 730, TY0 = 1972, TY1 = 2026, colW = W / (TY1 - TY0 + 1);
       const maxN = Math.max(...Object.values(byYear).map(a => a.length));
       const unit = Math.min(14, 420 / maxN);
       const bw = colW - 3, bh = Math.max(1.5, unit - 1);
@@ -2111,7 +2111,8 @@
             x: X0 + (y - TY0) * colW + 1,
             yLand: 545 - (i + 1) * unit,
             col: (PLATFORMS[g.p] && PLATFORMS[g.p].color) || "#E5B84B",
-            t0: Math.floor(sIdx++ / SPAWN)
+            t0: Math.floor(sIdx++ / SPAWN),
+            t: g.t
           });
         });
       }
@@ -2120,14 +2121,14 @@
         const [cv, c] = gifBase("EVERY YEAR, EVERY GAME");
         c.fillStyle = "#2A2931";
         for (let y = TY0; y <= TY1; y++) c.fillRect(X0 + (y - TY0) * colW + 1, 542, bw, 3);
-        let landed = 0;
+        const landedTitles = [];
         drops.forEach(d => {
           const age = t - d.t0;
           if (age < 0) return;
           c.fillStyle = d.col;
           if (age >= FALL) {
             c.fillRect(d.x, d.yLand, bw, bh);
-            landed++;
+            landedTitles.push(d);
           } else {
             const tt = age / FALL;
             c.globalAlpha = 0.75;
@@ -2140,8 +2141,23 @@
         c.fillStyle = "#98948D"; c.font = '400 12px "IBM Plex Mono", monospace';
         c.fillText("1972", X0, 570);
         c.textAlign = "right"; c.fillText("2026", X0 + W, 570); c.textAlign = "left";
+        // Ticker: the titles of the most recently landed blocks stream up the
+        // right side in their platform colors, newest brightest.
+        const fx = 850;
+        c.strokeStyle = "#34323B"; c.lineWidth = 1;
+        c.beginPath(); c.moveTo(fx - 18, 130); c.lineTo(fx - 18, 560); c.stroke();
+        c.font = '400 13px "IBM Plex Mono", monospace';
+        const rows = landedTitles.slice(-18);
+        rows.forEach((d, i) => {
+          c.globalAlpha = 0.2 + 0.8 * (i + 1) / rows.length;
+          c.fillStyle = d.col;
+          let tt = d.t.toUpperCase();
+          if (tt.length > 34) tt = tt.slice(0, 33) + "…";
+          c.fillText(tt, fx, 170 + i * 22);
+        });
+        c.globalAlpha = 1;
         c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
-        c.fillText(isFinal ? "ONE BLOCK PER GAME. " + pg.length + " BLOCKS." : landed + " AND COUNTING...", 70, 140);
+        c.fillText(isFinal ? "ONE BLOCK PER GAME. " + pg.length + " BLOCKS." : landedTitles.length + " AND COUNTING...", 70, 140);
         gifDots(c, cardIdx, cardTotal);
         return cv;
       };
