@@ -425,6 +425,7 @@
 
   .ob-plats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .ob-plats .chip { font-size: 13px; padding: 7px 14px; }
+  .tour-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin-top: 12px; }
 
   .toast {
     position: fixed;
@@ -611,6 +612,7 @@
 <header class="hero">
   <h1>ALL THE GAMES<br>I PLAYED <span class="dim">BEFORE</span></h1>
   <p id="subtitle">Check off everything you ever played and find the games that built your taste — each era sorted by the best-selling games of its day.</p>
+  <p style="margin: 10px 0 0;"><button class="export" id="tour-open" type="button" title="A guided pass through the biggest games of each era of your life">✨ Two-minute quick start</button></p>
   <div class="hero-stats">
     <span><b class="px" id="hs-years">43</b> YEARS</span>
     <span><b class="px" id="hs-plats">33</b> PLATFORMS</span>
@@ -653,8 +655,22 @@
       <div class="ob-plats" id="ob-plats"></div>
       <div class="pcard-actions" style="margin-top: 14px;">
         <label class="hide-played">Born <input id="ob-birth" class="search" type="number" min="1930" max="2020" step="1" style="width:76px;flex:0 0 auto;"></label>
-        <button class="export" id="ob-go" type="button">Show my games</button>
+        <button class="export" id="ob-go" type="button">Start the quick tour</button>
         <button class="export" id="ob-skip" type="button">Skip — show everything</button>
+      </div>
+    </div>
+  </section>
+  <section class="pcard" id="tour" hidden>
+    <div class="pcard-inner" style="padding-top: 18px;">
+      <span class="pcard-eyebrow" id="tour-step">QUICK START</span>
+      <h2 class="pcard-arch px" id="tour-title"></h2>
+      <p class="pcard-desc" id="tour-desc"></p>
+      <div class="tour-grid" id="tour-grid"></div>
+      <div class="pcard-actions" style="margin-top: 14px;">
+        <button class="export" id="tour-back" type="button">← Back</button>
+        <button class="export" id="tour-next" type="button">Next era →</button>
+        <button class="export" id="tour-skip" type="button">Skip to the full list</button>
+        <span class="mono" id="tour-count" style="align-self: center; color: var(--muted); font-size: 12px;"></span>
       </div>
     </div>
   </section>
@@ -4320,9 +4336,114 @@
       }
       dismissOnboard();
       applyFilters();
-      const idx = Math.min(8, Math.max(0, Math.floor((BIRTH_YEAR + 8 - 1983) / 5)));
-      if (ERAS[idx] && ERAS[idx].sec) ERAS[idx].sec.scrollIntoView({ behavior: "smooth" });
+      startTour();
     });
+  })();
+
+  // Quick start: a hand-held pass through the biggest games of each era of the
+  // player's life — a dozen cards at a time instead of the 1,800-game wall.
+  // Starts at their childhood era, runs forward to now, then offers the eras
+  // from before their time as bonus rounds.
+  let tourSteps = [], tourIdx = 0;
+  function buildTourSteps() {
+    const plats = state.platforms && state.platforms.size ? state.platforms : null;
+    let steps = [];
+    ERAS.forEach((era, i) => {
+      if (!era.games) return;
+      let pool = era.games.filter(g => !plats || plats.has(g.p));
+      if (pool.length < 4) pool = era.games;
+      const top = pool.slice(0, 12);
+      if (top.length >= 4) steps.push({ i, era, top });
+    });
+    const startYear = BIRTH_YEAR + 6;
+    const lived = steps.filter(s => s.era.b >= startYear);
+    const before = steps.filter(s => s.era.b < startYear).reverse();
+    return lived.concat(before);
+  }
+  function tourCard(g) {
+    const plat = PLATFORMS[g.p];
+    const btn = document.createElement("button");
+    btn.className = "card";
+    btn.type = "button";
+    btn.style.setProperty("--pc", plat.color);
+    btn.setAttribute("aria-pressed", played.has(g.id) ? "true" : "false");
+    btn.innerHTML = '<span class="box" aria-hidden="true">✓</span>' +
+      '<span class="body"><span class="title"></span>' +
+      '<span class="meta"><span class="mono">' + g.y + '</span>' +
+      '<span class="pdot"></span><span class="plat">' + plat.label + '</span></span></span>';
+    btn.querySelector(".title").textContent = g.t;
+    btn.addEventListener("click", () => {
+      const on = !played.has(g.id);
+      on ? played.add(g.id) : played.delete(g.id);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      const main = cardEls.get(g.id);
+      if (main) main.el.setAttribute("aria-pressed", on ? "true" : "false");
+      save();
+      if (playedChangedHook) playedChangedHook();
+      if (state.hidePlayed) applyFilters(); else updateCounts();
+      document.getElementById("tour-count").textContent = played.size + " checked so far";
+    });
+    return btn;
+  }
+  function renderTourStep() {
+    const step = tourSteps[tourIdx];
+    const era = step.era;
+    document.getElementById("tour-step").textContent = "QUICK START · " + (tourIdx + 1) + " / " + tourSteps.length;
+    const aStart = era.a - BIRTH_YEAR, aEnd = era.b - BIRTH_YEAR;
+    const ageLabel = aEnd < 0 ? "BEFORE YOUR TIME"
+      : aStart < 0 ? "AGES 0–" + aEnd
+      : "AGES " + aStart + "–" + aEnd;
+    document.getElementById("tour-title").textContent = era.a + "–" + era.b + " · " + ageLabel;
+    document.getElementById("tour-desc").textContent = aEnd < 0
+      ? "Bonus round — these came out before your time, but maybe you found them later."
+      : "Tap everything you played — don't overthink it. The deep cuts are all in the full list below.";
+    const grid = document.getElementById("tour-grid");
+    grid.innerHTML = "";
+    step.top.forEach(g => grid.appendChild(tourCard(g)));
+    document.getElementById("tour-back").hidden = tourIdx === 0;
+    document.getElementById("tour-next").textContent = tourIdx === tourSteps.length - 1 ? "Finish ✓" : "Next era →";
+    document.getElementById("tour-count").textContent = played.size + " checked so far";
+  }
+  function startTour() {
+    const ob = document.getElementById("onboard");
+    if (ob && !ob.hidden) {
+      ob.hidden = true;
+      try { localStorage.setItem("atgipb-onboarded", "1"); } catch (e) {}
+    }
+    tourSteps = buildTourSteps();
+    if (!tourSteps.length) return;
+    tourIdx = 0;
+    const sec = document.getElementById("tour");
+    sec.hidden = false;
+    renderTourStep();
+    sec.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function endTour(showCard) {
+    document.getElementById("tour").hidden = true;
+    try { localStorage.setItem("atgipb-toured", "1"); } catch (e) {}
+    renderProfile();
+    if (showCard && played.size > 0) {
+      const tgl = document.getElementById("pcard-toggle");
+      if (tgl && tgl.getAttribute("aria-expanded") !== "true") tgl.click();
+      showToast(played.size + " games checked — your player card is live. The full list below has all the deep cuts.", false);
+    }
+  }
+  document.getElementById("tour-next").addEventListener("click", () => {
+    if (tourIdx >= tourSteps.length - 1) { endTour(true); return; }
+    tourIdx++;
+    renderTourStep();
+    document.getElementById("tour").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  document.getElementById("tour-back").addEventListener("click", () => {
+    if (tourIdx > 0) { tourIdx--; renderTourStep(); }
+  });
+  document.getElementById("tour-skip").addEventListener("click", () => endTour(false));
+  document.getElementById("tour-open").addEventListener("click", () => startTour());
+  (() => {
+    let toured = false;
+    try { toured = localStorage.getItem("atgipb-toured") === "1"; } catch (e) {}
+    const obVisible = !document.getElementById("onboard").hidden;
+    if (!toured && !obVisible && played.size === 0 && location.hash.indexOf("#v=") !== 0) startTour();
   })();
 
   updateSubtitle();
