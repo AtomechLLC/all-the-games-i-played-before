@@ -3925,28 +3925,59 @@
     }
 
     if (years.length) {
-      const [cv, c] = gifBase("EVERY YEAR, EVERY GAME");
-      const X0 = 70, W = 1060, Y0 = 1972, Y1 = 2026, colW = W / (Y1 - Y0 + 1);
+      // Block rain: every game's block falls from the sky into its year
+      // column, piling into the full timeline wall.
+      const X0 = 70, W = 1060, TY0 = 1972, TY1 = 2026, colW = W / (TY1 - TY0 + 1);
       const maxN = Math.max(...Object.values(byYear).map(a => a.length));
       const unit = Math.min(14, 420 / maxN);
-      for (let y = Y0; y <= Y1; y++) {
-        const games = (byYear[y] || []).slice().sort((a, b) => (b.s ?? -1) - (a.s ?? -1));
-        const x = X0 + (y - Y0) * colW;
-        games.forEach((g, i) => {
-          c.fillStyle = (PLATFORMS[g.p] && PLATFORMS[g.p].color) || "#E5B84B";
-          c.fillRect(x + 1, 545 - (i + 1) * unit, colW - 3, Math.max(1.5, unit - 1));
+      const bw = colW - 3, bh = Math.max(1.5, unit - 1);
+      const SPAWN = 24, FALL = 6;
+      const drops = [];
+      let sIdx = 0;
+      for (let y = TY0; y <= TY1; y++) {
+        const list = (byYear[y] || []).slice().sort((a, b) => (b.s ?? -1) - (a.s ?? -1));
+        list.forEach((g, i) => {
+          drops.push({
+            x: X0 + (y - TY0) * colW + 1,
+            yLand: 545 - (i + 1) * unit,
+            col: (PLATFORMS[g.p] && PLATFORMS[g.p].color) || "#E5B84B",
+            t0: Math.floor(sIdx++ / SPAWN)
+          });
         });
-        if (!games.length) { c.fillStyle = "#2A2931"; c.fillRect(x + 1, 542, colW - 3, 3); }
       }
-      c.strokeStyle = "#34323B"; c.lineWidth = 2;
-      c.beginPath(); c.moveTo(X0, 547); c.lineTo(X0 + W, 547); c.stroke();
-      c.fillStyle = "#98948D"; c.font = '400 12px "IBM Plex Mono", monospace';
-      c.fillText("1972", X0, 570);
-      c.textAlign = "right"; c.fillText("2026", X0 + W, 570); c.textAlign = "left";
-      c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
-      c.fillText("ONE BLOCK PER GAME. " + pg.length + " BLOCKS.", 70, 140);
-      gifDots(c, cardIdx++, cardTotal);
-      frames.push([cv, 3800]);
+      const ticks = Math.floor((sIdx - 1) / SPAWN) + FALL + 1;
+      const rainFrame = (t, isFinal) => {
+        const [cv, c] = gifBase("EVERY YEAR, EVERY GAME");
+        c.fillStyle = "#2A2931";
+        for (let y = TY0; y <= TY1; y++) c.fillRect(X0 + (y - TY0) * colW + 1, 542, bw, 3);
+        let landed = 0;
+        drops.forEach(d => {
+          const age = t - d.t0;
+          if (age < 0) return;
+          c.fillStyle = d.col;
+          if (age >= FALL) {
+            c.fillRect(d.x, d.yLand, bw, bh);
+            landed++;
+          } else {
+            const tt = age / FALL;
+            c.globalAlpha = 0.75;
+            c.fillRect(d.x, -30 + (d.yLand + 30) * tt * tt, bw, bh);
+            c.globalAlpha = 1;
+          }
+        });
+        c.strokeStyle = "#34323B"; c.lineWidth = 2;
+        c.beginPath(); c.moveTo(X0, 547); c.lineTo(X0 + W, 547); c.stroke();
+        c.fillStyle = "#98948D"; c.font = '400 12px "IBM Plex Mono", monospace';
+        c.fillText("1972", X0, 570);
+        c.textAlign = "right"; c.fillText("2026", X0 + W, 570); c.textAlign = "left";
+        c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+        c.fillText(isFinal ? "ONE BLOCK PER GAME. " + pg.length + " BLOCKS." : landed + " AND COUNTING...", 70, 140);
+        gifDots(c, cardIdx, cardTotal);
+        return cv;
+      };
+      for (let t = 0; t < ticks; t++) frames.push([rainFrame(t, false), 70]);
+      frames.push([rainFrame(ticks + FALL, true), 3400]);
+      cardIdx++;
     }
 
     if (topPlats.length) {
