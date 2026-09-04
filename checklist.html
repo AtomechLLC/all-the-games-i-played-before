@@ -2793,9 +2793,27 @@
     ["Shooters", /doom|quake|half-life|goldeneye|counter-strike|wolfenstein|unreal|battlefield|call of duty|warzone|overwatch|apex|titanfall|far cry|crysis|bioshock|duke nukem|perfect dark|turok|heretic|hexen|f\.e\.a\.r|descent|dark forces|jedi|tie fighter|x-wing|wing commander|rogue squadron|star fox|team fortress|left 4 dead|payday|rainbow six|pubg|fortnite|splatoon|destiny|warframe|helldivers|deep rock|metroid prime|contra|gradius|1942|commando|super r-type|mechwarrior|tribes|serious sam|max payne|gungeon|risk of rain|freelancer|marvel rivals|hogan's alley|wild gunman|duck hunt|top gun|crossbow|shadows of the empire|episode i racer|genshin|blast corps|medal of honor|return to castle|world in conflict|metal gear|killzone|resistance: fall|desert strike|gunstar|armored core|halo|gears of war|gears 5|space invaders|missile command|asteroids|panzer dragoon|virtua cop|galaga|centipede|defender|splinter cell|crimson skies|sunset overdrive|gunfire reborn|ultrakill|broforce|my friend pedro|devil daggers|gtfo\b|nuclear throne|soulstone|galactic: survivor|ace combat|syphon filter|red steel|hitman/i],
     ["Platformers", /mario|sonic|kirby|donkey kong|yoshi|wario|mega man|castlevania|metroid|banjo|conker|rayman|celeste|meat boy|shovel|hollow knight|silksong|ori and|cuphead|limbo|braid|ninja gaiden|bubble bobble|ducktales|rescue rangers|ghosts 'n|ghouls|actraiser|bionic commando|pikmin|luigi|peach|bananza|prince of persia|dead cells|ice climber|balloon fight|wrecking crew|kid icarus|rygar|epic mickey|magical quest|commander keen|prince|bayonetta|viewtiful|chibi-robo|1-2|crash bandicoot|spyro|jak and daxter|ratchet|astro bot|earthworm|aladdin|lion king|littlebigplanet|oddworld|kid chameleon|vectorman|comix zone|locoroco|daxter|pitfall|jet set radio|nights into|katana zero|pizza tower|nine sols|ender lilies|gris\b|thomas was alone|trine\b|rain world|rogue legacy|the messenger|jump king|bomb rush|ghostrunner|neon white|downwell|sly cooper|ape escape|blaster master|adventure island|mischief makers|shinobi/i]
   ];
+  // Second-pass refinements, checked BEFORE GENRE_RULES: franchise strays and
+  // modern action/indie games that would otherwise pile into the arcade
+  // fallback, plus two buckets of their own. First hit wins across both lists.
+  const GENRE_OVERRIDES = [
+    ["Roguelites", /binding of isaac|necrodancer|crypt of the|noita|loop hero|curse of the dead gods|undermine|ravenswatch|brotato|snkrx|spirit hunters|vampire survivors|cult of the lamb|streets of rogue|have a nice death|dome keeper|cobalt core|shortest trip|invisible, inc|children of morta|dark and darker|caves of qud|magicite|moon hunters|witchhand|forward: escape|slay the spire|risk of rain|rogue legacy|dead cells|gungeon|hades\b|darkest dungeon|\bftl\b|monster train|griftlands|luck be a landlord|peglin|wizard of legend|ember knights|ball x pit|galactic: survivor|soulstone|nuclear throne|downwell|skul\b|mewgenics/i],
+    ["Action & Slashers", /devil may cry|god of war|darksiders|no more heroes|astral chain|hyrule warriors|sparking! zero|batman|arkham|shadow of mordor|black myth|furi\b|eldest souls|nier|just cause|crackdown|bayonetta|ninja gaiden|viewtiful|magicka|blade & sorcery|boneworks|bonelab/i],
+    ["Fighting", /teenage mutant|tmnt|shredder's revenge|golden axe|altered beast/i],
+    ["Roguelites", /crawl\b/i],
+    ["RPGs", /persona\b|monster hunter|nioh|lies of p|kingdoms of amalur|pillars of eternity|mount & blade|vampire: the masquerade|valkyria|last remnant|chained echoes|dungeon siege|like a dragon|recettear|child of light|banner saga|kenshi|lost ark|\bnew world\b|fortune summoners|exocolonist|potionomics|hogwarts|hyper light|death's door|tunic\b|ocean's heart|hob\b|champions online|penny arcade|knights of pen|bastion|pyre\b|morbid:/i],
+    ["Platformers", /jak ii|jak 3|sly 2|band of thieves|psychonauts|a hat in time|owlboy|\bfez\b|^inside$|axiom verge|blasphemous|bloodstained|gato roboto|mo:astray|panzer paladin|narita boy|moonscars|unsighted|salt and sanctuary|super monkey ball|captain toad|out there somewhere|towerfall|dust: an elysian|webbed|mina the hollower/i],
+    ["Shooters", /borderlands|metro 2033|metro: last light|metro exodus|s\.t\.a\.l\.k\.e\.r|battlefront|world of tanks|war thunder|tarkov|ready or not|arc raiders|battlebit|the finals\b|resistance|space marine|deathloop|superhot|unfortunate spacemen|killer queen|hardcore mecha|vision soft reset|jet force gemini|super star wars/i],
+    ["Strategy", /sins of a solar|europa universalis|northgard|they are billions|heroes of the storm|orcs must die|plants vs\. zombies|battlerite|offworld|reus\b|against the storm|kingdom: classic|yes, your grace/i],
+    ["Sim & Builder", /ark: survival|7 days to die|dayz|zomboid|no man's sky|the forest\b|\braft\b|oxygen not included|dyson sphere|timberborn|stacklands|wandering village|prison architect|hardspace|space warlord|unpacking|tabletop simulator|hacknet|shenzhen|glittermitten|pilotwings|the alters|craftlings/i],
+    ["Adventure & Horror", /alan wake|\bsoma\b|dead by daylight|dying light|danganronpa|life is strange|stanley parable|papers, please|this war of mine|brothers: a tale|the cave\b|broken age|her story|telling lies|heaven's vault|hatoful|the yawhg|gods will be watching|the longing|inmost|twelve minutes|betrayal at club|creepy redneck|buckshot roulette|content warning|\bstray\b|the last guardian|deus ex|dishonored|thief: the dark|thief ii|system shock|lego city|sid meier's pirates|sea of thieves|to the moon|finding paradise|signs of the sojourner|moss\b|lara croft/i],
+    ["Party & Sports", /fall guys|human: fall flat|a way out\b|beat saber|audiosurf|olliolli|getting over it|gorilla tag|rec room|vrchat|vacation simulator/i],
+    ["Racing", /stunt race|descenders/i],
+    ["Puzzle", /the witness|quantum conundrum|peggle|big brain academy|road not taken|golden idol|blue prince/i]
+  ];
   const GENRE_FALLBACK = "Arcade & Action";
   GAMES.forEach(g => {
-    const rule = GENRE_RULES.find(([, re]) => re.test(g.t));
+    const rule = GENRE_OVERRIDES.find(([, re]) => re.test(g.t)) || GENRE_RULES.find(([, re]) => re.test(g.t));
     g.genre = rule ? rule[0] : GENRE_FALLBACK;
   });
 
@@ -2803,7 +2821,16 @@
     "Party & Sports": "Party Captain", "Puzzle": "Puzzle Master", "Racing": "Speed Demon",
     "RPGs": "Role-Player", "Strategy": "Strategist", "Sim & Builder": "World Builder",
     "Fighting": "Brawler", "Adventure & Horror": "Explorer", "Shooters": "Sharpshooter",
-    "Platformers": "Platforming Pro", "Arcade & Action": "Arcade Ace"
+    "Platformers": "Platforming Pro", "Arcade & Action": "Arcade Ace",
+    "Roguelites": "Run-Chaser", "Action & Slashers": "Blade Dancer"
+  };
+  // Adjective flavor for the runner-up genre, used in hybrid archetypes.
+  const GENRE_ADJ = {
+    "Party & Sports": "Party-Hosting", "Puzzle": "Puzzle-Brained", "Racing": "Full-Throttle",
+    "RPGs": "Lore-Steeped", "Strategy": "Grand-Planning", "Sim & Builder": "Empire-Building",
+    "Fighting": "Combo-Chaining", "Adventure & Horror": "Torch-Carrying", "Shooters": "Trigger-Happy",
+    "Platformers": "Pixel-Perfect", "Arcade & Action": "Quarter-Fed",
+    "Roguelites": "Death-Defying", "Action & Slashers": "Sword-Swinging"
   };
   // Badge helpers: count by title regex, genre bucket, platform code, year filter.
   const cRe = (gs, re) => gs.filter(g => re.test(g.t)).length;
@@ -3179,17 +3206,27 @@
 
     let archetype = "PRESS START", desc = "";
     if (gs.length) {
-      const share = code => (byPlat[code] || 0) / gs.length;
-      const pcShare = share("IBM") + share("OS2") + share("PC1") + share("PC2");
-      const handheldShare = share("GB") + share("GBC") + share("GBA");
-      const nintendoShare = 1 - pcShare;
-      const platWord = pcShare >= 0.55 ? "PC" : nintendoShare >= 0.65 ? "Nintendo"
-        : handheldShare >= 0.4 ? "Handheld" : "Cross-Platform";
+      const fam = codes => codes.reduce((s, c) => s + (byPlat[c] || 0), 0) / gs.length;
+      const families = [
+        ["PC", fam(["IBM", "OS2", "PC1", "PC2"])],
+        ["Nintendo", fam(["NES", "SNES", "GB", "GBC", "GBA", "N64", "GCN", "NDS", "WII", "WIIU", "3DS", "NSW"])],
+        ["PlayStation", fam(["PSX", "PS2", "PSP", "PS3", "PS4", "PS5"])],
+        ["Xbox", fam(["XBX", "X360", "XONE"])],
+        ["Sega", fam(["GEN", "GG", "SAT", "DC"])]
+      ].sort((a, b) => b[1] - a[1]);
+      const handheldShare = fam(["GB", "GBC", "GBA", "NDS", "3DS", "PSP", "GG"]);
+      const platWord = handheldShare >= 0.45 ? "Handheld"
+        : families[0][1] >= 0.5 ? families[0][0] : "Cross-Platform";
       const sorted = years.slice().sort((a, b) => a - b);
       const median = sorted[Math.floor(sorted.length / 2)];
       const eraWord = median <= 1993 ? "8-Bit-Era" : median <= 1999 ? "'90s" :
         median <= 2007 ? "2000s" : median <= 2015 ? "2010s" : "Modern-Era";
-      archetype = "The " + eraWord + " " + platWord + " " + GENRE_NOUN[topGenre[0]];
+      // Blend in the runner-up genre when it's close — era + platform + one
+      // genre alone collapsed too many libraries onto the same title.
+      const g2 = Object.entries(byGenre).sort((a, b) => b[1] - a[1])[1];
+      archetype = (g2 && g2[0] !== topGenre[0] && g2[1] >= topGenre[1] * 0.7 && gs.length >= 15)
+        ? "The " + GENRE_ADJ[g2[0]] + " " + platWord + " " + GENRE_NOUN[topGenre[0]]
+        : "The " + eraWord + " " + platWord + " " + GENRE_NOUN[topGenre[0]];
       const firstY = Math.min(...years), lastY = Math.max(...years);
       const firstGame = gs.filter(g => g.y === firstY).sort((a, b) => (b.s ?? -1) - (a.s ?? -1))[0];
       const lastGame = gs.filter(g => g.y === lastY).sort((a, b) => (b.s ?? -1) - (a.s ?? -1))[0];
