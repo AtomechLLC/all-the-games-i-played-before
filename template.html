@@ -427,6 +427,8 @@
 
   .mini-caption { min-height: 18px; font-size: 12px; color: var(--muted); margin: 8px 2px 0; }
   .tl-wrap .mini-caption { margin: 0 10px 8px; }
+  .pxe { image-rendering: pixelated; vertical-align: -3px; }
+  .btile .pxe { vertical-align: 0; }
   #tl circle, .btile { cursor: pointer; }
   .btile.sel { outline: 2px solid var(--gold-strong); outline-offset: 1px; }
 
@@ -1729,7 +1731,7 @@
       const earned = earnedSet.has(name);
       const b = document.createElement("span");
       b.className = earned ? "btile" : "btile locked";
-      b.textContent = emoji;
+      b.appendChild(pixelImg(emoji, 28));
       b.title = name + " — " + hint + (earned ? "" : " (locked)");
       badgesEl.appendChild(b);
     });
@@ -1739,6 +1741,49 @@
   // generated portrait, and the top clusters with their emotions, the traits
   // their games demand, and the played games that prove it.
   let lastPsyche = null;
+  // Emoji "demake": render the glyph tiny, then upscale with smoothing off so
+  // every icon reads as an original chunky pixel sprite. No ripped game art.
+  const PIX_SMALL = new Map();
+  const PIX_URL = new Map();
+  const PIX_FONT = '"Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+  function pixelSmall(emoji, cells) {
+    const key = emoji + "@" + cells;
+    let cv = PIX_SMALL.get(key);
+    if (!cv) {
+      cv = document.createElement("canvas");
+      cv.width = cells; cv.height = cells;
+      const c = cv.getContext("2d");
+      c.textAlign = "center"; c.textBaseline = "middle";
+      c.font = (cells - 2) + "px " + PIX_FONT;
+      c.fillText(emoji, cells / 2, cells / 2 + 1);
+      PIX_SMALL.set(key, cv);
+    }
+    return cv;
+  }
+  function pixelEmojiURL(emoji, cells, size) {
+    const key = emoji + "@" + cells + "@" + size;
+    let url = PIX_URL.get(key);
+    if (!url) {
+      const big = document.createElement("canvas");
+      big.width = size; big.height = size;
+      const c = big.getContext("2d");
+      c.imageSmoothingEnabled = false;
+      c.drawImage(pixelSmall(emoji, cells), 0, 0, size, size);
+      url = big.toDataURL();
+      PIX_URL.set(key, url);
+    }
+    return url;
+  }
+  function pixelImg(emoji, size) {
+    const img = document.createElement("img");
+    img.src = pixelEmojiURL(emoji, 14, size * 2);
+    img.alt = "";
+    img.className = "pxe";
+    img.style.width = size + "px";
+    img.style.height = size + "px";
+    return img;
+  }
+
   function radarSVG(R) {
     const S = 280, cx = S / 2, cy = S / 2 + 4, rMax = 96;
     const pt = (i, r) => {
@@ -1833,7 +1878,9 @@
         '<div class="pc-line"><b>Feels like:</b> <span class="e"></span></div>' +
         '<div class="pc-line"><b>Beating them takes:</b> <span class="t"></span></div>' +
         '<div class="pc-line"><b>Evidence:</b> <span class="g"></span></div>';
-      d.querySelector(".pc-name").textContent = c.emoji + " " + c.name + " · " + Math.round(psy.R[key] * 100) + "% of avg lean";
+      const nameEl = d.querySelector(".pc-name");
+      nameEl.appendChild(pixelImg(c.emoji, 18));
+      nameEl.appendChild(document.createTextNode(" " + c.name + " · " + Math.round(psy.R[key] * 100) + "% of avg lean"));
       d.querySelector(".e").textContent = c.emotions.join(" · ");
       d.querySelector(".t").textContent = c.traits.join(", ");
       d.querySelector(".g").textContent = evidence.slice(0, 3).map(g => g.t).join(", ") +
@@ -1853,7 +1900,9 @@
       d.className = "psy-evo-item";
       d.innerHTML = miniRadarSVG(p.R, 96) + '<div class="ey mono"></div><div class="ec"></div>';
       d.querySelector(".ey").textContent = ERAS[i].a + "–" + String(ERAS[i].b).slice(2);
-      d.querySelector(".ec").textContent = CLUSTERS[top].emoji + " " + CLUSTERS[top].name;
+      const ecEl = d.querySelector(".ec");
+      ecEl.appendChild(pixelImg(CLUSTERS[top].emoji, 14));
+      ecEl.appendChild(document.createTextNode(" " + CLUSTERS[top].name));
       d.title = ERAS[i].a + "–" + ERAS[i].b + ": " + p.n + " games, leads " + CLUSTERS[top].name +
         " at " + Math.round(p.R[top] * 100) + "% of the average lean";
       evoEl.appendChild(d);
@@ -2001,12 +2050,13 @@
       });
     }
 
-    // Earned badges as an emoji mosaic strip, then the site footer.
-    c.font = '24px "Segoe UI Emoji", sans-serif';
+    // Earned badges as a pixel-sprite strip, then the site footer.
     const perRow = 31, gap = (W - 120) / perRow;
+    c.imageSmoothingEnabled = false;
     p.badges.slice(0, perRow).forEach(([e], i) => {
-      c.fillText(e, 60 + (i % perRow) * gap, 612);
+      c.drawImage(pixelSmall(e, 14), 60 + (i % perRow) * gap, 590, 24, 24);
     });
+    c.imageSmoothingEnabled = true;
     c.fillStyle = "#98948D";
     c.font = '400 14px "IBM Plex Mono", monospace';
     c.fillText("atomechllc.github.io/all-the-games-i-played-before", 60, 648);
@@ -2304,8 +2354,11 @@
       psy.ranked.slice(0, 3).forEach((k, i) => {
         const y = 300 + i * 92;
         const cl = CLUSTERS[k];
+        c.imageSmoothingEnabled = false;
+        c.drawImage(pixelSmall(cl.emoji, 14), 70, y - 20, 26, 26);
+        c.imageSmoothingEnabled = true;
         c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
-        c.fillText(cl.emoji + " " + cl.name + "  " + Math.round(psy.R[k] * 100) + "% OF AVG LEAN", 70, y);
+        c.fillText(cl.name + "  " + Math.round(psy.R[k] * 100) + "% OF AVG LEAN", 106, y);
         c.fillStyle = "#B9B5AD"; c.font = '400 13px "IBM Plex Mono", monospace';
         c.fillText("FEELS LIKE: " + cl.emotions.join(" · ").toUpperCase(), 70, y + 24);
         c.fillStyle = "#807C76";
@@ -2360,15 +2413,16 @@
       const [cv, c] = gifBase("TROPHY WALL");
       c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
       c.fillText("BADGES: " + earned.length + " / " + BADGES.length, 70, 150);
-      c.textAlign = "center"; c.font = "34px " + GIF_EMOJI_FONT;
       const perRow = 15, cell = 72;
+      c.imageSmoothingEnabled = false;
       BADGES.forEach((b, i) => {
         const x = 90 + (i % perRow) * cell + cell / 2;
         const y = 230 + Math.floor(i / perRow) * 66;
         c.globalAlpha = earned.includes(b) ? 1 : 0.16;
-        c.fillText(b[0], x, y);
+        c.drawImage(pixelSmall(b[0], 14), x - 17, y - 28, 34, 34);
       });
-      c.globalAlpha = 1; c.textAlign = "left";
+      c.imageSmoothingEnabled = true;
+      c.globalAlpha = 1;
       gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 3800]);
     }
