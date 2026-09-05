@@ -7,6 +7,11 @@ Files prefixed "ky-" — Kyrise's Free 16x16 RPG Icon Pack v1.2
   License: Creative Commons Attribution 4.0 International (CC BY 4.0)
            https://creativecommons.org/licenses/by/4.0/
 
+Files prefixed "gi-" — game-icons.net icons (authors Lorc, Delapouite, Skoll)
+  Source:  https://game-icons.net (per-icon author in the site's catalog)
+  License: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+           https://creativecommons.org/licenses/by/3.0/
+
 Files prefixed "ke-" — Kenney Game Icons pack
   Author:  Kenney (https://kenney.nl)
   Source:  https://kenney.nl/assets/game-icons

@@ -662,7 +662,7 @@
       <button class="export" id="check-all-btn" type="button" hidden title="Check every game currently shown by your filters">Check all shown</button>
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
       <button class="export" id="import-btn" type="button" title="Load a played-list .json (made by Export) — checks everything in it">Import</button>
-      <button class="export" id="steam-btn" type="button" title="Paste your Steam games page and check your whole library at once">🎮 Steam</button>
+      <button class="export" id="steam-btn" type="button" title="Paste your Steam or Epic library page and check everything at once">🎮 Scan</button>
       <button class="export" id="compare-btn" type="button" title="Load a friend's exported .json to see your overlap">Compare</button>
       <button class="export" id="share-btn" type="button" title="Copy a link that lets anyone compare against your checklist">Share</button>
       <button class="export" id="owner-compare-btn" type="button" hidden></button>
@@ -693,14 +693,15 @@
   </section>
   <section class="pcard" id="steam" hidden>
     <div class="pcard-inner" style="padding-top: 18px;">
-      <span class="pcard-eyebrow">STEAM SCAN</span>
-      <h2 class="pcard-arch px">CHECK YOUR STEAM LIBRARY IN ONE PASTE</h2>
-      <p class="pcard-desc">Open your Steam games list with the button below (sign in if it asks), select the whole page (Ctrl+A), copy it (Ctrl+C), and paste it here. The paste is matched entirely in your browser — nothing is uploaded anywhere.</p>
+      <span class="pcard-eyebrow">LIBRARY SCAN</span>
+      <h2 class="pcard-arch px">CHECK YOUR STEAM OR EPIC LIBRARY IN ONE PASTE</h2>
+      <p class="pcard-desc">Open your library page with a button below (sign in if it asks), select the whole page (Ctrl+A), copy it (Ctrl+C), and paste it here. On Epic, click "Show more" a few times first so every order is on the page — free weekly claims count too. The paste is matched entirely in your browser — nothing is uploaded anywhere.</p>
       <div class="pcard-actions">
         <a class="export" id="steam-open" href="https://steamcommunity.com/my/games/?tab=all" target="_blank" rel="noopener">Open my Steam games list ↗</a>
+        <a class="export" id="epic-open" href="https://www.epicgames.com/account/transactions" target="_blank" rel="noopener">Open my Epic purchases ↗</a>
         <label class="hide-played"><input type="checkbox" id="steam-2h" checked> Skip games under 2 hours (when playtime is visible)</label>
       </div>
-      <textarea id="steam-paste" class="steam-paste" placeholder="Paste your copied Steam page here…"></textarea>
+      <textarea id="steam-paste" class="steam-paste" placeholder="Paste your copied Steam or Epic page here…"></textarea>
       <div class="pcard-actions" style="margin-top: 10px;">
         <button class="export" id="steam-match" type="button">Match my games</button>
         <button class="export" id="steam-close" type="button">Close</button>
@@ -797,8 +798,8 @@
 <footer>
   <div class="inner">
     <p>Sales figures are approximate lifetime totals from mixed public sources — some are franchise, all-platform, or player counts (noted on the card). Within each era, games are sorted best-selling first; “—” means no reliable number. Eras follow North American release years; age labels use the birth year set on your player card (default 1983).</p>
-    <p>Your checkmarks save automatically: to cloud storage where the hosted page supports it (the indicator above shows sync state), and always to this browser as a backup. Export downloads your played list as a JSON file; the 🎮 Steam scan checks your whole library from one paste. Coming later: Epic import and play-history profiles.</p>
-    <p>Badge sprites: <a href="https://kyrise.itch.io/" target="_blank" rel="noopener">Kyrise's 16x16 RPG Icon Pack</a> (CC BY 4.0) and <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney game assets</a> (CC0).</p>
+    <p>Your checkmarks save automatically: to cloud storage where the hosted page supports it (the indicator above shows sync state), and always to this browser as a backup. Export downloads your played list as a JSON file; the 🎮 library scan checks your whole Steam or Epic library from one paste. Coming later: play-history profiles.</p>
+    <p>Badge sprites: <a href="https://kyrise.itch.io/" target="_blank" rel="noopener">Kyrise's 16x16 RPG Icon Pack</a> (CC BY 4.0), <a href="https://game-icons.net" target="_blank" rel="noopener">game-icons.net</a> (CC BY 3.0), and <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney game assets</a> (CC0).</p>
     <p>A <a href="https://funsmith.club" target="_blank" rel="noopener">Funsmith Club</a> project — join the game design community on Discord.</p>
   </div>
 </footer>
@@ -1734,7 +1735,7 @@
       b.className = earned ? "btile" : "btile locked";
       if (BADGE_SPRITES[name]) {
         const img = document.createElement("img");
-        img.src = BADGE_SPRITES[name];
+        img.src = badgeSpriteURL(name);
         img.alt = "";
         img.className = "pxe";
         img.style.width = "28px";
@@ -1805,9 +1806,37 @@
     im.src = BADGE_SPRITES[n];
     SPRITE_IMGS[n] = im;
   });
+  // Flat white Kenney glyphs get a color: platform badges wear their platform
+  // color, the rest get palette hues. Kyrise items are already colorful.
+  const SPRITE_TINT = {
+    "One-Up Millionaire": "#E5B84B", "Vault Dweller": "#F0C020", "Kart Legend": "#E8443F",
+    "Final Destination": "#3E9C5C", "Sid Meier Fan Club": "#C98A2E", "Trigger Discipline": "#FF6A5C",
+    "World Conqueror": "#1A66C4", "Platforming Pro": "#46B06E", "Coyote Time": "#E5B84B",
+    "Puzzle Master": "#7A6FD0", "Combo Breaker": "#E8443F", "Speed Demon": "#F2703F",
+    "City Planner": "#5CA8DC", "The Factory Must Grow": "#7EBB00", "Survivalist": "#C46A3A",
+    "One More Run": "#A64DF0", "Immersive Sim Doctorate": "#16A3B8", "Story Seeker": "#B33A75",
+    "8-Bit Native": "#B0453C", "Before the Internet": "#8A8FA3", "C:\\> Prompt": "#8A8FA3",
+    "OS/2 Survivor": "#2AA198", "LAN Party Legend": "#C98A2E", "NES Generation": "#B0453C",
+    "16-Bit Believer": "#7A6FD0", "Blast Processing": "#1A66C4", "Green Team": "#107C10",
+    "Touch Generation": "#C75B9B", "Thumb Warrior": "#FF8A3D", "Woodgrain Wonder": "#C46A3A",
+    "It's Thinking": "#F2703F", "Ready Player One": "#A64DF0", "Pocket Gamer": "#8FA04C",
+    "N64 Kid": "#3E9C5C", "Wii Would Like to Play": "#5CA8DC", "Wii U Believer": "#2F7FC1",
+    "Switched On": "#E8443F", "PC Master Race": "#4E82C6", "Steam Powered": "#4E82C6",
+    "Still Playing": "#E5B84B", "Day One": "#FF6A5C", "Platform Agnostic": "#C75B9B",
+    "Press Start": "#3E9C5C", "Decade Spanner": "#2F7FC1", "The Collector": "#E5B84B",
+    "Completionist": "#7EBB00",
+    "Triforce Complete": "#E5B84B", "Plumber's Union": "#E8443F", "Bounty Hunter": "#FF6A5C",
+    "Chozo Chosen": "#46B06E", "Rip and Tear": "#E8443F", "S.T.A.R.S. Survivor": "#7EBB00",
+    "Dragonborn": "#3E9C5C", "Banana Hoarder": "#F0C020", "Blue Bomber": "#5CA8DC",
+    "School of the Wolf": "#90939E", "Grand Strategist": "#7A6FD0", "Flashlight Ready": "#E5B84B",
+    "Homesteader": "#8FA04C", "Touch Grass": "#46B06E", "Elder Gamer": "#3E9C5C",
+    "Time Lord": "#A64DF0"
+  };
   const SPRITE_CANVAS = new Map();
+  const SPRITE_TILE_URL = new Map();
   // Normalize any sprite (16px Kyrise, 64px Kenney) onto a 16x16 canvas so
-  // canvas draws upscale with the same chunky look as the DOM tiles.
+  // canvas draws upscale with the same chunky look as the DOM tiles, applying
+  // the tint for white glyphs.
   function badgeSpriteCanvas(name) {
     const im = SPRITE_IMGS[name];
     if (!im || !im.complete || !im.naturalWidth) return null;
@@ -1818,10 +1847,29 @@
       const c = cv.getContext("2d");
       c.imageSmoothingEnabled = im.naturalWidth > 16;
       c.drawImage(im, 0, 0, 16, 16);
+      if (SPRITE_TINT[name]) {
+        c.globalCompositeOperation = "source-in";
+        c.fillStyle = SPRITE_TINT[name];
+        c.fillRect(0, 0, 16, 16);
+        c.globalCompositeOperation = "source-over";
+      }
       SPRITE_CANVAS.set(name, cv);
     }
     return cv;
   }
+  function badgeSpriteURL(name) {
+    let url = SPRITE_TILE_URL.get(name);
+    if (!url) {
+      const cv = badgeSpriteCanvas(name);
+      if (!cv) return BADGE_SPRITES[name] || null;
+      url = cv.toDataURL();
+      SPRITE_TILE_URL.set(name, url);
+    }
+    return url;
+  }
+  // Re-render once every sprite has decoded so tiles pick up tinted versions.
+  Promise.all(Object.values(SPRITE_IMGS).map(im => im.decode ? im.decode().catch(() => {}) : Promise.resolve()))
+    .then(() => { if (typeof renderProfile === "function" && typeof played !== "undefined") renderProfile(); });
 
   function radarSVG(R) {
     const S = 280, cx = S / 2, cy = S / 2 + 4, rMax = 96;
@@ -3132,7 +3180,7 @@
       if (!sec.hidden) sec.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     document.getElementById("steam-close").addEventListener("click", () => { sec.hidden = true; });
-    const SUFFIX = /\s+(game of the year( edition)?|goty( edition)?|definitive edition|enhanced edition|complete edition|deluxe edition|anniversary edition|special edition|legendary edition|ultimate edition|gold edition|remastered|directors cut|the final cut|hd)$/;
+    const SUFFIX = /\s+(game of the year( edition)?|goty( edition)?|definitive edition|enhanced edition|complete edition|deluxe edition|anniversary edition|special edition|legendary edition|ultimate edition|gold edition|standard edition|epic games edition|premium edition|digital edition|remastered|directors cut|the final cut|hd)$/;
     const normT = s => s.toLowerCase().replace(/[®™©’']/g, "").replace(/&/g, "and").replace(/[^a-z0-9]+/g, " ").trim();
     const lookup = new Map();
     GAMES.forEach(g => {
