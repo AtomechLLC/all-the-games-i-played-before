@@ -4413,30 +4413,41 @@
     }
 
     if (eraSnaps.length >= 2) {
-      const [cv, c] = gifBase("EVOLUTION");
-      c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
-      c.fillText("YOUR TASTE OVER TIME", 70, 150);
-      const shown = eraSnaps.slice(-5);
-      const w = 1060 / shown.length;
-      shown.forEach(([i, p], idx) => {
-        const cx = 70 + w * idx + w / 2;
-        gifRadar(c, cx, 350, Math.min(85, w / 2 - 30), p.R, true);
-        c.textAlign = "center";
-        c.fillStyle = "#98948D"; c.font = '400 13px "IBM Plex Mono", monospace';
-        c.fillText(ERAS[i].a + "-" + String(ERAS[i].b).slice(2), cx, 240);
+      // The taste radar morphs era to era: hold on each phase actually played
+      // (thin eras are already skipped), then tween the polygon's lines and
+      // fill smoothly into the next phase across the whole interval.
+      const TWEEN = 5;
+      const lerpR = (a, b, t) => {
+        const R = {};
+        CKEYS.forEach(k => { R[k] = a[k] + (b[k] - a[k]) * t; });
+        return R;
+      };
+      const eraLabel = i => ERAS[i].a + "-" + String(ERAS[i].b).slice(2);
+      const evoFrame = (R, label, sub, delay) => {
+        const [cv, c] = gifBase("EVOLUTION");
+        c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+        c.fillText("YOUR TASTE, ERA BY ERA", 70, 150);
+        c.fillStyle = "#E5B84B"; c.font = '700 34px "Silkscreen", monospace';
+        c.fillText(label, 70, 230);
+        c.fillStyle = "#98948D"; c.font = '400 15px "IBM Plex Mono", monospace';
+        c.fillText(sub, 70, 266);
+        gifRadar(c, 720, 370, 165, R);
+        gifDots(c, cardIdx, cardTotal);
+        frames.push([cv, delay]);
+      };
+      eraSnaps.forEach(([ei, p], idx) => {
         const top = p.ranked[0];
-        c.fillStyle = "#E5B84B"; c.font = '700 14px "Silkscreen", monospace';
-        c.fillText(CLUSTERS[top].name, cx, 480);
-        c.fillStyle = "#98948D"; c.font = '400 12px "IBM Plex Mono", monospace';
-        c.fillText(Math.round(p.R[top] * 100) + "% LEAN", cx, 500);
-        if (idx < shown.length - 1) {
-          c.fillStyle = "#5E5B64"; c.font = '700 20px "Silkscreen", monospace';
-          c.fillText(">", 70 + w * (idx + 1), 356);
+        evoFrame(p.R, eraLabel(ei), p.n + " GAMES · LEADS " + CLUSTERS[top].name, idx === eraSnaps.length - 1 ? 1700 : 700);
+        if (idx < eraSnaps.length - 1) {
+          const [nei, np] = eraSnaps[idx + 1];
+          for (let s = 1; s <= TWEEN; s++) {
+            const t = s / (TWEEN + 1);
+            const tt = t * t * (3 - 2 * t);
+            evoFrame(lerpR(p.R, np.R, tt), eraLabel(ei) + " > " + eraLabel(nei), "SHIFTING...", 80);
+          }
         }
-        c.textAlign = "left";
       });
-      gifDots(c, cardIdx++, cardTotal);
-      frames.push([cv, 4200]);
+      cardIdx++;
     }
 
     if (earned.length) {
