@@ -736,7 +736,7 @@
           <div class="pcard-actions">
             <label class="hide-played">Born <input id="birth-year" class="search" type="number" min="1930" max="2020" step="1" style="width:76px;flex:0 0 auto;"></label>
             <button class="export" id="card-btn" type="button" hidden>Save card as image</button>
-            <button class="export" id="gif-btn" type="button" hidden>🧱 What Built My Taste</button>
+            <button class="export" id="gif-btn" type="button" hidden>🎞️ Get animated GIF</button>
           </div>
         </div>
         <div id="pcard-detail">
@@ -2537,7 +2537,7 @@
   document.getElementById("gif-btn").addEventListener("click", async () => {
     if (!lastProfile || !lastProfile.gs.length) return;
     const btn = document.getElementById("gif-btn");
-    const idle = "🧱 What Built My Taste";
+    const idle = "🎞️ Get animated GIF";
     btn.disabled = true; btn.textContent = "Booting…";
     try {
       const eng = await loadGifEngine();
