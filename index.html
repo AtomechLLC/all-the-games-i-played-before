@@ -73,9 +73,10 @@
   .hero {
     max-width: 1180px;
     margin: 0 auto;
-    padding: 44px 24px 18px;
+    padding: 26px 24px 10px;
     position: relative;
   }
+  .hero-row { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; margin-top: 12px; }
   .hero h1 {
     font-family: "Silkscreen", "Courier New", monospace;
     font-weight: 700;
@@ -111,7 +112,7 @@
   @media (max-width: 700px) {
     .funsmith { position: static; margin-top: 14px; }
   }
-  .hero-stats { display: flex; gap: 30px; margin-top: 16px; flex-wrap: wrap; }
+  .hero-stats { display: flex; gap: 22px; flex-wrap: wrap; }
   .hero-stats span {
     display: inline-flex;
     align-items: baseline;
@@ -120,7 +121,7 @@
     letter-spacing: 2px;
     color: var(--muted);
   }
-  .hero-stats b { font-weight: 700; font-size: 22px; color: var(--gold-strong); }
+  .hero-stats b { font-weight: 700; font-size: 18px; color: var(--gold-strong); }
   .funsmith:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   footer a { color: var(--accent); }
 
@@ -134,17 +135,22 @@
   .bar-inner {
     max-width: 1180px;
     margin: 0 auto;
-    padding: 10px 24px;
+    padding: 7px 24px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
   .bar-row {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     flex-wrap: wrap;
   }
+  .bar-row .search { flex: 0 1 180px; min-width: 120px; }
+  .bar-row .progress-track { max-width: 240px; }
+  .filters-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .filters-row .era-nav { flex: 0 0 auto; }
+  .filters-row .chips { flex: 1 1 auto; min-width: 0; }
   .progress-label { font-size: 13px; font-weight: 600; white-space: nowrap; }
   .progress-track {
     flex: 1 1 120px;
@@ -198,7 +204,7 @@
   .status[data-s="err"] .s-dot { background: var(--accent); }
 
   .export {
-    padding: 5px 12px;
+    padding: 4px 10px;
     font: inherit;
     font-size: 12.5px;
     font-weight: 500;
@@ -418,6 +424,7 @@
     .bar.slim .status,
     .bar.slim .bar-row .export { display: none; }
     .era .era-head { position: static; }
+    .filters-row { flex-wrap: wrap; }
   }
 
   .mini-caption { min-height: 18px; font-size: 12px; color: var(--muted); margin: 8px 2px 0; }
@@ -629,11 +636,13 @@
 <header class="hero">
   <h1>ALL THE GAMES<br>I PLAYED <span class="dim">BEFORE</span></h1>
   <p id="subtitle">Check off everything you ever played and find the games that built your taste — each era sorted by the best-selling games of its day.</p>
-  <p style="margin: 10px 0 0;"><button class="export" id="tour-open" type="button" title="A guided pass through the biggest games of each era of your life">✨ Two-minute quick start</button></p>
-  <div class="hero-stats">
-    <span><b class="px" id="hs-years">43</b> YEARS</span>
-    <span><b class="px" id="hs-plats">33</b> PLATFORMS</span>
-    <span><b class="px" id="hs-games">1222</b> GAMES</span>
+  <div class="hero-row">
+    <button class="export" id="tour-open" type="button" title="A guided pass through the biggest games of each era of your life">✨ Two-minute quick start</button>
+    <div class="hero-stats">
+      <span><b class="px" id="hs-years">43</b> YEARS</span>
+      <span><b class="px" id="hs-plats">33</b> PLATFORMS</span>
+      <span><b class="px" id="hs-games">1222</b> GAMES</span>
+    </div>
   </div>
   <a class="funsmith" href="https://funsmith.club" target="_blank" rel="noopener">
     <svg viewBox="0 0 127.14 96.36" width="19" height="14.4" aria-hidden="true" fill="#5865F2"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
@@ -651,16 +660,18 @@
       <button class="export" id="check-all-btn" type="button" hidden title="Check every game currently shown by your filters">Check all shown</button>
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
       <button class="export" id="import-btn" type="button" title="Load a played-list .json (made by Export) — checks everything in it">Import</button>
-      <button class="export" id="steam-btn" type="button" title="Paste your Steam games page and check your whole library at once">🎮 Steam scan</button>
+      <button class="export" id="steam-btn" type="button" title="Paste your Steam games page and check your whole library at once">🎮 Steam</button>
       <button class="export" id="compare-btn" type="button" title="Load a friend's exported .json to see your overlap">Compare</button>
-      <button class="export" id="share-btn" type="button" title="Copy a link that lets anyone compare against your checklist">Share link</button>
+      <button class="export" id="share-btn" type="button" title="Copy a link that lets anyone compare against your checklist">Share</button>
       <button class="export" id="owner-compare-btn" type="button" hidden></button>
       <button class="export" id="export-btn" type="button" title="Download your played list as a .json file">Export</button>
       <input type="file" id="import-file" accept="application/json,.json" hidden>
       <input type="file" id="compare-file" accept="application/json,.json" hidden>
     </div>
-    <div class="chips" id="chips" role="group" aria-label="Filter by platform"></div>
-    <div class="era-nav" id="era-nav" role="group" aria-label="Jump to era"></div>
+    <div class="filters-row">
+      <div class="era-nav" id="era-nav" role="group" aria-label="Jump to era"></div>
+      <div class="chips" id="chips" role="group" aria-label="Filter by platform"></div>
+    </div>
   </div>
 </div>
 
@@ -4845,7 +4856,7 @@
   const ownerBtn = document.getElementById("owner-compare-btn");
   if (OWNER && Array.isArray(OWNER.ids) && OWNER.ids.length) {
     ownerBtn.hidden = false;
-    ownerBtn.textContent = "Compare vs " + OWNER.name;
+    ownerBtn.textContent = "vs " + OWNER.name;
     ownerBtn.addEventListener("click", () =>
       renderCompare(resolveIds({ ids: OWNER.ids }), OWNER.name));
   }
@@ -4921,9 +4932,9 @@
     let ok = false;
     try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {}
     if (!ok) window.prompt("Copy your share link:", url);
-    btn.textContent = ok ? "Link copied ✓" : "Share link";
+    btn.textContent = ok ? "Link copied ✓" : "Share";
     if (ok) showToast("Link copied — anyone who opens it lands in compare mode against your list", false);
-    setTimeout(() => { btn.textContent = "Share link"; }, 2600);
+    setTimeout(() => { btn.textContent = "Share"; }, 2600);
   });
   function tryShareHash() {
     // Spectator mode: two payloads joined by "~" compare against each other
