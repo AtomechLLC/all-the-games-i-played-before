@@ -1,0 +1,14 @@
+Badge sprite sources
+====================
+
+Files prefixed "ky-" — Kyrise's Free 16x16 RPG Icon Pack v1.2
+  Author:  Kyrise (https://kyrise.itch.io/)
+  Source:  https://opengameart.org/content/kyrises-free-16x16-rpg-icon-pack
+  License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+           https://creativecommons.org/licenses/by/4.0/
+
+Files prefixed "ke-" — Kenney Game Icons pack
+  Author:  Kenney (https://kenney.nl)
+  Source:  https://kenney.nl/assets/game-icons
+  License: Creative Commons Zero (CC0) — public domain
+           https://creativecommons.org/publicdomain/zero/1.0/

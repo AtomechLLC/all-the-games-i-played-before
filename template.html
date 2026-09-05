@@ -797,7 +797,8 @@
 <footer>
   <div class="inner">
     <p>Sales figures are approximate lifetime totals from mixed public sources — some are franchise, all-platform, or player counts (noted on the card). Within each era, games are sorted best-selling first; “—” means no reliable number. Eras follow North American release years; age labels use the birth year set on your player card (default 1983).</p>
-    <p>Your checkmarks save automatically: to cloud storage where the hosted page supports it (the indicator above shows sync state), and always to this browser as a backup. Export downloads your played list as a JSON file. Coming later: Steam &amp; Epic import, sharing with friends, and play-history profiles.</p>
+    <p>Your checkmarks save automatically: to cloud storage where the hosted page supports it (the indicator above shows sync state), and always to this browser as a backup. Export downloads your played list as a JSON file; the 🎮 Steam scan checks your whole library from one paste. Coming later: Epic import and play-history profiles.</p>
+    <p>Badge sprites: <a href="https://kyrise.itch.io/" target="_blank" rel="noopener">Kyrise's 16x16 RPG Icon Pack</a> (CC BY 4.0) and <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney game assets</a> (CC0).</p>
     <p>A <a href="https://funsmith.club" target="_blank" rel="noopener">Funsmith Club</a> project — join the game design community on Discord.</p>
   </div>
 </footer>
@@ -1731,7 +1732,17 @@
       const earned = earnedSet.has(name);
       const b = document.createElement("span");
       b.className = earned ? "btile" : "btile locked";
-      b.appendChild(pixelImg(emoji, 28));
+      if (BADGE_SPRITES[name]) {
+        const img = document.createElement("img");
+        img.src = BADGE_SPRITES[name];
+        img.alt = "";
+        img.className = "pxe";
+        img.style.width = "28px";
+        img.style.height = "28px";
+        b.appendChild(img);
+      } else {
+        b.appendChild(pixelImg(emoji, 28));
+      }
       b.title = name + " — " + hint + (earned ? "" : " (locked)");
       badgesEl.appendChild(b);
     });
@@ -1782,6 +1793,34 @@
     img.style.width = size + "px";
     img.style.height = size + "px";
     return img;
+  }
+
+  // Real sprites for the badge wall: CC0 Kenney glyphs + CC BY Kyrise items,
+  // inlined at build time as data URIs (the artifact blocks external images).
+  // Badges without a mapping fall back to the emoji demake.
+  const BADGE_SPRITES = __SPRITE_DATA__;
+  const SPRITE_IMGS = {};
+  Object.keys(BADGE_SPRITES).forEach(n => {
+    const im = new Image();
+    im.src = BADGE_SPRITES[n];
+    SPRITE_IMGS[n] = im;
+  });
+  const SPRITE_CANVAS = new Map();
+  // Normalize any sprite (16px Kyrise, 64px Kenney) onto a 16x16 canvas so
+  // canvas draws upscale with the same chunky look as the DOM tiles.
+  function badgeSpriteCanvas(name) {
+    const im = SPRITE_IMGS[name];
+    if (!im || !im.complete || !im.naturalWidth) return null;
+    let cv = SPRITE_CANVAS.get(name);
+    if (!cv) {
+      cv = document.createElement("canvas");
+      cv.width = 16; cv.height = 16;
+      const c = cv.getContext("2d");
+      c.imageSmoothingEnabled = im.naturalWidth > 16;
+      c.drawImage(im, 0, 0, 16, 16);
+      SPRITE_CANVAS.set(name, cv);
+    }
+    return cv;
   }
 
   function radarSVG(R) {
@@ -2053,8 +2092,8 @@
     // Earned badges as a pixel-sprite strip, then the site footer.
     const perRow = 31, gap = (W - 120) / perRow;
     c.imageSmoothingEnabled = false;
-    p.badges.slice(0, perRow).forEach(([e], i) => {
-      c.drawImage(pixelSmall(e, 14), 60 + (i % perRow) * gap, 590, 24, 24);
+    p.badges.slice(0, perRow).forEach(([e, n], i) => {
+      c.drawImage(badgeSpriteCanvas(n) || pixelSmall(e, 14), 60 + (i % perRow) * gap, 590, 24, 24);
     });
     c.imageSmoothingEnabled = true;
     c.fillStyle = "#98948D";
@@ -2419,7 +2458,7 @@
         const x = 90 + (i % perRow) * cell + cell / 2;
         const y = 230 + Math.floor(i / perRow) * 66;
         c.globalAlpha = earned.includes(b) ? 1 : 0.16;
-        c.drawImage(pixelSmall(b[0], 14), x - 17, y - 28, 34, 34);
+        c.drawImage(badgeSpriteCanvas(b[1]) || pixelSmall(b[0], 14), x - 17, y - 28, 34, 34);
       });
       c.imageSmoothingEnabled = true;
       c.globalAlpha = 1;
