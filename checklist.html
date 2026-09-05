@@ -727,12 +727,13 @@
           <p class="pcard-desc" id="cmp-desc"></p>
         </div>
         <button class="export" id="vs-gif-btn" type="button" title="Render this head-to-head as an animated GIF">⚔️ VS GIF</button>
+        <button class="export" id="cmp-vslink" type="button" title="Paste another share link — compare the two lists head to head instead of against yours">⇄</button>
         <button class="export" id="cmp-close" type="button">Close</button>
       </div>
       <div class="pcard-stats" id="cmp-stats"></div>
       <div class="pcard-cols">
-        <div><h3 class="pcol-h">THEY PLAYED — YOU HAVEN'T</h3><div class="cmp-list" id="cmp-them"></div></div>
-        <div><h3 class="pcol-h">YOU PLAYED — THEY HAVEN'T</h3><div class="cmp-list" id="cmp-you"></div></div>
+        <div><h3 class="pcol-h" id="cmp-h-them">THEY PLAYED — YOU HAVEN'T</h3><div class="cmp-list" id="cmp-them"></div></div>
+        <div><h3 class="pcol-h" id="cmp-h-you">YOU PLAYED — THEY HAVEN'T</h3><div class="cmp-list" id="cmp-you"></div></div>
       </div>
     </div>
   </section>
@@ -4435,7 +4436,7 @@
     let seen = false;
     try { seen = localStorage.getItem("atgipb-onboarded") === "1"; } catch (e) {}
     // A share link should land straight on the comparison, not the platform picker.
-    if (seen || played.size > 0 || location.hash.indexOf("#v=") === 0) return;
+    if (seen || played.size > 0 || /^#vs?=/.test(location.hash)) return;
     const wrap = document.getElementById("ob-plats");
     const obSel = new Set();
     Object.entries(PLATFORMS).forEach(([code, plat]) => {
@@ -4572,7 +4573,7 @@
     let toured = false;
     try { toured = localStorage.getItem("atgipb-toured") === "1"; } catch (e) {}
     const obVisible = !document.getElementById("onboard").hidden;
-    if (!toured && !obVisible && played.size === 0 && location.hash.indexOf("#v=") !== 0) startTour();
+    if (!toured && !obVisible && played.size === 0 && !/^#vs?=/.test(location.hash)) startTour();
   })();
 
   updateSubtitle();
@@ -4721,36 +4722,44 @@
 
   // Compare: load someone else's export and show the overlap instead of merging.
   let lastCompare = null;
-  function renderCompare(theirIds, label) {
-    lastCompare = { ids: theirIds, label };
-    const both = [...theirIds].filter(id => played.has(id));
-    const onlyThem = [...theirIds].filter(id => !played.has(id));
-    const onlyYou = [...played].filter(id => !theirIds.has(id));
-    const union = theirIds.size + played.size - both.length;
+  // Two-sided comparison. Side A defaults to the viewer ("You"); a spectator
+  // link can put anyone on either side.
+  function renderCompareAB(aIds, aLabel, bIds, bLabel, raw) {
+    lastCompare = { aIds, aLabel, bIds, bLabel, raw: raw || {} };
+    const youMode = aLabel === "You";
+    const aName = youMode ? "You" : aLabel;
+    const both = [...bIds].filter(id => aIds.has(id));
+    const onlyThem = [...bIds].filter(id => !aIds.has(id));
+    const onlyYou = [...aIds].filter(id => !bIds.has(id));
+    const union = bIds.size + aIds.size - both.length;
     const similarity = union ? Math.round(100 * both.length / union) : 0;
 
-    document.getElementById("cmp-title").textContent = "YOU × " + label.toUpperCase();
-    const myPsy = computePsyche(played);
-    const theirPsy = computePsyche(theirIds);
+    document.getElementById("cmp-title").textContent = aName.toUpperCase() + " × " + bLabel.toUpperCase();
+    const myPsy = computePsyche(aIds);
+    const theirPsy = computePsyche(bIds);
     let psyLine = "";
     let psyMatch = "—";
     if (myPsy && theirPsy && myPsy.n >= 10 && theirPsy.n >= 10) {
       psyMatch = psycheSimilarity(myPsy, theirPsy) + "%";
       const mine = myPsy.ranked[0], theirs = theirPsy.ranked[0];
       psyLine = mine === theirs
-        ? " You both lead with " + CLUSTERS[mine].emoji + " " + CLUSTERS[mine].name + "."
-        : " You lead with " + CLUSTERS[mine].emoji + " " + CLUSTERS[mine].name +
-          "; they lead with " + CLUSTERS[theirs].emoji + " " + CLUSTERS[theirs].name + ".";
+        ? " Both lead with " + CLUSTERS[mine].emoji + " " + CLUSTERS[mine].name + "."
+        : " " + aName + (youMode ? " lead" : " leads") + " with " + CLUSTERS[mine].emoji + " " + CLUSTERS[mine].name +
+          "; " + (youMode ? "they lead" : bLabel + " leads") + " with " + CLUSTERS[theirs].emoji + " " + CLUSTERS[theirs].name + ".";
     }
-    document.getElementById("cmp-desc").textContent =
-      "You share " + both.length + " games. They bring " + onlyThem.length +
-      " you haven't played; you bring " + onlyYou.length + " they haven't." + psyLine;
+    document.getElementById("cmp-desc").textContent = youMode
+      ? "You share " + both.length + " games. They bring " + onlyThem.length +
+        " you haven't played; you bring " + onlyYou.length + " they haven't." + psyLine
+      : aLabel + " and " + bLabel + " share " + both.length + " games. " + bLabel + " brings " + onlyThem.length +
+        " " + aLabel + " hasn't played; " + aLabel + " brings " + onlyYou.length + " " + bLabel + " hasn't." + psyLine;
+    document.getElementById("cmp-h-them").textContent = youMode ? "THEY PLAYED — YOU HAVEN'T" : bLabel.toUpperCase() + " ONLY";
+    document.getElementById("cmp-h-you").textContent = youMode ? "YOU PLAYED — THEY HAVEN'T" : aLabel.toUpperCase() + " ONLY";
 
     const stats = document.getElementById("cmp-stats");
     stats.innerHTML = "";
     [[both.length, "played by both"],
-     [onlyThem.length, "only them"],
-     [onlyYou.length, "only you"],
+     [onlyThem.length, youMode ? "only them" : "only " + bLabel],
+     [onlyYou.length, youMode ? "only you" : "only " + aLabel],
      [similarity + "%", "taste overlap"],
      [psyMatch, "psyche match"]].forEach(([v, k]) => {
       const d = document.createElement("div");
@@ -4792,6 +4801,9 @@
     const panel = document.getElementById("compare");
     panel.hidden = false;
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function renderCompare(theirIds, label, rawB) {
+    renderCompareAB(played, "You", theirIds, label, { b: rawB || null });
   }
 
   // The owner's list ships with the site, so anyone can compare by default.
@@ -4844,11 +4856,28 @@
     }
     return n;
   }
-  function buildShareLink(name) {
+  function encodePayload(name, by, idsSet) {
     const bytes = new Uint8Array(Math.ceil(GAMES.length / 8));
-    GAMES.forEach((g, i) => { if (played.has(g.id)) bytes[i >> 3] |= 1 << (i & 7); });
+    GAMES.forEach((g, i) => { if (idsSet.has(g.id)) bytes[i >> 3] |= 1 << (i & 7); });
     const nameB = b64u.enc(new TextEncoder().encode(name || ""));
-    return SITE_URL + "#v=1." + nameB + "." + BIRTH_YEAR + "." + GAMES.length + "." + b64u.enc(bytes);
+    return "1." + nameB + "." + by + "." + GAMES.length + "." + b64u.enc(bytes);
+  }
+  function parsePayload(str) {
+    const m = /^1\.([A-Za-z0-9_-]*)\.(\d+)\.(\d+)\.([A-Za-z0-9_-]+)$/.exec(str);
+    if (!m) return null;
+    try {
+      const name = (m[1] ? new TextDecoder().decode(b64u.dec(m[1])) : "").trim().slice(0, 24) || "A friend";
+      const n = Math.min(parseInt(m[3], 10) || 0, GAMES.length);
+      const bytes = b64u.dec(m[4]);
+      const ids = new Set();
+      for (let i = 0; i < n; i++) {
+        if (bytes[i >> 3] & (1 << (i & 7))) ids.add(GAMES[i].id);
+      }
+      return { name, ids };
+    } catch (e) { return null; }
+  }
+  function buildShareLink(name) {
+    return SITE_URL + "#v=" + encodePayload(name, BIRTH_YEAR, played);
   }
   document.getElementById("share-btn").addEventListener("click", async () => {
     const btn = document.getElementById("share-btn");
@@ -4862,23 +4891,38 @@
     setTimeout(() => { btn.textContent = "Share link"; }, 2600);
   });
   function tryShareHash() {
-    const m = /^#v=1\.([A-Za-z0-9_-]*)\.(\d+)\.(\d+)\.([A-Za-z0-9_-]+)$/.exec(location.hash);
-    if (!m) return;
-    try {
-      const name = (m[1] ? new TextDecoder().decode(b64u.dec(m[1])) : "").trim().slice(0, 24) || "A friend";
-      const n = Math.min(parseInt(m[3], 10) || 0, GAMES.length);
-      const bytes = b64u.dec(m[4]);
-      const ids = new Set();
-      for (let i = 0; i < n; i++) {
-        if (bytes[i >> 3] & (1 << (i & 7))) ids.add(GAMES[i].id);
+    // Spectator mode: two payloads joined by "~" compare against each other
+    // instead of against the viewer's own list.
+    const vs = /^#vs=([^~]+)~(.+)$/.exec(location.hash);
+    if (vs) {
+      const A = parsePayload(vs[1]), B = parsePayload(vs[2]);
+      if (A && B && A.ids.size && B.ids.size) {
+        renderCompareAB(A.ids, A.name, B.ids, B.name, { a: vs[1], b: vs[2] });
+        showToast("Spectating " + A.name + " × " + B.name + " — copy this page's URL to share the matchup", false);
       }
-      if (!ids.size) return;
-      renderCompare(ids, name);
-      showToast("Comparing against " + name + "'s shared list (" + ids.size + " games)", false);
-    } catch (e) {}
+      return;
+    }
+    const m = /^#v=(.+)$/.exec(location.hash);
+    if (!m) return;
+    const P = parsePayload(m[1]);
+    if (!P || !P.ids.size) return;
+    renderCompare(P.ids, P.name, m[1]);
+    showToast("Comparing against " + P.name + "'s shared list (" + P.ids.size + " games)", false);
   }
   tryShareHash();
   addEventListener("hashchange", tryShareHash);
+  // The subtle ⇄ button: paste a second share link and the comparison swaps
+  // to link-vs-link, dropping the viewer's own data out of it.
+  document.getElementById("cmp-vslink").addEventListener("click", () => {
+    if (!lastCompare) return;
+    const pasted = (window.prompt("Paste a share link to pit against " + lastCompare.bLabel + ":", "") || "").trim();
+    if (!pasted) return;
+    const pm = /#v=([^~\s]+)/.exec(pasted) || /^(1\.[A-Za-z0-9_.-]+)$/.exec(pasted);
+    const payload = pm && parsePayload(pm[1]) ? pm[1] : null;
+    if (!payload) { showToast("That doesn't look like a share link", false); return; }
+    const rawA = lastCompare.raw.b || encodePayload(lastCompare.bLabel, BIRTH_YEAR, lastCompare.bIds);
+    location.hash = "#vs=" + rawA + "~" + payload;
+  });
 
   // VS GIF: the head-to-head as slamming blocks. Shared games shatter,
   // exclusives pop into the side of the player who has them. Capped at 24
@@ -5078,7 +5122,9 @@
     try {
       const eng = await loadGifEngine();
       await document.fonts.ready;
-      const frames = buildVsFrames(getShareName(false) || "You", played, lastCompare.label, lastCompare.ids);
+      const frames = buildVsFrames(
+        lastCompare.aLabel === "You" ? (getShareName(false) || "You") : lastCompare.aLabel,
+        lastCompare.aIds, lastCompare.bLabel, lastCompare.bIds);
       btn.textContent = "Encoding 0%";
       const blob = await new Promise((res, rej) => {
         const gif = new eng.GIF({ workers: 2, quality: 10, width: 1200, height: 630, workerScript: eng.workerUrl, repeat: 0 });
@@ -5088,7 +5134,7 @@
         setTimeout(() => rej(new Error("encode timed out")), 120000);
         gif.render();
       });
-      await saveFile("vs-" + slug(lastCompare.label) + ".gif", blob, "image/gif");
+      await saveFile("vs-" + slug(lastCompare.bLabel) + ".gif", blob, "image/gif");
       btn.textContent = "Saved ✓";
     } catch (e) {
       btn.textContent = (e && e.code === "declined") ? idle : "GIF failed";
