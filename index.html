@@ -428,6 +428,21 @@
   .ob-plats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .ob-plats .chip { font-size: 13px; padding: 7px 14px; }
   .tour-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin-top: 12px; }
+  .steam-paste {
+    width: 100%;
+    min-height: 140px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: 12px/1.5 "IBM Plex Mono", monospace;
+    resize: vertical;
+  }
+  .steam-paste:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  a.export { text-decoration: none; display: inline-flex; align-items: center; }
 
   .toast {
     position: fixed;
@@ -636,6 +651,7 @@
       <button class="export" id="check-all-btn" type="button" hidden title="Check every game currently shown by your filters">Check all shown</button>
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
       <button class="export" id="import-btn" type="button" title="Load a played-list .json (made by Export) — checks everything in it">Import</button>
+      <button class="export" id="steam-btn" type="button" title="Paste your Steam games page and check your whole library at once">🎮 Steam scan</button>
       <button class="export" id="compare-btn" type="button" title="Load a friend's exported .json to see your overlap">Compare</button>
       <button class="export" id="share-btn" type="button" title="Copy a link that lets anyone compare against your checklist">Share link</button>
       <button class="export" id="owner-compare-btn" type="button" hidden></button>
@@ -659,6 +675,23 @@
         <label class="hide-played">Born <input id="ob-birth" class="search" type="number" min="1930" max="2020" step="1" style="width:76px;flex:0 0 auto;"></label>
         <button class="export" id="ob-go" type="button">Start the quick tour</button>
         <button class="export" id="ob-skip" type="button">Skip — show everything</button>
+      </div>
+    </div>
+  </section>
+  <section class="pcard" id="steam" hidden>
+    <div class="pcard-inner" style="padding-top: 18px;">
+      <span class="pcard-eyebrow">STEAM SCAN</span>
+      <h2 class="pcard-arch px">CHECK YOUR STEAM LIBRARY IN ONE PASTE</h2>
+      <p class="pcard-desc">Open your Steam games list with the button below (sign in if it asks), select the whole page (Ctrl+A), copy it (Ctrl+C), and paste it here. The paste is matched entirely in your browser — nothing is uploaded anywhere.</p>
+      <div class="pcard-actions">
+        <a class="export" id="steam-open" href="https://steamcommunity.com/my/games/?tab=all" target="_blank" rel="noopener">Open my Steam games list ↗</a>
+        <label class="hide-played"><input type="checkbox" id="steam-2h" checked> Skip games under 2 hours (when playtime is visible)</label>
+      </div>
+      <textarea id="steam-paste" class="steam-paste" placeholder="Paste your copied Steam page here…"></textarea>
+      <div class="pcard-actions" style="margin-top: 10px;">
+        <button class="export" id="steam-match" type="button">Match my games</button>
+        <button class="export" id="steam-close" type="button">Close</button>
+        <span class="mono" id="steam-result" style="align-self: center; color: var(--muted); font-size: 12px;"></span>
       </div>
     </div>
   </section>
@@ -4925,6 +4958,77 @@
     const rawA = lastCompare.raw.b || encodePayload(lastCompare.bLabel, BIRTH_YEAR, lastCompare.bIds);
     location.hash = "#vs=" + rawA + "~" + payload;
   });
+
+  // Steam scan: parse a copied Steam games page entirely client-side.
+  // Titles are matched by normalized name with edition suffixes stripped;
+  // an "N hrs" line within a few lines of a match is treated as its playtime.
+  (() => {
+    const sec = document.getElementById("steam");
+    document.getElementById("steam-btn").addEventListener("click", () => {
+      sec.hidden = !sec.hidden;
+      if (!sec.hidden) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    document.getElementById("steam-close").addEventListener("click", () => { sec.hidden = true; });
+    const SUFFIX = /\s+(game of the year( edition)?|goty( edition)?|definitive edition|enhanced edition|complete edition|deluxe edition|anniversary edition|special edition|legendary edition|ultimate edition|gold edition|remastered|directors cut|the final cut|hd)$/;
+    const normT = s => s.toLowerCase().replace(/[®™©’']/g, "").replace(/&/g, "and").replace(/[^a-z0-9]+/g, " ").trim();
+    const lookup = new Map();
+    GAMES.forEach(g => {
+      const k = normT(g.t);
+      if (k && !lookup.has(k)) lookup.set(k, g);
+      const stripped = normT(g.t.replace(/\s*\(\d{4}\)$/, ""));
+      if (stripped && !lookup.has(stripped)) lookup.set(stripped, g);
+    });
+    function matchLine(line) {
+      let k = normT(line);
+      if (!k || k.length < 3 || k.length > 90 || /^\d+$/.test(k)) return null;
+      if (lookup.has(k)) return lookup.get(k);
+      for (;;) {
+        const n = k.replace(SUFFIX, "");
+        if (n === k) break;
+        k = n;
+      }
+      return lookup.get(k) || null;
+    }
+    document.getElementById("steam-match").addEventListener("click", () => {
+      const text = document.getElementById("steam-paste").value;
+      const resultEl = document.getElementById("steam-result");
+      if (!text.trim()) { resultEl.textContent = "paste your Steam page first"; return; }
+      const useCutoff = document.getElementById("steam-2h").checked;
+      const lines = text.split(/\r?\n/);
+      const found = new Map();
+      let lastG = null, lastIdx = -10;
+      lines.forEach((raw, i) => {
+        const line = raw.trim();
+        if (!line) return;
+        const hm = /(\d[\d,.]*)\s*(?:hrs|hours?)\b/i.exec(line);
+        if (hm && lastG && i - lastIdx <= 3) {
+          const h = parseFloat(hm[1].replace(/,/g, ""));
+          const cur = found.get(lastG.id);
+          if (cur && (cur.hours == null || h > cur.hours)) cur.hours = h;
+          return;
+        }
+        const g = matchLine(line);
+        if (g) {
+          if (!found.has(g.id)) found.set(g.id, { g, hours: null });
+          lastG = g; lastIdx = i;
+        }
+      });
+      const kept = [...found.values()].filter(e => !useCutoff || e.hours == null || e.hours >= 2);
+      const ids = kept.map(e => e.g.id);
+      const before = played.size;
+      const union = new Set(played);
+      ids.forEach(id => union.add(id));
+      applyPlayed(union);
+      if (playedChangedHook) playedChangedHook();
+      const added = union.size - before;
+      const skipped = found.size - kept.length;
+      resultEl.textContent = found.size
+        ? "matched " + ids.length + " games · " + added + " newly checked" + (skipped ? " · " + skipped + " under 2h skipped" : "")
+        : "no game titles recognized — make sure you copied the games list page";
+      renderProfile();
+      if (added) showToast("Steam scan: +" + added + " games checked — your card just grew", false);
+    });
+  })();
 
   // VS GIF: the head-to-head as slamming blocks. Shared games shatter,
   // exclusives pop into the side of the player who has them. Capped at 24
