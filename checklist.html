@@ -630,7 +630,11 @@
   @media (prefers-reduced-motion: no-preference) {
     .card, .chip { transition: background 0.12s ease, border-color 0.12s ease; }
     .progress-fill { transition: width 0.25s ease; }
+    .reveal .btile { animation: tile-pop 0.3s ease-out both; }
+    .reveal #tl circle { animation: dot-drop 0.5s cubic-bezier(0.6, 0, 1, 1) both; }
   }
+  @keyframes tile-pop { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes dot-drop { from { transform: translateY(-560px); } to { transform: translateY(0); } }
 </style>
 
 <header class="hero">
@@ -3967,11 +3971,78 @@
     }
     requestAnimationFrame(tick);
   }
+  // The full reveal when the player card opens: stat counters roll up, every
+  // bar races from zero, the timeline dots rain in left to right, and the
+  // badge wall cascades — mirroring the GIF's animation language.
+  function animateStatCounters() {
+    document.querySelectorAll("#pcard-stats .v").forEach(el => {
+      const m = /^(\d+)([\s\S]*)$/.exec(el.textContent);
+      if (!m) return;
+      const target = +m[1], suffix = m[2];
+      if (target <= 1) return;
+      const t0 = performance.now(), DUR = 700;
+      function tick(now) {
+        const t = Math.min(1, (now - t0) / DUR);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3))) + suffix;
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+  function animateBars() {
+    document.querySelectorAll("#pcard-body .fill, #pcard-body .progress-fill").forEach(f => {
+      const w = f.style.width;
+      if (!w) return;
+      f.style.transition = "none";
+      f.style.width = "0%";
+      void f.offsetWidth;
+      f.style.transition = "width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1)";
+      f.style.width = w;
+    });
+  }
+  let revealTimer = null;
+  function playCardReveal() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const body = document.getElementById("pcard-body");
+    body.classList.remove("reveal");
+    void body.offsetWidth;
+    document.querySelectorAll("#pcard-badges .btile").forEach((t, i) => {
+      t.style.animationDelay = Math.min(i * 12, 1100) + "ms";
+    });
+    const dots = document.querySelectorAll("#tl circle");
+    dots.forEach(d => {
+      const cx = parseFloat(d.getAttribute("cx")) || 0;
+      d.style.animationDelay = Math.round(cx / 3) + "ms";
+    });
+    body.classList.add("reveal");
+    clearTimeout(revealTimer);
+    revealTimer = setTimeout(() => body.classList.remove("reveal"), 2800);
+    animateStatCounters();
+    animateBars();
+    animateRadarIn();
+  }
   document.getElementById("pcard-toggle").addEventListener("click", () => {
     setTimeout(() => {
-      if (document.getElementById("pcard-toggle").getAttribute("aria-expanded") === "true") animateRadarIn();
+      if (document.getElementById("pcard-toggle").getAttribute("aria-expanded") === "true") playCardReveal();
     }, 30);
   });
+  // Hero stats get a small count-up on load (deferred a tick so it reads the
+  // real values set by updateSubtitle, not the HTML placeholders).
+  setTimeout(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    ["hs-years", "hs-plats", "hs-games"].forEach(id => {
+      const el = document.getElementById(id);
+      const target = parseInt(el.textContent, 10);
+      if (!target) return;
+      const t0 = performance.now(), DUR = 900;
+      function tick(now) {
+        const t = Math.min(1, (now - t0) / DUR);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }, 0);
 
   let lastProfile = null;
   let downloadsNS = null;
