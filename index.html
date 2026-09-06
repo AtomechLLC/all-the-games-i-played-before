@@ -3597,6 +3597,13 @@
   function renderProfile() {
     const p = computeProfile();
     lastProfile = p;
+    // Badge unlock pop: toast freshly earned badges with their sprite.
+    const badgeNames = p.badges.map(b => b[1]);
+    if (prevBadgeSet) {
+      const fresh = badgeNames.filter(nm => !prevBadgeSet.has(nm));
+      if (fresh.length) showBadgeToast(fresh);
+    }
+    prevBadgeSet = new Set(badgeNames);
     const n = p.gs.length;
     document.getElementById("pcard-count").textContent = "· " + n + " / " + GAMES.length;
     document.getElementById("pcard-arch").textContent = p.archetype.toUpperCase();
@@ -3939,8 +3946,38 @@
     });
   }
 
+  // Animate the taste radar outward from center when the player card opens
+  // (skipped for reduced-motion users).
+  function animateRadarIn() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!lastPsyche || lastPsyche.n < 10) return;
+    const host = document.getElementById("psy-radar");
+    const polys = host.querySelectorAll("svg polygon");
+    if (polys.length < 4) return;
+    const main = polys[polys.length - 1];
+    const target = main.getAttribute("points").split(" ").map(p => p.split(",").map(Number));
+    const dots = [...host.querySelectorAll("svg circle")];
+    const cx = 140, cy = 144;
+    const t0 = performance.now(), DUR = 500;
+    function tick(now) {
+      const t = Math.min(1, (now - t0) / DUR);
+      const e = t * t * (3 - 2 * t);
+      main.setAttribute("points", target.map(([x, y]) =>
+        (cx + (x - cx) * e).toFixed(1) + "," + (cy + (y - cy) * e).toFixed(1)).join(" "));
+      dots.forEach(d => d.setAttribute("opacity", e.toFixed(2)));
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  document.getElementById("pcard-toggle").addEventListener("click", () => {
+    setTimeout(() => {
+      if (document.getElementById("pcard-toggle").getAttribute("aria-expanded") === "true") animateRadarIn();
+    }, 30);
+  });
+
   let lastProfile = null;
   let downloadsNS = null;
+  let prevBadgeSet = null;
 
   // The card is collapsed by default so checking games never reflows the page
   // under the cursor; the open/closed choice is remembered per browser.
@@ -4236,17 +4273,23 @@
     frames.push([gifBoot(bootLines, false, true), 1000]);
 
     {
-      const [cv, c] = gifBase("GAMING HISTORY // 1972-2026");
-      c.textAlign = "center";
-      c.fillStyle = "#E5B84B"; c.font = '700 150px "Silkscreen", monospace';
-      c.fillText(String(pg.length), 600, 330);
-      c.fillStyle = "#ECEAE4"; c.font = '700 26px "Silkscreen", monospace';
-      c.fillText("GAMES PLAYED", 600, 400);
-      c.fillStyle = "#98948D"; c.font = '400 16px "IBM Plex Mono", monospace';
-      c.fillText(span > 1 ? "ACROSS " + span + " YEARS OF GAMING HISTORY" : "AND THIS IS ONLY THE BEGINNING", 600, 440);
-      c.textAlign = "left";
-      gifDots(c, cardIdx++, cardTotal);
-      frames.push([cv, 3800]);
+      // Odometer: the big count rolls up with an ease-out.
+      const N = 7;
+      for (let s = 1; s <= N; s++) {
+        const ease = 1 - Math.pow(1 - s / N, 3);
+        const [cv, c] = gifBase("GAMING HISTORY // 1972-2026");
+        c.textAlign = "center";
+        c.fillStyle = "#E5B84B"; c.font = '700 150px "Silkscreen", monospace';
+        c.fillText(String(Math.round(pg.length * ease)), 600, 330);
+        c.fillStyle = "#ECEAE4"; c.font = '700 26px "Silkscreen", monospace';
+        c.fillText("GAMES PLAYED", 600, 400);
+        c.fillStyle = "#98948D"; c.font = '400 16px "IBM Plex Mono", monospace';
+        c.fillText(span > 1 ? "ACROSS " + span + " YEARS OF GAMING HISTORY" : "AND THIS IS ONLY THE BEGINNING", 600, 440);
+        c.textAlign = "left";
+        gifDots(c, cardIdx, cardTotal);
+        frames.push([cv, s === N ? 3200 : 110]);
+      }
+      cardIdx++;
     }
 
     if (years.length) {
@@ -4322,22 +4365,29 @@
     }
 
     if (topPlats.length) {
-      const [cv, c] = gifBase("WHERE YOU LIVED");
-      c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
-      c.fillText("HOME PLATFORMS", 70, 150);
+      // Bar race: the platform bars grow from zero with rolling counts.
+      const N = 6;
       const maxN = topPlats[0][1];
-      topPlats.forEach(([code, n], i) => {
-        const y = 220 + i * 110;
-        c.fillStyle = "#ECEAE4"; c.font = '700 24px "Silkscreen", monospace';
-        c.fillText((i + 1) + ". " + ((PLATFORMS[code] && PLATFORMS[code].label) || code).toUpperCase(), 90, y);
-        c.fillStyle = "#2A2931"; c.fillRect(90, y + 18, 900, 34);
-        c.fillStyle = (PLATFORMS[code] && PLATFORMS[code].color) || "#E5B84B";
-        c.fillRect(90, y + 18, 900 * n / maxN, 34);
-        c.fillStyle = "#E5B84B"; c.font = '700 22px "Silkscreen", monospace';
-        c.fillText(n + (n === 1 ? " GAME" : " GAMES"), 1010, y + 44);
-      });
-      gifDots(c, cardIdx++, cardTotal);
-      frames.push([cv, 3800]);
+      for (let s = 1; s <= N; s++) {
+        const ease = 1 - Math.pow(1 - s / N, 2);
+        const [cv, c] = gifBase("WHERE YOU LIVED");
+        c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+        c.fillText("HOME PLATFORMS", 70, 150);
+        topPlats.forEach(([code, n], i) => {
+          const y = 220 + i * 110;
+          const shown = Math.round(n * ease);
+          c.fillStyle = "#ECEAE4"; c.font = '700 24px "Silkscreen", monospace';
+          c.fillText((i + 1) + ". " + ((PLATFORMS[code] && PLATFORMS[code].label) || code).toUpperCase(), 90, y);
+          c.fillStyle = "#2A2931"; c.fillRect(90, y + 18, 900, 34);
+          c.fillStyle = (PLATFORMS[code] && PLATFORMS[code].color) || "#E5B84B";
+          c.fillRect(90, y + 18, 900 * (n * ease) / maxN, 34);
+          c.fillStyle = "#E5B84B"; c.font = '700 22px "Silkscreen", monospace';
+          c.fillText(shown + (shown === 1 ? " GAME" : " GAMES"), 1010, y + 44);
+        });
+        gifDots(c, cardIdx, cardTotal);
+        frames.push([cv, s === N ? 3200 : 100]);
+      }
+      cardIdx++;
     }
 
     if (psy) {
@@ -4376,30 +4426,42 @@
         gifDots(c, cardIdx, cardTotal);
         frames.push([cv, s === STEPS ? 900 : 170]);
       }
-      const [cv, c] = gifBase("TASTE ASSEMBLED");
-      c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
-      c.fillText("YOUR TASTE RESOLVES TO:", 70, 160);
-      c.fillStyle = "#E5B84B"; c.font = '700 44px "Silkscreen", monospace';
-      c.fillText(dnaTitle, 70, 225);
-      psy.ranked.slice(0, 3).forEach((k, i) => {
-        const y = 300 + i * 92;
-        const cl = CLUSTERS[k];
-        c.imageSmoothingEnabled = false;
-        c.drawImage(pixelSmall(cl.emoji, 14), 70, y - 20, 26, 26);
-        c.imageSmoothingEnabled = true;
-        c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
-        c.fillText(cl.name + "  " + Math.round(psy.R[k] * 100) + "% OF AVG LEAN", 106, y);
-        c.fillStyle = "#B9B5AD"; c.font = '400 13px "IBM Plex Mono", monospace';
-        c.fillText("FEELS LIKE: " + cl.emotions.join(" · ").toUpperCase(), 70, y + 24);
-        c.fillStyle = "#807C76";
-        c.fillText("TAKES: " + cl.traits.join(", ").toUpperCase(), 70, y + 44);
-      });
-      const low = psy.ranked[psy.ranked.length - 1];
-      c.fillStyle = "#5E5B64"; c.font = '400 13px "IBM Plex Mono", monospace';
-      c.fillText("THE MISSING BLOCK: " + CLUSTERS[low].name, 70, 596);
-      gifRadar(c, 950, 400, 140, psy.R);
-      gifDots(c, cardIdx++, cardTotal);
-      frames.push([cv, 5200]);
+      // Assembly: the radar grows out of the average ring while the cluster
+      // rows land one at a time, then the full readout holds.
+      const STEPS_A = 3;
+      for (let a = 1; a <= STEPS_A + 1; a++) {
+        const grow = Math.min(1, a / STEPS_A);
+        const rowsShown = Math.min(3, a);
+        const [cv, c] = gifBase("TASTE ASSEMBLED");
+        c.fillStyle = "#98948D"; c.font = '400 18px "IBM Plex Mono", monospace';
+        c.fillText("YOUR TASTE RESOLVES TO:", 70, 160);
+        c.fillStyle = "#E5B84B"; c.font = '700 44px "Silkscreen", monospace';
+        c.fillText(dnaTitle, 70, 225);
+        psy.ranked.slice(0, rowsShown).forEach((k, i) => {
+          const y = 300 + i * 92;
+          const cl = CLUSTERS[k];
+          c.imageSmoothingEnabled = false;
+          c.drawImage(pixelSmall(cl.emoji, 14), 70, y - 20, 26, 26);
+          c.imageSmoothingEnabled = true;
+          c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+          c.fillText(cl.name + "  " + Math.round(psy.R[k] * 100) + "% OF AVG LEAN", 106, y);
+          c.fillStyle = "#B9B5AD"; c.font = '400 13px "IBM Plex Mono", monospace';
+          c.fillText("FEELS LIKE: " + cl.emotions.join(" · ").toUpperCase(), 70, y + 24);
+          c.fillStyle = "#807C76";
+          c.fillText("TAKES: " + cl.traits.join(", ").toUpperCase(), 70, y + 44);
+        });
+        if (a > STEPS_A) {
+          const low = psy.ranked[psy.ranked.length - 1];
+          c.fillStyle = "#5E5B64"; c.font = '400 13px "IBM Plex Mono", monospace';
+          c.fillText("THE MISSING BLOCK: " + CLUSTERS[low].name, 70, 596);
+        }
+        const Rg = {};
+        CKEYS.forEach(k => { Rg[k] = 1 + (psy.R[k] - 1) * grow; });
+        gifRadar(c, 950, 400, 140, Rg);
+        gifDots(c, cardIdx, cardTotal);
+        frames.push([cv, a > STEPS_A ? 5200 : 200]);
+      }
+      cardIdx++;
     } else {
       const [cv, c] = gifBase("TASTE ASSEMBLED");
       c.textAlign = "center";
@@ -4451,21 +4513,39 @@
     }
 
     if (earned.length) {
-      const [cv, c] = gifBase("TROPHY WALL");
-      c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
-      c.fillText("BADGES: " + earned.length + " / " + BADGES.length, 70, 150);
+      // Cascade: earned sprites land a dozen per frame with a rolling counter,
+      // then the locked ones fade up dim behind them.
       const perRow = 15, cell = 72;
-      c.imageSmoothingEnabled = false;
-      BADGES.forEach((b, i) => {
-        const x = 90 + (i % perRow) * cell + cell / 2;
-        const y = 230 + Math.floor(i / perRow) * 66;
-        c.globalAlpha = earned.includes(b) ? 1 : 0.16;
-        c.drawImage(badgeSpriteCanvas(b[1]) || pixelSmall(b[0], 14), x - 17, y - 28, 34, 34);
-      });
-      c.imageSmoothingEnabled = true;
-      c.globalAlpha = 1;
-      gifDots(c, cardIdx++, cardTotal);
-      frames.push([cv, 3800]);
+      const pos = i => [90 + (i % perRow) * cell + cell / 2, 230 + Math.floor(i / perRow) * 66];
+      const earnedIdx = [], lockedIdx = [];
+      BADGES.forEach((b, i) => (earned.includes(b) ? earnedIdx : lockedIdx).push(i));
+      const PER = 12;
+      const wallFrame = (shownEarned, showLocked, delay) => {
+        const [cv, c] = gifBase("TROPHY WALL");
+        c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+        c.fillText("BADGES: " + shownEarned + " / " + BADGES.length, 70, 150);
+        c.imageSmoothingEnabled = false;
+        if (showLocked) {
+          c.globalAlpha = 0.16;
+          lockedIdx.forEach(i => {
+            const [x, y] = pos(i);
+            c.drawImage(badgeSpriteCanvas(BADGES[i][1]) || pixelSmall(BADGES[i][0], 14), x - 17, y - 28, 34, 34);
+          });
+          c.globalAlpha = 1;
+        }
+        earnedIdx.slice(0, shownEarned).forEach((i, k) => {
+          const [x, y] = pos(i);
+          const fresh = !showLocked && k >= shownEarned - PER;
+          const sz = fresh ? 40 : 34;
+          c.drawImage(badgeSpriteCanvas(BADGES[i][1]) || pixelSmall(BADGES[i][0], 14), x - sz / 2, y - 28 - (sz - 34) / 2, sz, sz);
+        });
+        c.imageSmoothingEnabled = true;
+        gifDots(c, cardIdx, cardTotal);
+        frames.push([cv, delay]);
+      };
+      for (let n = PER; n < earnedIdx.length + PER; n += PER) wallFrame(Math.min(n, earnedIdx.length), false, 150);
+      wallFrame(earnedIdx.length, true, 3000);
+      cardIdx++;
     }
 
     {
@@ -4484,6 +4564,30 @@
       c.textAlign = "left";
       gifDots(c, cardIdx++, cardTotal);
       frames.push([cv, 5200]);
+    }
+    {
+      // CRT power-off: the picture collapses to a bright line, then a dot —
+      // so the loop restarts on the boot screen like the TV switching back on.
+      const last = frames[frames.length - 1][0];
+      const squash = document.createElement("canvas");
+      squash.width = 1200; squash.height = 630;
+      const c1 = squash.getContext("2d");
+      c1.fillStyle = "#000"; c1.fillRect(0, 0, 1200, 630);
+      c1.drawImage(last, 0, 0, 1200, 630, 0, 262, 1200, 106);
+      c1.fillStyle = "rgba(255,255,255,0.25)"; c1.fillRect(0, 262, 1200, 3); c1.fillRect(0, 365, 1200, 3);
+      frames.push([squash, 90]);
+      const line = document.createElement("canvas");
+      line.width = 1200; line.height = 630;
+      const c2 = line.getContext("2d");
+      c2.fillStyle = "#000"; c2.fillRect(0, 0, 1200, 630);
+      c2.fillStyle = "#ECEAE4"; c2.fillRect(0, 312, 1200, 5);
+      frames.push([line, 90]);
+      const dot = document.createElement("canvas");
+      dot.width = 1200; dot.height = 630;
+      const c3 = dot.getContext("2d");
+      c3.fillStyle = "#000"; c3.fillRect(0, 0, 1200, 630);
+      c3.fillStyle = "#ECEAE4"; c3.fillRect(594, 310, 10, 8);
+      frames.push([dot, 160]);
     }
     return frames;
   }
@@ -4600,6 +4704,25 @@
   // Bulk check of whatever the current filters show, with a toast undo.
   const toastEl = document.getElementById("toast");
   let toastTimer = null, undoSnapshot = null;
+  function showBadgeToast(names) {
+    const msgEl = document.getElementById("toast-msg");
+    document.getElementById("toast-undo").hidden = true;
+    msgEl.textContent = "";
+    const url = badgeSpriteURL(names[0]);
+    if (url) {
+      const img = document.createElement("img");
+      img.src = url; img.alt = ""; img.className = "pxe";
+      img.style.width = "22px"; img.style.height = "22px";
+      img.style.marginRight = "8px"; img.style.verticalAlign = "-5px";
+      msgEl.appendChild(img);
+    }
+    msgEl.appendChild(document.createTextNode("BADGE UNLOCKED — " + names[0] +
+      (names.length > 1 ? " (+" + (names.length - 1) + " more)" : "")));
+    const el = document.getElementById("toast");
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.hidden = true; }, 6000);
+  }
   function showToast(msg, canUndo) {
     document.getElementById("toast-msg").textContent = msg;
     document.getElementById("toast-undo").hidden = !canUndo;
@@ -5364,23 +5487,37 @@
     matched = shared.length; pileA = onlyA.length; pileB = onlyB.length;
     for (let i = 0; i < 70; i++) debris.push({ x: 180 + rnd() * 840, y: 300 + rnd() * 260, s: 2 + rnd() * 6, col: rnd() > 0.5 ? "#E5B84B" : "#5CA8DC", a: 0.25 + rnd() * 0.6 });
     {
-      const [cv, c] = vsBase();
-      c.textAlign = "center";
-      c.fillStyle = "#ECEAE4"; c.font = '700 44px "Silkscreen", monospace';
-      c.fillText(shared.length + " SHARED — SHATTERED", 600, 300);
-      c.fillStyle = "#E5B84B"; c.font = '700 20px "Silkscreen", monospace';
-      c.fillText(A + " KEEPS " + onlyA.length, 370, 350);
-      c.fillStyle = "#8CC4E8"; c.fillText(B + " KEEPS " + onlyB.length, 830, 350);
-      const union = shared.length + onlyA.length + onlyB.length;
-      const overlap = union ? Math.round(100 * shared.length / union) : 0;
-      const pa = computePsyche(idsA), pb = computePsyche(idsB);
-      let line = "TASTE OVERLAP " + overlap + "%";
-      if (pa && pb && pa.n >= 10 && pb.n >= 10) line += "   ·   PSYCHE MATCH " + psycheSimilarity(pa, pb) + "%";
-      c.fillStyle = "#98948D"; c.font = '400 15px "IBM Plex Mono", monospace';
-      c.fillText(line, 600, 400);
-      c.fillText("atomechllc.github.io/all-the-games-i-played-before", 600, 460);
-      c.textAlign = "left";
-      frames.push([cv, 5400]);
+      // Crown drop: the bigger library takes the crown on the final card.
+      const winnerRight = onlyB.length >= onlyA.length;
+      const wx = winnerRight ? 960 : 240;
+      const finalCard = (crownY, landed) => {
+        const [cv, c] = vsBase();
+        c.textAlign = "center";
+        c.imageSmoothingEnabled = false;
+        c.drawImage(pixelSmall("👑", 14), wx - 16, crownY, 32, 32);
+        c.imageSmoothingEnabled = true;
+        if (landed) {
+          c.fillStyle = "#E5B84B"; c.font = '700 11px "Silkscreen", monospace';
+          c.fillText("BIGGEST LIBRARY", wx, 196);
+        }
+        c.fillStyle = "#ECEAE4"; c.font = '700 44px "Silkscreen", monospace';
+        c.fillText(shared.length + " SHARED — SHATTERED", 600, 300);
+        c.fillStyle = "#E5B84B"; c.font = '700 20px "Silkscreen", monospace';
+        c.fillText(A + " KEEPS " + onlyA.length, 370, 350);
+        c.fillStyle = "#8CC4E8"; c.fillText(B + " KEEPS " + onlyB.length, 830, 350);
+        const union = shared.length + onlyA.length + onlyB.length;
+        const overlap = union ? Math.round(100 * shared.length / union) : 0;
+        const pa = computePsyche(idsA), pb = computePsyche(idsB);
+        let line = "TASTE OVERLAP " + overlap + "%";
+        if (pa && pb && pa.n >= 10 && pb.n >= 10) line += "   ·   PSYCHE MATCH " + psycheSimilarity(pa, pb) + "%";
+        c.fillStyle = "#98948D"; c.font = '400 15px "IBM Plex Mono", monospace';
+        c.fillText(line, 600, 400);
+        c.fillText("atomechllc.github.io/all-the-games-i-played-before", 600, 460);
+        c.textAlign = "left";
+        frames.push([cv, landed ? 5400 : 160]);
+      };
+      finalCard(48, false);
+      finalCard(84, true);
     }
     return frames;
   }
