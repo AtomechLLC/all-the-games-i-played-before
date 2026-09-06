@@ -748,7 +748,7 @@
           <div class="psyche" id="psyche">
             <h3 class="pcol-h">THE GAMES THAT BUILT YOUR TASTE</h3>
             <div class="psyche-grid">
-              <div class="psy-radar-wrap"><div id="psy-radar"></div></div>
+              <div class="psy-radar-wrap"><div id="psy-radar"></div><button class="export" id="hours-toggle" type="button" hidden title="Re-weigh your taste by tracked playtime instead of counting every game equally">⏱ Weight by hours</button></div>
               <div class="psy-main">
                 <h3 class="psy-title px" id="psy-title"></h3>
                 <p class="psy-prose" id="psy-prose"></p>
@@ -802,7 +802,7 @@
 <footer>
   <div class="inner">
     <p>Sales figures are approximate lifetime totals from mixed public sources — some are franchise, all-platform, or player counts (noted on the card). Within each era, games are sorted best-selling first; “—” means no reliable number. Eras follow North American release years; age labels use the birth year set on your player card (default 1983).</p>
-    <p>Your checkmarks save automatically: to cloud storage where the hosted page supports it (the indicator above shows sync state), and always to this browser as a backup. Export downloads your played list as a JSON file; the 🎮 library scan checks your whole Steam or Epic library from one paste. Coming later: play-history profiles.</p>
+    <p>Your checkmarks save automatically: to cloud storage where the hosted page supports it (the indicator above shows sync state), and always to this browser as a backup. Export downloads your played list as a JSON file; the 🎮 library scan checks your whole Steam or Epic library from one paste and remembers your playtimes — hit ⏱ on the taste radar to see your profile weighted by where the hours actually went.</p>
     <p>Badge sprites: <a href="https://kyrise.itch.io/" target="_blank" rel="noopener">Kyrise's 16x16 RPG Icon Pack</a> (CC BY 4.0), <a href="https://game-icons.net" target="_blank" rel="noopener">game-icons.net</a> (CC BY 3.0), and <a href="https://kenney.nl" target="_blank" rel="noopener">Kenney game assets</a> (CC0).</p>
     <p>A <a href="https://funsmith.club" target="_blank" rel="noopener">Funsmith Club</a> project — join the game design community on Discord.</p>
   </div>
@@ -1439,6 +1439,39 @@
   });
   CKEYS.forEach(k => { PSY_BASE[k] /= GAMES.length; });
 
+  // Play history: tracked hours per game id, captured by the library scan and
+  // synced with the cloud save. Feeds the hours-weighted taste profile.
+  let hoursMap = {};
+  try { hoursMap = JSON.parse(localStorage.getItem("atgipb-hours-v1") || "{}") || {}; } catch (e) {}
+  function saveHours() {
+    try { localStorage.setItem("atgipb-hours-v1", JSON.stringify(hoursMap)); } catch (e) {}
+  }
+
+  // Hours-weighted psyche: each game's vector votes log-scaled by tracked
+  // playtime, so a thousand-hour love shows up without erasing everything else.
+  // Games without tracked hours vote with weight 1.
+  function computePsycheHours(ids) {
+    const P = {};
+    CKEYS.forEach(k => { P[k] = 0; });
+    let n = 0, wsum = 0, tracked = 0, totalHours = 0;
+    ids.forEach(id => {
+      const entry = cardEls.get(id);
+      if (!entry) return;
+      n++;
+      const h = hoursMap[id];
+      const w = h ? Math.log2(2 + h) : 1;
+      if (h) { tracked++; totalHours += h; }
+      wsum += w;
+      CKEYS.forEach(k => { P[k] += entry.g.psy[k] * w; });
+    });
+    if (!n || !wsum) return null;
+    CKEYS.forEach(k => { P[k] /= wsum; });
+    const R = {};
+    CKEYS.forEach(k => { R[k] = PSY_BASE[k] ? P[k] / PSY_BASE[k] : 1; });
+    const ranked = CKEYS.slice().sort((a, b) => R[b] - R[a]);
+    return { P, R, ranked, n, tracked, totalHours };
+  }
+
   // Average psyche vector for a set of played ids, plus lean vs the baseline.
   function computePsyche(ids) {
     const P = {};
@@ -1764,6 +1797,12 @@
   // generated portrait, and the top clusters with their emotions, the traits
   // their games demand, and the played games that prove it.
   let lastPsyche = null;
+  let hoursMode = false;
+  document.getElementById("hours-toggle").addEventListener("click", () => {
+    hoursMode = !hoursMode;
+    renderPsyche();
+    animateRadarIn();
+  });
   // Emoji "demake": render the glyph tiny, then upscale with smoothing off so
   // every icon reads as an original chunky pixel sprite. No ripped game art.
   const PIX_SMALL = new Map();
@@ -1882,7 +1921,7 @@
   Promise.all(Object.values(SPRITE_IMGS).map(im => im.decode ? im.decode().catch(() => {}) : Promise.resolve()))
     .then(() => { if (typeof renderProfile === "function" && typeof played !== "undefined") renderProfile(); });
 
-  function radarSVG(R) {
+  function radarSVG(R, ghostR) {
     const S = 280, cx = S / 2, cy = S / 2 + 4, rMax = 96;
     const pt = (i, r) => {
       const a = (Math.PI * 2 * i) / CKEYS.length - Math.PI / 2;
@@ -1900,6 +1939,13 @@
       const [lx, ly] = pt(i, rMax + 16);
       parts.push('<text x="' + lx + '" y="' + (ly + 3) + '" text-anchor="middle" font-size="7.5" letter-spacing="0.5" fill="var(--muted)" font-family="IBM Plex Mono, monospace">' + CLUSTERS[k].name + '</text>');
     });
+    if (ghostR) {
+      const gpoly = CKEYS.map((k, i) => {
+        const r = Math.max(0.15, Math.min(1.9, ghostR[k]));
+        return pt(i, (r / 1.9) * rMax).join(",");
+      }).join(" ");
+      parts.push('<polygon points="' + gpoly + '" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3" opacity="0.55"/>');
+    }
     const poly = CKEYS.map((k, i) => {
       const r = Math.max(0.15, Math.min(1.9, R[k]));
       return pt(i, (r / 1.9) * rMax).join(",");
@@ -1957,19 +2003,31 @@
       document.getElementById("psy-evo-wrap").hidden = true;
       return;
     }
-    const [c1, c2] = psy.ranked;
-    const low = psy.ranked[psy.ranked.length - 1];
     const pg = GAMES.filter(g => played.has(g.id));
     psy.title = psycheTitle(psy, pg);
-    titleEl.textContent = psy.title.toUpperCase();
-    proseEl.textContent = CLUSTERS[c1].blurb + " Beneath it runs " + CLUSTERS[c2].sec + ". " + CLUSTERS[low].shadow;
-    document.getElementById("psy-radar").innerHTML = radarSVG(psy.R);
+    // Play-history view: toggle between breadth (every game equal) and the
+    // hours-weighted lean, with the other polygon ghosted for contrast.
+    const hoursPsy = computePsycheHours(played);
+    const canHours = !!(hoursPsy && hoursPsy.tracked >= 5);
+    const hb = document.getElementById("hours-toggle");
+    hb.hidden = !canHours;
+    if (!canHours) hoursMode = false;
+    hb.textContent = hoursMode ? "📋 Back to breadth" : "⏱ Weight by hours";
+    const view = (hoursMode && canHours) ? hoursPsy : psy;
+    const [c1, c2] = view.ranked;
+    const low = view.ranked[view.ranked.length - 1];
+    titleEl.textContent = ((hoursMode && canHours) ? psycheTitle(view, pg) : psy.title).toUpperCase();
+    proseEl.textContent = (hoursMode && canHours)
+      ? "Weighted by " + Math.round(hoursPsy.totalHours).toLocaleString("en-US") + " tracked hours across " +
+        hoursPsy.tracked + " games — this is where the time actually went. The dashed outline is your breadth profile."
+      : CLUSTERS[c1].blurb + " Beneath it runs " + CLUSTERS[c2].sec + ". " + CLUSTERS[low].shadow;
+    document.getElementById("psy-radar").innerHTML = radarSVG(view.R, (hoursMode && canHours) ? psy.R : null);
 
     clustersEl.innerHTML = "";
-    psy.ranked.slice(0, 3).forEach(key => {
+    view.ranked.slice(0, 3).forEach(key => {
       const c = CLUSTERS[key];
       const evidence = GAMES.filter(g => played.has(g.id) && g.psy[key] >= 0.3)
-        .sort((a, b) => (b.s ?? -1) - (a.s ?? -1));
+        .sort((a, b) => (hoursMode && canHours) ? ((hoursMap[b.id] || 0) - (hoursMap[a.id] || 0)) : ((b.s ?? -1) - (a.s ?? -1)));
       const d = document.createElement("div");
       d.className = "psy-cluster";
       d.innerHTML = '<div class="pc-name"></div>' +
@@ -1978,7 +2036,7 @@
         '<div class="pc-line"><b>Evidence:</b> <span class="g"></span></div>';
       const nameEl = d.querySelector(".pc-name");
       nameEl.appendChild(pixelImg(c.emoji, 18));
-      nameEl.appendChild(document.createTextNode(" " + c.name + " · " + Math.round(psy.R[key] * 100) + "% of avg lean"));
+      nameEl.appendChild(document.createTextNode(" " + c.name + " · " + Math.round(view.R[key] * 100) + "% of avg lean"));
       d.querySelector(".e").textContent = c.emotions.join(" · ");
       d.querySelector(".t").textContent = c.traits.join(", ");
       d.querySelector(".g").textContent = evidence.slice(0, 3).map(g => g.t).join(", ") +
@@ -2386,8 +2444,10 @@
     const topPlats = Object.entries(platCount).sort((a, b) => b[1] - a[1]).slice(0, 3);
     const earned = lastProfile.badges;
     const eraSnaps = eraPsycheSnaps(pg);
+    const hoursPsy = computePsycheHours(new Set(pg.map(g => g.id)));
+    const canHours = !!(psy && hoursPsy && hoursPsy.tracked >= 5);
     const frames = [];
-    const cardTotal = 3 + (years.length ? 1 : 0) + (topPlats.length ? 1 : 0) + (earned.length ? 1 : 0) + (eraSnaps.length >= 2 ? 1 : 0);
+    const cardTotal = 3 + (years.length ? 1 : 0) + (topPlats.length ? 1 : 0) + (earned.length ? 1 : 0) + (eraSnaps.length >= 2 ? 1 : 0) + (canHours ? 1 : 0);
     let cardIdx = 0;
 
     const bootLines = [
@@ -2637,6 +2697,32 @@
           }
         }
       });
+      cardIdx++;
+    }
+
+    if (canHours) {
+      // Play history: the breadth radar re-weighs itself into the hours radar —
+      // every hour gets a vote, and the shape shifts to where the time went.
+      const lerp2 = (a, b, t) => { const R = {}; CKEYS.forEach(k => { R[k] = a[k] + (b[k] - a[k]) * t; }); return R; };
+      const hoursFrame = (R, label, sub, delay) => {
+        const [cv, c] = gifBase("PLAY HISTORY");
+        c.fillStyle = "#ECEAE4"; c.font = '700 22px "Silkscreen", monospace';
+        c.fillText("BREADTH VS HOURS", 70, 150);
+        c.fillStyle = "#E5B84B"; c.font = '700 30px "Silkscreen", monospace';
+        c.fillText(label, 70, 226);
+        c.fillStyle = "#98948D"; c.font = '400 15px "IBM Plex Mono", monospace';
+        c.fillText(sub, 70, 260);
+        gifRadar(c, 720, 370, 165, R);
+        gifDots(c, cardIdx, cardTotal);
+        frames.push([cv, delay]);
+      };
+      hoursFrame(psy.R, "EVERYTHING YOU TOUCHED", pg.length + " GAMES, ONE VOTE EACH", 900);
+      for (let s = 1; s <= 6; s++) {
+        const t = s / 7;
+        hoursFrame(lerp2(psy.R, hoursPsy.R, t * t * (3 - 2 * t)), "RE-WEIGHING...", "EVERY HOUR GETS A VOTE", 90);
+      }
+      hoursFrame(hoursPsy.R, "WHERE THE HOURS WENT",
+        Math.round(hoursPsy.totalHours).toLocaleString("en-US") + " HRS TRACKED ACROSS " + hoursPsy.tracked + " GAMES", 3400);
       cardIdx++;
     }
 
@@ -3063,7 +3149,7 @@
       saving = true;
       setStatus("saving", "Saving…");
       try {
-        await ref.set({ ids: [...played], count: played.size, birthYear: BIRTH_YEAR, updated: new Date().toISOString() });
+        await ref.set({ ids: [...played], count: played.size, birthYear: BIRTH_YEAR, hours: hoursMap, updated: new Date().toISOString() });
         setStatus("ok", "Saved to cloud", "Your selections are saved to this artifact's storage.");
       } catch (e) {
         if (e && e.code === "unavailable" && !isRetry) {
@@ -3086,6 +3172,7 @@
       const snap = await ref.get();
       if (snap.exists) {
         if (snap.data().birthYear) setBirthYear(snap.data().birthYear, false);
+        if (snap.data().hours) { hoursMap = Object.assign({}, snap.data().hours, hoursMap); saveHours(); }
         const server = (snap.data().ids || []).filter(id => typeof id === "string");
         const union = new Set([...server, ...played]);
         applyPlayed(union);
@@ -3435,11 +3522,22 @@
       const union = new Set(played);
       ids.forEach(id => union.add(id));
       applyPlayed(union);
+      // Keep the playtimes: they power the hours-weighted taste profile.
+      let hoursTracked = 0;
+      found.forEach((e, id) => {
+        if (e.hours != null) {
+          if (!hoursMap[id] || e.hours > hoursMap[id]) hoursMap[id] = Math.round(e.hours * 10) / 10;
+          hoursTracked++;
+        }
+      });
+      if (hoursTracked) saveHours();
       if (playedChangedHook) playedChangedHook();
       const added = union.size - before;
       const skipped = found.size - kept.length;
       resultEl.textContent = found.size
-        ? "matched " + ids.length + " games · " + added + " newly checked" + (skipped ? " · " + skipped + " under 2h skipped" : "")
+        ? "matched " + ids.length + " games · " + added + " newly checked" +
+          (skipped ? " · " + skipped + " under 2h skipped" : "") +
+          (hoursTracked ? " · " + hoursTracked + " playtimes tracked" : "")
         : "no game titles recognized — make sure you copied the games list page";
       renderProfile();
       if (added) showToast("Steam scan: +" + added + " games checked — your card just grew", false);
