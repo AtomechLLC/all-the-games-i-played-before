@@ -904,10 +904,17 @@
     if (by >= 1930 && by <= 2020) BIRTH_YEAR = by;
   } catch (e) {}
 
-  // Every game links to its Wikipedia article (which explains the gameplay);
-  // the search-and-go URL lands on the article when the title matches.
-  const gameInfoURL = g => "https://en.wikipedia.org/wiki/Special:Search?search=" +
-    encodeURIComponent(g.t + " video game") + "&go=Go";
+  // Every game links to its Wikipedia article (which explains the gameplay).
+  // The most popular games carry a verified direct article title, baked in at
+  // build time; everything else falls back to a search-and-go URL.
+  const WIKI_LINKS = __WIKI_DATA__;
+  const gameInfoURL = g => {
+    const direct = WIKI_LINKS[g.t + "|" + g.y];
+    return direct
+      ? "https://en.wikipedia.org/wiki/" + encodeURIComponent(direct.replace(/ /g, "_"))
+      : "https://en.wikipedia.org/wiki/Special:Search?search=" +
+        encodeURIComponent(g.t + " video game") + "&go=Go";
+  };
 
   const fmtSales = s => {
     if (s == null) return "—";

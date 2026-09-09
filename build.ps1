@@ -20,7 +20,13 @@ $spriteEntries = foreach ($p in $spriteMap.PSObject.Properties) {
 }
 $sprites = "{" + ($spriteEntries -join ",") + "}"
 
-$page = $html.Replace("__GAMES_DATA__", $json).Replace("__OWNER_DATA__", $owner).Replace("__SPRITE_DATA__", $sprites)
+# Direct Wikipedia article map for the most popular games (search fallback otherwise).
+$wiki = "{}"
+if (Test-Path "$dir\wiki-links.json") {
+    $wiki = $utf8.GetString([System.IO.File]::ReadAllBytes("$dir\wiki-links.json")).Trim()
+}
+
+$page = $html.Replace("__GAMES_DATA__", $json).Replace("__OWNER_DATA__", $owner).Replace("__SPRITE_DATA__", $sprites).Replace("__WIKI_DATA__", $wiki)
 $bom = New-Object System.Text.UTF8Encoding($true)
 [System.IO.File]::WriteAllText("$dir\checklist.html", $page, $bom)
 [System.IO.File]::WriteAllText("$dir\index.html", "<!doctype html>`n<html lang=`"en`">`n" + $page + "`n</html>", $bom)
