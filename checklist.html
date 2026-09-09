@@ -449,6 +449,19 @@
     resize: vertical;
   }
   .steam-paste:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  #dense-view { margin-top: 28px; }
+  .dense-genre { margin-bottom: 24px; }
+  .dense-list { columns: 4 250px; column-gap: 28px; }
+  .dense-row {
+    font-size: 12.5px;
+    line-height: 1.7;
+    break-inside: avoid;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dense-row .pdot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .dense-meta { color: var(--muted); font-size: 11px; margin-left: 5px; }
   a.export { text-decoration: none; display: inline-flex; align-items: center; }
 
   .toast {
@@ -663,6 +676,7 @@
       <div class="progress-track"><div class="progress-fill" id="overall-fill"></div></div>
       <input class="search" id="search" type="search" placeholder="Search games…" aria-label="Search games">
       <label class="hide-played"><input type="checkbox" id="hide-played"> Hide played</label>
+      <button class="export" id="dense-btn" type="button" title="A dense list of just your played games, grouped by genre">☰ By genre</button>
       <button class="export" id="check-all-btn" type="button" hidden title="Check every game currently shown by your filters">Check all shown</button>
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
       <button class="export" id="import-btn" type="button" title="Load a played-list .json (made by Export) — checks everything in it">Import</button>
@@ -790,6 +804,7 @@
       </div>
     </div>
   </section>
+  <div id="dense-view" hidden></div>
   <div id="eras"></div>
   <p class="empty">No games match — clear the search or platform filters above.</p>
 </main>
@@ -4947,6 +4962,56 @@
       startTour();
     });
   })();
+
+  // Dense library view: just the played games, grouped by genre (biggest
+  // group first), chronological within each, with tracked hours when known.
+  function renderDense() {
+    const host = document.getElementById("dense-view");
+    host.innerHTML = "";
+    const byGenre = {};
+    GAMES.forEach(g => { if (played.has(g.id)) (byGenre[g.genre] = byGenre[g.genre] || []).push(g); });
+    const genres = Object.keys(byGenre).sort((a, b) => byGenre[b].length - byGenre[a].length);
+    if (!genres.length) {
+      host.innerHTML = '<p class="pcard-desc" style="margin: 24px 0;">Nothing checked yet — everything you check shows up here, grouped by genre.</p>';
+      return;
+    }
+    genres.forEach(genre => {
+      const sec = document.createElement("section");
+      sec.className = "dense-genre";
+      const h = document.createElement("h3");
+      h.className = "pcol-h";
+      h.textContent = genre.toUpperCase() + " — " + byGenre[genre].length;
+      sec.appendChild(h);
+      const list = document.createElement("div");
+      list.className = "dense-list";
+      byGenre[genre].sort((a, b) => a.y - b.y || a.t.localeCompare(b.t)).forEach(g => {
+        const plat = PLATFORMS[g.p];
+        const row = document.createElement("div");
+        row.className = "dense-row";
+        const dot = document.createElement("span");
+        dot.className = "pdot";
+        dot.style.background = plat.color;
+        row.appendChild(dot);
+        row.appendChild(document.createTextNode(g.t));
+        const meta = document.createElement("span");
+        meta.className = "mono dense-meta";
+        meta.textContent = g.y + (hoursMap[g.id] ? " · " + Math.round(hoursMap[g.id]) + "h" : "");
+        row.appendChild(meta);
+        row.title = plat.label + " · " + g.y;
+        list.appendChild(row);
+      });
+      sec.appendChild(list);
+      host.appendChild(sec);
+    });
+  }
+  let denseMode = false;
+  document.getElementById("dense-btn").addEventListener("click", () => {
+    denseMode = !denseMode;
+    document.getElementById("dense-btn").textContent = denseMode ? "🗓 By era" : "☰ By genre";
+    document.getElementById("eras").hidden = denseMode;
+    document.getElementById("dense-view").hidden = !denseMode;
+    if (denseMode) renderDense();
+  });
 
   // Quick start: a hand-held pass through the biggest games of each era of the
   // player's life — a dozen cards at a time instead of the 1,800-game wall.
