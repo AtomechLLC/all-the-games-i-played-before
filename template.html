@@ -462,6 +462,12 @@
   }
   .dense-row .pdot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 6px; }
   .dense-meta { color: var(--muted); font-size: 11px; margin-left: 5px; }
+  .dense-link { color: inherit; text-decoration: none; }
+  .dense-link:hover { color: var(--accent); text-decoration: underline; }
+  .card .info { margin-left: auto; color: var(--muted); font-size: 13px; padding: 0 3px; cursor: pointer; }
+  .card .info:hover { color: var(--accent); }
+  .cmp-chip a { color: inherit; text-decoration: none; }
+  .cmp-chip a:hover { color: var(--accent); text-decoration: underline; }
   a.export { text-decoration: none; display: inline-flex; align-items: center; }
 
   .toast {
@@ -898,6 +904,11 @@
     if (by >= 1930 && by <= 2020) BIRTH_YEAR = by;
   } catch (e) {}
 
+  // Every game links to its Wikipedia article (which explains the gameplay);
+  // the search-and-go URL lands on the article when the title matches.
+  const gameInfoURL = g => "https://en.wikipedia.org/wiki/Special:Search?search=" +
+    encodeURIComponent(g.t + " video game") + "&go=Go";
+
   const fmtSales = s => {
     if (s == null) return "—";
     if (s < 1) return "~" + Math.round(s * 1000) + "K";
@@ -945,11 +956,16 @@
           (g.n ? '<span class="note"></span>' : "") +
           '<span class="meta"><span class="mono">' + g.y + '</span>' +
             '<span class="pdot"></span><span class="plat">' + plat.label + '</span>' +
-            '<span class="sales mono">' + fmtSales(g.s) + '</span></span>' +
+            '<span class="sales mono">' + fmtSales(g.s) + '</span>' +
+            '<span class="info" title="Open its page — how it plays, and its history">ⓘ</span></span>' +
         '</span>';
       btn.querySelector(".title").textContent = g.t;
       if (g.n) btn.querySelector(".note").textContent = g.n;
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", e => {
+        if (e.target.closest(".info")) {
+          window.open(gameInfoURL(g), "_blank", "noopener");
+          return;
+        }
         const on = !played.has(g.id);
         on ? played.add(g.id) : played.delete(g.id);
         btn.setAttribute("aria-pressed", on ? "true" : "false");
@@ -3051,7 +3067,13 @@
         dot.className = "pdot";
         dot.style.background = plat.color;
         row.appendChild(dot);
-        row.appendChild(document.createTextNode(g.t));
+        const a = document.createElement("a");
+        a.href = gameInfoURL(g);
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.className = "dense-link";
+        a.textContent = g.t;
+        row.appendChild(a);
         const meta = document.createElement("span");
         meta.className = "mono dense-meta";
         meta.textContent = g.y + (hoursMap[g.id] ? " · " + Math.round(hoursMap[g.id]) + "h" : "");
@@ -3381,7 +3403,12 @@
         const chip = document.createElement("span");
         chip.className = "cmp-chip";
         chip.innerHTML = '<span class="pdot" style="background:' + PLATFORMS[g.p].color + '"></span>';
-        chip.appendChild(document.createTextNode(g.t + " (" + g.y + ")"));
+        const link = document.createElement("a");
+        link.href = gameInfoURL(g);
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = g.t + " (" + g.y + ")";
+        chip.appendChild(link);
         chip.title = PLATFORMS[g.p].label;
         el.appendChild(chip);
       });
