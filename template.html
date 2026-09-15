@@ -413,6 +413,20 @@
   }
   .era-jump:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); }
   .era-jump:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .era-nav-label {
+    flex: 0 0 auto;
+    align-self: center;
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    padding-right: 2px;
+  }
+  .era-jump .to { display: none; }
+  @media (min-width: 1120px) { .era-jump .to { display: inline; } }
+  .nudge { display: inline-flex; gap: 4px; align-items: center; }
+  .nudge .go { border-color: color-mix(in srgb, var(--gold-strong) 55%, var(--line)); }
+  .nudge .x { padding: 4px 8px; color: var(--muted); }
 
   @media (max-width: 700px) {
     .search { font-size: 16px; }
@@ -691,11 +705,15 @@
       <button class="export" id="share-btn" type="button" title="Copy a link that lets anyone compare against your checklist">Share</button>
       <button class="export" id="owner-compare-btn" type="button" hidden></button>
       <button class="export" id="export-btn" type="button" title="Download your played list as a .json file">Export</button>
+      <span class="nudge" id="plat-nudge" hidden>
+        <button class="export go" id="plat-nudge-go" type="button" title="Pick the platforms you owned to trim the list down to your life">🎮 Trim to your platforms</button>
+        <button class="export x" id="plat-nudge-x" type="button" aria-label="Dismiss" title="Dismiss">✕</button>
+      </span>
       <input type="file" id="import-file" accept="application/json,.json" hidden>
       <input type="file" id="compare-file" accept="application/json,.json" hidden>
     </div>
     <div class="filters-row">
-      <div class="era-nav" id="era-nav" role="group" aria-label="Jump to era"></div>
+      <div class="era-nav" id="era-nav" role="group" aria-label="Jump to era"><span class="era-nav-label" aria-hidden="true">JUMP TO</span></div>
       <div class="chips" id="chips" role="group" aria-label="Filter by platform"></div>
     </div>
   </div>
@@ -1069,7 +1087,8 @@
     const b = document.createElement("button");
     b.className = "era-jump";
     b.type = "button";
-    b.textContent = "’" + String(era.a).slice(2);
+    b.innerHTML = "’" + String(era.a).slice(2) +
+      '<span class="to">–’' + String(era.b).slice(2) + "</span>";
     b.title = era.a + "–" + era.b;
     b.style.borderBottom = "2px solid " + era.c;
     b.addEventListener("click", () => era.sec.scrollIntoView({ behavior: "smooth" }));
@@ -1134,8 +1153,16 @@
     });
     if (played.size > 0) {
       const ob = document.getElementById("onboard");
-      if (ob && !ob.hidden) dismissOnboard();
+      if (ob && !ob.hidden) {
+        // Collapsing the onboard card would yank the era grid up under the
+        // visitor's cursor (scroll anchoring is off for the slim bar), so
+        // give the scroll position the card's height back.
+        const h = ob.offsetHeight + (parseFloat(getComputedStyle(ob).marginTop) || 0);
+        dismissOnboard();
+        window.scrollBy(0, -h);
+      }
     }
+    updatePlatNudge();
     renderProfile();
   }
 
@@ -1743,7 +1770,18 @@
     const badgeNames = p.badges.map(b => b[1]);
     if (prevBadgeSet) {
       const fresh = badgeNames.filter(nm => !prevBadgeSet.has(nm));
-      if (fresh.length) showBadgeToast(fresh);
+      if (fresh.length) {
+        // The very first check gets one self-explaining welcome instead of a
+        // surprise badge pop; badges take over from the second check on.
+        let welcomed = false;
+        try { welcomed = localStorage.getItem("atgipb-welcomed") === "1"; } catch (e) {}
+        if (!welcomed && p.gs.length <= 2) {
+          try { localStorage.setItem("atgipb-welcomed", "1"); } catch (e) {}
+          showToast("Your player card just started building — find it up top, it grows with every check.", false);
+        } else {
+          showBadgeToast(fresh);
+        }
+      }
     }
     prevBadgeSet = new Set(badgeNames);
     const n = p.gs.length;
@@ -3017,43 +3055,78 @@
     if (ob) ob.hidden = true;
     try { localStorage.setItem("atgipb-onboarded", "1"); } catch (e) {}
   }
+  let obBuilt = false;
+  function openPlatformPicker() {
+    if (!obBuilt) {
+      obBuilt = true;
+      const wrap = document.getElementById("ob-plats");
+      const obSel = new Set(state.platforms);
+      Object.entries(PLATFORMS).forEach(([code, plat]) => {
+        const chip = document.createElement("button");
+        chip.className = "chip";
+        chip.type = "button";
+        chip.style.setProperty("--pc", plat.color);
+        chip.setAttribute("aria-pressed", obSel.has(code) ? "true" : "false");
+        chip.innerHTML = '<span class="dot" aria-hidden="true"></span>' + plat.label;
+        chip.addEventListener("click", () => {
+          const on = !obSel.has(code);
+          on ? obSel.add(code) : obSel.delete(code);
+          chip.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        wrap.appendChild(chip);
+      });
+      document.getElementById("ob-birth").value = BIRTH_YEAR;
+      document.getElementById("ob-skip").addEventListener("click", dismissOnboard);
+      document.getElementById("ob-go").addEventListener("click", () => {
+        const by = parseInt(document.getElementById("ob-birth").value, 10);
+        if (by) setBirthYear(by, true);
+        if (obSel.size) {
+          state.platforms = new Set(obSel);
+          Object.entries(chipEls).forEach(([code, el]) =>
+            el.setAttribute("aria-pressed", state.platforms.has(code) ? "true" : "false"));
+        }
+        dismissOnboard();
+        applyFilters();
+        updatePlatNudge();
+        // The tour is a fresh-visitor ramp; a picker reopened mid-list isn't.
+        if (played.size === 0) startTour();
+      });
+    }
+    document.getElementById("onboard").hidden = false;
+  }
   (() => {
     let seen = false;
     try { seen = localStorage.getItem("atgipb-onboarded") === "1"; } catch (e) {}
     // A share link should land straight on the comparison, not the platform picker.
     if (seen || played.size > 0 || /^#vs?=/.test(location.hash)) return;
-    const wrap = document.getElementById("ob-plats");
-    const obSel = new Set();
-    Object.entries(PLATFORMS).forEach(([code, plat]) => {
-      const chip = document.createElement("button");
-      chip.className = "chip";
-      chip.type = "button";
-      chip.style.setProperty("--pc", plat.color);
-      chip.setAttribute("aria-pressed", "false");
-      chip.innerHTML = '<span class="dot" aria-hidden="true"></span>' + plat.label;
-      chip.addEventListener("click", () => {
-        const on = !obSel.has(code);
-        on ? obSel.add(code) : obSel.delete(code);
-        chip.setAttribute("aria-pressed", on ? "true" : "false");
-      });
-      wrap.appendChild(chip);
-    });
-    document.getElementById("ob-birth").value = BIRTH_YEAR;
-    document.getElementById("onboard").hidden = false;
-    document.getElementById("ob-skip").addEventListener("click", dismissOnboard);
-    document.getElementById("ob-go").addEventListener("click", () => {
-      const by = parseInt(document.getElementById("ob-birth").value, 10);
-      if (by) setBirthYear(by, true);
-      if (obSel.size) {
-        state.platforms = new Set(obSel);
-        Object.entries(chipEls).forEach(([code, el]) =>
-          el.setAttribute("aria-pressed", state.platforms.has(code) ? "true" : "false"));
-      }
-      dismissOnboard();
-      applyFilters();
-      startTour();
-    });
+    openPlatformPicker();
   })();
+
+  // "Trim to your platforms" nudge: for visitors checking games with no
+  // platform filter on (they skipped or never saw the picker), until used
+  // or dismissed.
+  function updatePlatNudge() {
+    const el = document.getElementById("plat-nudge");
+    if (!el) return;
+    let done = false;
+    try { done = localStorage.getItem("atgipb-plat-nudge") === "1"; } catch (e) {}
+    const ob = document.getElementById("onboard");
+    const hide = done || played.size === 0 || state.platforms.size > 0 || (ob && !ob.hidden);
+    if (el.hidden !== hide) {
+      el.hidden = hide;
+      updateBarH(); // the extra button can wrap the sticky bar taller
+    }
+  }
+  document.getElementById("plat-nudge-go").addEventListener("click", () => {
+    try { localStorage.setItem("atgipb-plat-nudge", "1"); } catch (e) {}
+    openPlatformPicker();
+    updatePlatNudge();
+    document.getElementById("onboard").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  document.getElementById("plat-nudge-x").addEventListener("click", () => {
+    try { localStorage.setItem("atgipb-plat-nudge", "1"); } catch (e) {}
+    updatePlatNudge();
+  });
 
   // Dense library view: just the played games, grouped by genre (biggest
   // group first), chronological within each, with tracked hours when known.
