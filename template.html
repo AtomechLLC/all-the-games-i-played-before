@@ -854,6 +854,8 @@
   const PLATFORMS = {
     ARC:  { label: "Arcade",      color: "#F0C020" },
     ATARI: { label: "Atari 2600", color: "#C46A3A" },
+    INTV: { label: "Intellivision", color: "#5D5FBF" },
+    AP2:  { label: "Apple II",    color: "#4CA672" },
     NES:  { label: "NES",         color: "#B0453C" },
     SNES: { label: "SNES",        color: "#7A6FD0" },
     GEN:  { label: "Genesis",     color: "#1A66C4" },
@@ -1041,13 +1043,13 @@
 
   // Platform chips, grouped by hardware family with hairline separators
   const FAMILIES = [
-    ["ARC", "ATARI"],
+    ["ARC", "ATARI", "INTV"],
     ["NES", "SNES", "N64", "GCN", "WII", "WIIU", "NSW"],
     ["GB", "GBC", "GBA", "NDS", "3DS"],
     ["GEN", "GG", "SAT", "DC"],
     ["PSX", "PS2", "PS3", "PS4", "PS5", "PSP"],
     ["XBX", "X360", "XONE"],
-    ["IBM", "OS2", "PC1", "PC2"],
+    ["AP2", "IBM", "OS2", "PC1", "PC2"],
     ["VR", "MOB"]
   ];
   const chipsEl = document.getElementById("chips");
@@ -1228,7 +1230,14 @@
     ["Racing", /horizon chase/i],
     ["Puzzle", /q\.u\.b\.e|escape academy/i],
     ["Roguelites", /mythforce/i],
-    ["Action & Slashers", /raji\b/i]
+    ["Action & Slashers", /raji\b/i],
+    ["RPGs", /ultima i\b|ultima iv|wizardry|bard's tale|cloudy mountain/i],
+    ["Adventure & Horror", /^castle wolfenstein|zork/i],
+    ["Platformers", /lode runner/i],
+    ["Fighting", /karateka/i],
+    ["Party & Sports", /summer games/i],
+    ["Sim & Builder", /lemonade stand|odell lake|word munchers|^utopia/i],
+    ["Shooters", /astrosmash/i]
   ];
   const GENRE_FALLBACK = "Arcade & Action";
   GAMES.forEach(g => {
@@ -1660,7 +1669,7 @@
     if (gs.length) {
       const fam = codes => codes.reduce((s, c) => s + (byPlat[c] || 0), 0) / gs.length;
       const families = [
-        ["PC", fam(["IBM", "OS2", "PC1", "PC2"])],
+        ["PC", fam(["AP2", "IBM", "OS2", "PC1", "PC2"])],
         ["Nintendo", fam(["NES", "SNES", "GB", "GBC", "GBA", "N64", "GCN", "NDS", "WII", "WIIU", "3DS", "NSW"])],
         ["PlayStation", fam(["PSX", "PS2", "PSP", "PS3", "PS4", "PS5"])],
         ["Xbox", fam(["XBX", "X360", "XONE"])],
