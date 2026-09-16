@@ -2017,5 +2017,12 @@
 {"t":"Night Stalker","p":"INTV","y":1982,"s":0.3},
 {"t":"Shark! Shark!","p":"INTV","y":1982,"s":0.2,"n":"eat the smaller fish"},
 {"t":"B-17 Bomber","p":"INTV","y":1982,"s":0.3,"n":"it talks - Intellivoice"},
-{"t":"Tron: Deadly Discs","p":"INTV","y":1982,"s":0.3}
+{"t":"Tron: Deadly Discs","p":"INTV","y":1982,"s":0.3},
+{"t":"Zork II: The Wizard of Frobozz","p":"AP2","y":1981,"s":0.3},
+{"t":"Zork III: The Dungeon Master","p":"AP2","y":1982,"s":0.2},
+{"t":"Beyond Zork","p":"AP2","y":1987,"s":0.1,"n":"parser meets RPG stats"},
+{"t":"Zork Zero","p":"AP2","y":1988,"s":0.1,"n":"the prequel farce"},
+{"t":"Return to Zork","p":"PC1","y":1993,"s":1,"n":"want some rye? course ya do"},
+{"t":"Zork Nemesis","p":"PC1","y":1996,"s":0.3},
+{"t":"Zork: Grand Inquisitor","p":"PC1","y":1997,"s":0.2,"n":"the parser's last laugh"}
 ]

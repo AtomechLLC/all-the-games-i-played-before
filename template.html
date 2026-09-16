@@ -387,6 +387,9 @@
     flex: 0 0 auto;
   }
   .chip .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pc); }
+  .chip .dots { display: inline-flex; }
+  .chip .dots .dot { box-shadow: 0 0 0 1.5px var(--surface); }
+  .chip .dots .dot + .dot { margin-left: -3px; }
   .chip .n { color: var(--muted); font-size: 11px; }
   .chip[aria-pressed="true"] {
     border-color: var(--pc);
@@ -1043,7 +1046,8 @@
 
   // Platform chips, grouped by hardware family with hairline separators
   const FAMILIES = [
-    ["ARC", "ATARI", "INTV"],
+    // Too few games each to earn separate chips — one multi-chip for the trio.
+    [{ codes: ["ARC", "ATARI", "INTV"], label: "Arcade · Atari · INTV" }],
     ["NES", "SNES", "N64", "GCN", "WII", "WIIU", "NSW"],
     ["GB", "GBC", "GBA", "NDS", "3DS"],
     ["GEN", "GG", "SAT", "DC"],
@@ -1054,33 +1058,44 @@
   ];
   const chipsEl = document.getElementById("chips");
   const chipEls = {};
+  const chipGroups = [];
   FAMILIES.forEach((codes, fi) => {
     if (fi) {
       const sep = document.createElement("span");
       sep.className = "chip-sep";
       chipsEl.appendChild(sep);
     }
-    codes.forEach(code => {
-      const plat = PLATFORMS[code];
-      const count = GAMES.filter(g => g.p === code).length;
+    codes.forEach(entry => {
+      const group = typeof entry === "string"
+        ? { codes: [entry], label: PLATFORMS[entry].label }
+        : entry;
+      const count = GAMES.filter(g => group.codes.includes(g.p)).length;
       if (!count) return;
       const chip = document.createElement("button");
       chip.className = "chip";
       chip.type = "button";
-      chip.style.setProperty("--pc", plat.color);
+      chip.style.setProperty("--pc", PLATFORMS[group.codes[0]].color);
       chip.setAttribute("aria-pressed", "false");
-      chip.innerHTML = '<span class="dot" aria-hidden="true"></span>' + plat.label +
-        ' <span class="n mono">' + count + '</span>';
+      chip.title = group.codes.map(c => PLATFORMS[c].label).join(" + ");
+      const dots = group.codes.map(c =>
+        '<span class="dot" style="--pc:' + PLATFORMS[c].color + '" aria-hidden="true"></span>').join("");
+      chip.innerHTML = (group.codes.length > 1 ? '<span class="dots">' + dots + "</span>" : dots) +
+        group.label + ' <span class="n mono">' + count + '</span>';
       chip.addEventListener("click", () => {
-        const on = !state.platforms.has(code);
-        on ? state.platforms.add(code) : state.platforms.delete(code);
+        const on = !group.codes.some(c => state.platforms.has(c));
+        group.codes.forEach(c => on ? state.platforms.add(c) : state.platforms.delete(c));
         chip.setAttribute("aria-pressed", on ? "true" : "false");
         applyFilters();
       });
-      chipEls[code] = chip;
+      group.codes.forEach(c => { chipEls[c] = chip; });
+      chipGroups.push({ chip, codes: group.codes });
       chipsEl.appendChild(chip);
     });
   });
+  function refreshPlatChips() {
+    chipGroups.forEach(({ chip, codes }) =>
+      chip.setAttribute("aria-pressed", codes.some(c => state.platforms.has(c)) ? "true" : "false"));
+  }
 
   // Era jump links (the sticky bar's navigation for a 15,000px page)
   const eraNavEl = document.getElementById("era-nav");
@@ -3091,8 +3106,7 @@
         if (by) setBirthYear(by, true);
         if (obSel.size) {
           state.platforms = new Set(obSel);
-          Object.entries(chipEls).forEach(([code, el]) =>
-            el.setAttribute("aria-pressed", state.platforms.has(code) ? "true" : "false"));
+          refreshPlatChips();
         }
         dismissOnboard();
         applyFilters();
