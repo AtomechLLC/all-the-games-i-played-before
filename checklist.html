@@ -466,6 +466,29 @@
     resize: vertical;
   }
   .steam-paste:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  #rnd-panel { margin-top: 26px; }
+  .rnd-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 14px 0 0;
+  }
+  .rnd-lbl {
+    font-family: "Silkscreen", "Courier New", monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+  }
+  .rnd-sep { width: 1px; height: 18px; background: var(--line); margin: 0 3px; }
+  .rnd-controls .export[aria-pressed="true"] {
+    background: var(--gold-wash);
+    border-color: color-mix(in srgb, var(--gold-strong) 60%, var(--line));
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .rnd-controls .roll { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+  #rnd-grid { margin-top: 16px; }
   #dense-view { margin-top: 28px; }
   .dense-genre { margin-bottom: 24px; }
   .dense-list { columns: 4 250px; column-gap: 28px; }
@@ -667,6 +690,7 @@
     .card, .chip { transition: background 0.12s ease, border-color 0.12s ease; }
     .progress-fill { transition: width 0.25s ease; }
     .reveal .btile { animation: tile-pop 0.3s ease-out both; }
+    #rnd-grid .card { animation: tile-pop 0.26s ease-out both; }
     .reveal #tl circle { animation: dot-drop 0.5s cubic-bezier(0.6, 0, 1, 1) both; }
   }
   @keyframes tile-pop { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -700,6 +724,7 @@
       <input class="search" id="search" type="search" placeholder="Search games…" aria-label="Search games">
       <label class="hide-played"><input type="checkbox" id="hide-played"> Hide played</label>
       <button class="export" id="dense-btn" type="button" title="A dense list of just your played games, grouped by genre">☰ By genre</button>
+      <button class="export" id="rnd-btn" type="button" aria-expanded="false" title="Roll a random game — from your own list, or something you missed on the platforms you play">🎲 Random</button>
       <button class="export" id="check-all-btn" type="button" hidden title="Check every game currently shown by your filters">Check all shown</button>
       <span class="status" id="save-status" data-s="local"><span class="s-dot" aria-hidden="true"></span><span class="s-txt">Local only</span></span>
       <button class="export" id="import-btn" type="button" title="Load a played-list .json (made by Export) — checks everything in it">Import</button>
@@ -829,6 +854,33 @@
         <div><h3 class="pcol-h" id="cmp-h-them">THEY PLAYED — YOU HAVEN'T</h3><div class="cmp-list" id="cmp-them"></div></div>
         <div><h3 class="pcol-h" id="cmp-h-you">YOU PLAYED — THEY HAVEN'T</h3><div class="cmp-list" id="cmp-you"></div></div>
       </div>
+    </div>
+  </section>
+  <section class="pcard" id="rnd-panel" hidden>
+    <div class="pcard-inner" style="padding-top: 18px;">
+      <div class="pcard-head">
+        <div>
+          <span class="pcard-eyebrow">RANDOM PICK</span>
+          <h2 class="pcard-arch px" id="rnd-title">FROM YOUR OWN SHELF</h2>
+          <p class="pcard-desc" id="rnd-desc"></p>
+        </div>
+        <div class="pcard-actions">
+          <button class="export" id="rnd-close" type="button">Close</button>
+        </div>
+      </div>
+      <div class="rnd-controls">
+        <span class="rnd-lbl">POOL</span>
+        <button class="export" id="rnd-pool-played" type="button" aria-pressed="true" title="Draw from the games you have checked off">✓ Played</button>
+        <button class="export" id="rnd-pool-new" type="button" aria-pressed="false" title="Draw from games you have not checked, on the platforms you already play">✨ Never played</button>
+        <span class="rnd-sep" aria-hidden="true"></span>
+        <span class="rnd-lbl">HOW MANY</span>
+        <button class="export rnd-n" type="button" data-n="1" aria-pressed="false">1</button>
+        <button class="export rnd-n" type="button" data-n="5" aria-pressed="true">5</button>
+        <button class="export rnd-n" type="button" data-n="10" aria-pressed="false">10</button>
+        <span class="rnd-sep" aria-hidden="true"></span>
+        <button class="export roll" id="rnd-roll" type="button">🎲 Roll again</button>
+      </div>
+      <div class="grid" id="rnd-grid"></div>
     </div>
   </section>
   <div id="dense-view" hidden></div>
@@ -5305,6 +5357,118 @@
     document.getElementById("eras").hidden = denseMode;
     document.getElementById("dense-view").hidden = !denseMode;
     if (denseMode) renderDense();
+  });
+
+  // Random picker: one roller with two pools - "replay something of mine" and
+  // "find something I missed". The second stays on platforms the player has
+  // actually played, so every suggestion is something they could go boot up.
+  const rnd = { pool: "played", n: 5 };
+  function rndPlayedPlatforms() {
+    const owned = new Set();
+    GAMES.forEach(g => { if (played.has(g.id)) owned.add(g.p); });
+    return owned;
+  }
+  function rndPool() {
+    if (rnd.pool === "played") return GAMES.filter(g => played.has(g.id));
+    const owned = rndPlayedPlatforms();
+    return GAMES.filter(g => !played.has(g.id) && owned.has(g.p));
+  }
+  function rndPick(pool, n) {
+    const a = pool.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a.slice(0, n);
+  }
+  function renderRandom() {
+    const grid = document.getElementById("rnd-grid");
+    const desc = document.getElementById("rnd-desc");
+    const isNew = rnd.pool === "new";
+    grid.innerHTML = "";
+    document.getElementById("rnd-title").textContent =
+      isNew ? "SOMETHING YOU MISSED" : "FROM YOUR OWN SHELF";
+    const pool = rndPool();
+    if (!pool.length) {
+      desc.textContent = isNew
+        ? "Check off a few games first \u2014 this pool is built from the platforms you already play."
+        : "Nothing checked yet. Check a game or two, then roll.";
+      return;
+    }
+    const nPlat = isNew ? rndPlayedPlatforms().size : new Set(pool.map(g => g.p)).size;
+    const platWord = nPlat + " platform" + (nPlat === 1 ? "" : "s");
+    desc.textContent = isNew
+      ? "Drawn from " + pool.length.toLocaleString() + " games you haven\u2019t checked, across the " + platWord + " you already play."
+      : "Drawn from the " + pool.length.toLocaleString() + " games you\u2019ve played, across " + platWord + ".";
+    rndPick(pool, rnd.n).forEach((g, i) => {
+      const plat = PLATFORMS[g.p];
+      const btn = document.createElement("button");
+      btn.className = "card";
+      btn.type = "button";
+      btn.style.setProperty("--pc", plat.color);
+      btn.style.animationDelay = (i * 35) + "ms";
+      btn.setAttribute("aria-pressed", played.has(g.id) ? "true" : "false");
+      const hrs = hoursMap[g.id] ? Math.round(hoursMap[g.id]) + "h" : null;
+      btn.innerHTML =
+        '<span class="box" aria-hidden="true">\u2713</span>' +
+        '<span class="body">' +
+          '<span class="title"></span>' +
+          (g.n ? '<span class="note"></span>' : "") +
+          '<span class="meta"><span class="mono">' + g.y + '</span>' +
+            '<span class="pdot"></span><span class="plat">' + plat.label + '</span>' +
+            '<span class="sales mono">' + (hrs || fmtSales(g.s)) + '</span>' +
+            '<span class="info" title="Open its page \u2014 how it plays, and its history">\u24d8</span></span>' +
+        '</span>';
+      btn.querySelector(".title").textContent = g.t;
+      if (g.n) btn.querySelector(".note").textContent = g.n;
+      btn.addEventListener("click", e => {
+        if (e.target.closest(".info")) {
+          window.open(gameInfoURL(g), "_blank", "noopener");
+          return;
+        }
+        const on = !played.has(g.id);
+        on ? played.add(g.id) : played.delete(g.id);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        // Keep the era-list copy of this game in step with the roll.
+        const twin = cardEls.get(g.id);
+        if (twin) twin.el.setAttribute("aria-pressed", on ? "true" : "false");
+        save();
+        if (playedChangedHook) playedChangedHook();
+        if (state.hidePlayed) applyFilters(); else updateCounts();
+      });
+      grid.appendChild(btn);
+    });
+  }
+  function setRndPool(pool) {
+    rnd.pool = pool;
+    document.getElementById("rnd-pool-played").setAttribute("aria-pressed", pool === "played" ? "true" : "false");
+    document.getElementById("rnd-pool-new").setAttribute("aria-pressed", pool === "new" ? "true" : "false");
+    renderRandom();
+  }
+  document.getElementById("rnd-pool-played").addEventListener("click", () => setRndPool("played"));
+  document.getElementById("rnd-pool-new").addEventListener("click", () => setRndPool("new"));
+  document.querySelectorAll(".rnd-n").forEach(b => {
+    b.addEventListener("click", () => {
+      rnd.n = parseInt(b.dataset.n, 10);
+      document.querySelectorAll(".rnd-n").forEach(o =>
+        o.setAttribute("aria-pressed", o === b ? "true" : "false"));
+      renderRandom();
+    });
+  });
+  document.getElementById("rnd-roll").addEventListener("click", renderRandom);
+  document.getElementById("rnd-btn").addEventListener("click", () => {
+    const panel = document.getElementById("rnd-panel");
+    const opening = panel.hidden;
+    panel.hidden = !opening;
+    document.getElementById("rnd-btn").setAttribute("aria-expanded", opening ? "true" : "false");
+    if (opening) {
+      renderRandom();
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+  document.getElementById("rnd-close").addEventListener("click", () => {
+    document.getElementById("rnd-panel").hidden = true;
+    document.getElementById("rnd-btn").setAttribute("aria-expanded", "false");
   });
 
   // Quick start: a hand-held pass through the biggest games of each era of the
