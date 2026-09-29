@@ -358,6 +358,34 @@
   }
   .cmp-chip .pdot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 7px; }
   .cmp-more { color: var(--muted); font-size: 12px; align-self: center; }
+  .cmp-chip .holdout { color: var(--muted); font-size: 11px; }
+  .grp-matrix-wrap { overflow-x: auto; scrollbar-width: thin; }
+  .grp-matrix { border-collapse: separate; border-spacing: 3px; font-size: 11.5px; }
+  .grp-matrix th {
+    font-weight: 500;
+    font-size: 11px;
+    color: var(--muted);
+    padding: 2px 6px;
+    white-space: nowrap;
+  }
+  .grp-matrix tbody th {
+    text-align: left;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ink);
+  }
+  .grp-matrix td {
+    min-width: 42px;
+    padding: 5px 6px;
+    text-align: center;
+    border-radius: 5px;
+    font-family: "IBM Plex Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .grp-matrix td.self { color: var(--muted); }
+  .grp-matrix td.best { box-shadow: inset 0 0 0 1.5px var(--gold-strong); font-weight: 600; }
   .psy-evo { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
   .psy-evo-item { text-align: center; font-size: 11px; color: var(--muted); width: 96px; }
   .psy-evo-item .ey { letter-spacing: 1px; margin-top: 2px; }
@@ -440,6 +468,7 @@
     .bar.slim .bar-row .export { display: none; }
     .era .era-head { position: static; }
     .filters-row { flex-wrap: wrap; }
+    .filters-row .era-nav { flex: 1 1 100%; min-width: 0; }
   }
 
   .mini-caption { min-height: 18px; font-size: 12px; color: var(--muted); margin: 8px 2px 0; }
@@ -730,6 +759,7 @@
       <button class="export" id="import-btn" type="button" title="Load a played-list .json (made by Export) — checks everything in it">Import</button>
       <button class="export" id="steam-btn" type="button" title="Paste your Steam or Epic library page and check everything at once">🎮 Scan</button>
       <button class="export" id="compare-btn" type="button" title="Load a friend's exported .json to see your overlap">Compare</button>
+      <button class="export" id="group-btn" type="button" title="Paste several friends' share links and see where all of you overlap">👥 Group</button>
       <button class="export" id="share-btn" type="button" title="Copy a link that lets anyone compare against your checklist">Share</button>
       <button class="export" id="owner-compare-btn" type="button" hidden></button>
       <button class="export" id="export-btn" type="button" title="Download your played list as a .json file">Export</button>
@@ -854,6 +884,57 @@
         <div><h3 class="pcol-h" id="cmp-h-them">THEY PLAYED — YOU HAVEN'T</h3><div class="cmp-list" id="cmp-them"></div></div>
         <div><h3 class="pcol-h" id="cmp-h-you">YOU PLAYED — THEY HAVEN'T</h3><div class="cmp-list" id="cmp-you"></div></div>
       </div>
+    </div>
+  </section>
+  <section class="pcard" id="group-in" hidden>
+    <div class="pcard-inner" style="padding-top: 18px;">
+      <span class="pcard-eyebrow">GROUP OVERLAP</span>
+      <h2 class="pcard-arch px">WHERE DO ALL OF YOU OVERLAP?</h2>
+      <p class="pcard-desc">Paste your friends' share links here — one per line, or all jumbled together. You'll see the games everyone has played, the near-misses and who's holding out, and whose taste is closest to whose. Up to 12 players; everything is matched in your browser.</p>
+      <textarea id="grp-paste" class="steam-paste" placeholder="Paste share links here…"></textarea>
+      <div class="pcard-actions" style="margin-top: 10px;">
+        <label class="hide-played"><input type="checkbox" id="grp-me" checked> Include my list</label>
+        <button class="export" id="grp-go" type="button">Find the overlap</button>
+        <button class="export" id="grp-in-close" type="button">Close</button>
+        <span class="mono" id="grp-in-result" style="align-self: center; color: var(--muted); font-size: 12px;"></span>
+      </div>
+    </div>
+  </section>
+  <section class="pcard" id="group" hidden>
+    <div class="pcard-inner" style="padding-top: 18px;">
+      <div class="pcard-head">
+        <div>
+          <span class="pcard-eyebrow">GROUP OVERLAP</span>
+          <h2 class="pcard-arch px" id="grp-title"></h2>
+          <p class="pcard-desc" id="grp-desc"></p>
+        </div>
+        <div class="pcard-actions">
+          <button class="export" id="grp-copy" type="button" title="Copy a link that opens straight to this group view">Copy group link</button>
+          <button class="export" id="grp-edit" type="button" title="Add or remove players">Edit group</button>
+          <button class="export" id="grp-close" type="button">Close</button>
+        </div>
+      </div>
+      <div class="pcard-stats" id="grp-stats"></div>
+      <div class="pcard-cols">
+        <div>
+          <h3 class="pcol-h">HOW MANY OF YOU PLAYED IT</h3>
+          <div id="grp-hist"></div>
+        </div>
+        <div>
+          <h3 class="pcol-h">WHO'S CLOSEST</h3>
+          <div class="grp-matrix-wrap"><table class="grp-matrix" id="grp-matrix"></table></div>
+          <p class="mini-caption" id="grp-matrix-cap"></p>
+        </div>
+      </div>
+      <h3 class="pcol-h" id="grp-h-all"></h3>
+      <div class="cmp-list" id="grp-all"></div>
+      <div id="grp-near-wrap">
+        <h3 class="pcol-h" id="grp-h-near"></h3>
+        <div class="cmp-list" id="grp-near"></div>
+        <p class="mini-caption" id="grp-near-cap"></p>
+      </div>
+      <h3 class="pcol-h">ONLY ONE OF YOU PLAYED IT</h3>
+      <div class="pcard-cols" id="grp-solo"></div>
     </div>
   </section>
   <section class="pcard" id="rnd-panel" hidden>
@@ -5273,7 +5354,7 @@
     let seen = false;
     try { seen = localStorage.getItem("atgipb-onboarded") === "1"; } catch (e) {}
     // A share link should land straight on the comparison, not the platform picker.
-    if (seen || played.size > 0 || /^#vs?=/.test(location.hash)) return;
+    if (seen || played.size > 0 || /^#(?:vs?|grp)=/.test(location.hash)) return;
     openPlatformPicker();
   })();
 
@@ -5574,7 +5655,7 @@
     let toured = false;
     try { toured = localStorage.getItem("atgipb-toured") === "1"; } catch (e) {}
     const obVisible = !document.getElementById("onboard").hidden;
-    if (!toured && !obVisible && played.size === 0 && !/^#vs?=/.test(location.hash)) startTour();
+    if (!toured && !obVisible && played.size === 0 && !/^#(?:vs?|grp)=/.test(location.hash)) startTour();
   })();
 
   updateSubtitle();
@@ -5805,6 +5886,7 @@
     fill("cmp-them", onlyThem);
     fill("cmp-you", onlyYou);
 
+    document.getElementById("group").hidden = true;
     const panel = document.getElementById("compare");
     panel.hidden = false;
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -5897,7 +5979,337 @@
     if (ok) showToast("Link copied — anyone who opens it lands in compare mode against your list", false);
     setTimeout(() => { btn.textContent = "Share"; }, 2600);
   });
+  // Group overlap: any number of share links (up to GROUP_MAX) laid over each
+  // other - the canon everyone shares, the near-misses and who is holding out,
+  // pairwise closeness, and what each person brings alone. The whole group
+  // lives in the hash (#grp=p1~p2~...), so the view itself is shareable.
+  const GROUP_MAX = 12;
+  let currentGroup = null;
+  let grpTrimmed = 0;
+  const PAYLOAD_RE = /1\.[A-Za-z0-9_-]*\.\d+\.\d+\.[A-Za-z0-9_-]+/g;
+  function extractPayloads(text) {
+    const out = [];
+    (String(text).match(PAYLOAD_RE) || []).forEach(p => {
+      if (out.includes(p)) return;
+      const P = parsePayload(p);
+      if (P && P.ids.size) out.push(p);
+    });
+    return out;
+  }
+  const grpWeight = g => g.s ?? g.w ?? -1;
+  function grpFill(el, games, max, suffix) {
+    el.innerHTML = "";
+    games.slice(0, max).forEach(g => {
+      const chip = document.createElement("span");
+      chip.className = "cmp-chip";
+      chip.innerHTML = '<span class="pdot" style="background:' + PLATFORMS[g.p].color + '"></span>';
+      const link = document.createElement("a");
+      link.href = gameInfoURL(g);
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = g.t + " (" + g.y + ")";
+      chip.appendChild(link);
+      const sx = suffix && suffix(g);
+      if (sx) {
+        const tag = document.createElement("span");
+        tag.className = "holdout";
+        tag.textContent = sx;
+        chip.appendChild(tag);
+      }
+      chip.title = PLATFORMS[g.p].label;
+      el.appendChild(chip);
+    });
+    if (games.length > max || !games.length) {
+      const more = document.createElement("span");
+      more.className = "cmp-more";
+      more.textContent = games.length ? "+" + (games.length - max) + " more" : "none";
+      el.appendChild(more);
+    }
+  }
+  function renderGroup(members) {
+    const N = members.length;
+    // Unnamed links all decode as "A friend"; number the repeats.
+    const nameSeen = {};
+    members.forEach(m => {
+      nameSeen[m.name] = (nameSeen[m.name] || 0) + 1;
+      if (nameSeen[m.name] > 1) m.name = m.name + " " + nameSeen[m.name];
+    });
+    currentGroup = members;
+
+    // who: game id -> indexes of the members who played it.
+    const who = new Map();
+    const size = new Array(N).fill(0);
+    members.forEach((m, i) => m.ids.forEach(id => {
+      if (!cardEls.has(id)) return;
+      size[i]++;
+      let a = who.get(id);
+      if (!a) who.set(id, a = []);
+      a.push(i);
+    }));
+    const gameOf = id => cardEls.get(id).g;
+    const byWeight = (a, b) => grpWeight(b) - grpWeight(a);
+    const tier = k => [...who].filter(([, a]) => a.length === k).map(([id]) => gameOf(id)).sort(byWeight);
+    const everyone = tier(N);
+    let majority = 0;
+    who.forEach(a => { if (a.length * 2 > N) majority++; });
+
+    // Pairwise overlap as Jaccard: shared / played by either.
+    const inter = members.map(() => new Array(N).fill(0));
+    who.forEach(a => {
+      for (let x = 0; x < a.length; x++)
+        for (let y = x + 1; y < a.length; y++) { inter[a[x]][a[y]]++; inter[a[y]][a[x]]++; }
+    });
+    const jac = (i, j) => {
+      const u = size[i] + size[j] - inter[i][j];
+      return u ? Math.round(100 * inter[i][j] / u) : 0;
+    };
+    let best = null, sum = 0, pairs = 0, maxOff = 1;
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) {
+      const v = jac(i, j);
+      sum += v; pairs++;
+      maxOff = Math.max(maxOff, v);
+      if (!best || v > best.v) best = { i, j, v };
+    }
+    const avg = pairs ? Math.round(sum / pairs) : 0;
+
+    const joined = members.map(m => m.name).join(" \u00d7 ");
+    document.getElementById("grp-title").textContent =
+      (joined.length <= 44 ? joined : "A group of " + N).toUpperCase();
+    const listNames = gs => gs.length === 1 ? gs[0].t
+      : gs.length === 2 ? gs[0].t + " and " + gs[1].t
+      : gs[0].t + ", " + gs[1].t + ", and " + gs[2].t;
+    let desc = N + " players, " + who.size.toLocaleString() + " different games between you. ";
+    if (everyone.length === 1) {
+      desc += "Exactly one game all of you have played: " + everyone[0].t + ".";
+    } else if (everyone.length) {
+      desc += everyone.length + " games all of you have played \u2014 the group canon, led by " + listNames(everyone.slice(0, 3)) + ".";
+    } else {
+      let topK = 0;
+      who.forEach(a => { topK = Math.max(topK, a.length); });
+      desc += topK > 1
+        ? "Not one game all of you have played. The closest thing to common ground: " +
+          listNames(tier(topK).slice(0, 3)) + " (" + topK + " of " + N + ")."
+        : "Not a single game in common between any two of you.";
+    }
+    document.getElementById("grp-desc").textContent = desc;
+
+    const stats = document.getElementById("grp-stats");
+    stats.innerHTML = "";
+    [[N, "players"],
+     [everyone.length, "played by all " + N],
+     [majority, "played by most"],
+     [who.size.toLocaleString(), "between you"],
+     [avg + "%", "avg taste overlap"]].forEach(([v, k]) => {
+      const d = document.createElement("div");
+      d.className = "stat";
+      d.innerHTML = '<div class="v mono"></div><div class="k"></div>';
+      d.querySelector(".v").textContent = v;
+      d.querySelector(".k").textContent = k;
+      stats.appendChild(d);
+    });
+
+    const hist = document.getElementById("grp-hist");
+    hist.innerHTML = "";
+    const counts = new Array(N + 1).fill(0);
+    who.forEach(a => counts[a.length]++);
+    const maxC = Math.max(1, ...counts);
+    for (let k = N; k >= 1; k--) {
+      const row = document.createElement("div");
+      row.className = "prow";
+      row.innerHTML = '<span class="lbl"></span><span class="trk"><span class="fill"></span></span><span class="cnt mono"></span>';
+      row.querySelector(".lbl").textContent = k === N ? "All " + N : k === 1 ? "Just one" : k + " of " + N;
+      row.querySelector(".fill").style.width = (100 * counts[k] / maxC) + "%";
+      row.querySelector(".cnt").textContent = counts[k];
+      hist.appendChild(row);
+    }
+
+    const tbl = document.getElementById("grp-matrix");
+    tbl.innerHTML = "";
+    const short = nm => nm.length > 8 ? nm.slice(0, 7) + "\u2026" : nm;
+    const lead = members.map(m => {
+      const p = computePsyche(m.ids);
+      return p && p.n >= 10 ? CLUSTERS[p.ranked[0]] : null;
+    });
+    const thead = document.createElement("thead");
+    const hr = document.createElement("tr");
+    hr.appendChild(document.createElement("th"));
+    members.forEach(m => {
+      const th = document.createElement("th");
+      th.textContent = short(m.name);
+      th.title = m.name;
+      hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    tbl.appendChild(thead);
+    const tbody = document.createElement("tbody");
+    members.forEach((m, i) => {
+      const tr = document.createElement("tr");
+      const th = document.createElement("th");
+      th.textContent = (lead[i] ? lead[i].emoji + " " : "") + m.name;
+      th.title = lead[i] ? m.name + " leads with " + lead[i].name : m.name;
+      tr.appendChild(th);
+      members.forEach((o, j) => {
+        const td = document.createElement("td");
+        if (i === j) {
+          td.className = "self";
+          td.textContent = "\u00b7";
+        } else {
+          const v = jac(i, j);
+          td.textContent = v + "%";
+          td.style.background = "color-mix(in srgb, var(--gold-strong) " +
+            Math.round(8 + 50 * v / maxOff) + "%, var(--surface))";
+          if (best && ((i === best.i && j === best.j) || (i === best.j && j === best.i))) td.classList.add("best");
+          td.title = m.name + " & " + o.name + ": " + inter[i][j] + " games in common";
+        }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    let cap = best ? "Closest: " + members[best.i].name + " & " + members[best.j].name + " at " + best.v + "%." : "";
+    if (N >= 3) {
+      let wi = 0, wv = Infinity;
+      for (let i = 0; i < N; i++) {
+        let t = 0;
+        for (let j = 0; j < N; j++) if (j !== i) t += jac(i, j);
+        if (t / (N - 1) < wv) { wv = t / (N - 1); wi = i; }
+      }
+      cap += " The wildcard: " + members[wi].name + ", averaging " + Math.round(wv) + "% with everyone else.";
+    }
+    document.getElementById("grp-matrix-cap").textContent = cap;
+
+    document.getElementById("grp-h-all").textContent = "ALL " + N + " OF YOU PLAYED \u2014 " + everyone.length;
+    grpFill(document.getElementById("grp-all"), everyone, 60);
+
+    const nearWrap = document.getElementById("grp-near-wrap");
+    nearWrap.hidden = N < 3;
+    if (N >= 3) {
+      const holdout = new Map();
+      const tally = new Array(N).fill(0);
+      const near = [...who].filter(([, a]) => a.length === N - 1).map(([id, a]) => {
+        const h = members.findIndex((_, i) => !a.includes(i));
+        holdout.set(id, h);
+        tally[h]++;
+        return gameOf(id);
+      }).sort(byWeight);
+      document.getElementById("grp-h-near").textContent = "EVERYONE BUT ONE \u2014 " + near.length;
+      grpFill(document.getElementById("grp-near"), near, 60, g => "not " + members[holdout.get(g.id)].name);
+      let hi = -1, hv = 0;
+      tally.forEach((v, i) => { if (v > hv) { hv = v; hi = i; } });
+      document.getElementById("grp-near-cap").textContent = hi >= 0
+        ? members[hi].name + " is the holdout on " + hv + " of these \u2014 homework assigned."
+        : "";
+    }
+
+    const solo = document.getElementById("grp-solo");
+    solo.innerHTML = "";
+    members.forEach((m, i) => {
+      const mine = [...who].filter(([, a]) => a.length === 1 && a[0] === i).map(([id]) => gameOf(id)).sort(byWeight);
+      const col = document.createElement("div");
+      const h = document.createElement("h3");
+      h.className = "pcol-h";
+      h.textContent = "ONLY " + m.name.toUpperCase() + " \u2014 " + mine.length;
+      const list = document.createElement("div");
+      list.className = "cmp-list";
+      col.append(h, list);
+      solo.appendChild(col);
+      grpFill(list, mine, 12);
+    });
+
+    document.getElementById("compare").hidden = true;
+    document.getElementById("group-in").hidden = true;
+    const panel = document.getElementById("group");
+    panel.hidden = false;
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  const grpIn = document.getElementById("group-in");
+  const grpPaste = document.getElementById("grp-paste");
+  const grpMe = document.getElementById("grp-me");
+  const grpResult = document.getElementById("grp-in-result");
+  function grpCount() {
+    const n = extractPayloads(grpPaste.value).length;
+    grpResult.textContent = n ? n + " link" + (n === 1 ? "" : "s") + " recognized" : "";
+  }
+  grpPaste.addEventListener("input", grpCount);
+  function openGroupInput(prefill, includeMe) {
+    if (prefill != null) grpPaste.value = prefill;
+    grpMe.checked = includeMe && played.size > 0;
+    grpCount();
+    grpIn.hidden = false;
+    grpIn.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  document.getElementById("group-btn").addEventListener("click", () => {
+    if (!grpIn.hidden) { grpIn.hidden = true; return; }
+    // Coming from a link comparison? Start the group with whoever was on screen.
+    let pre = null;
+    if (!grpPaste.value.trim() && lastCompare && lastCompare.raw) {
+      const raws = [lastCompare.raw.a, lastCompare.raw.b].filter(Boolean);
+      if (raws.length) pre = raws.map(r => SITE_URL + "#v=" + r).join("\n") + "\n";
+    }
+    openGroupInput(pre, true);
+  });
+  document.getElementById("grp-in-close").addEventListener("click", () => { grpIn.hidden = true; });
+  document.getElementById("grp-go").addEventListener("click", () => {
+    let pays = extractPayloads(grpPaste.value);
+    const me = grpMe.checked && played.size > 0;
+    if (me) {
+      // A pasted copy of the viewer's own current list would double-count them.
+      pays = pays.filter(p => {
+        const P = parsePayload(p);
+        return !(P.ids.size === played.size && [...P.ids].every(id => played.has(id)));
+      });
+      pays.unshift(encodePayload(getShareName(true) || "Host", BIRTH_YEAR, played));
+    }
+    if (pays.length < 2) {
+      grpResult.textContent = me ? "Paste at least one friend's link" : "Paste at least two links";
+      return;
+    }
+    if (pays.length > GROUP_MAX) {
+      grpTrimmed = pays.length - GROUP_MAX;
+      pays = pays.slice(0, GROUP_MAX);
+    }
+    // Two players already have a richer view: head-to-head.
+    const hash = me && pays.length === 2 ? "#v=" + pays[1]
+      : pays.length === 2 ? "#vs=" + pays[0] + "~" + pays[1]
+      : "#grp=" + pays.join("~");
+    grpIn.hidden = true;
+    if (location.hash === hash) tryShareHash(); else location.hash = hash;
+  });
+  document.getElementById("grp-close").addEventListener("click", () => {
+    document.getElementById("group").hidden = true;
+  });
+  document.getElementById("grp-edit").addEventListener("click", () => {
+    if (!currentGroup) return;
+    openGroupInput(currentGroup.map(m => SITE_URL + "#v=" + m.raw).join("\n") + "\n", false);
+  });
+  document.getElementById("grp-copy").addEventListener("click", async () => {
+    if (!currentGroup) return;
+    const url = SITE_URL + "#grp=" + currentGroup.map(m => m.raw).join("~");
+    let ok = false;
+    try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {}
+    if (ok) showToast("Group link copied \u2014 it opens straight to this overlap", false);
+    else window.prompt("Copy the group link:", url);
+  });
+
   function tryShareHash() {
+    const gm = /^#grp=(.+)$/.exec(location.hash);
+    if (gm) {
+      const members = [];
+      gm[1].split("~").slice(0, GROUP_MAX).forEach(raw => {
+        const P = parsePayload(raw);
+        if (P && P.ids.size) members.push({ name: P.name, ids: P.ids, raw });
+      });
+      if (members.length >= 2) {
+        renderGroup(members);
+        showToast(grpTrimmed
+          ? "Group of " + members.length + " \u2014 groups top out at " + GROUP_MAX + ", so " + grpTrimmed +
+            (grpTrimmed === 1 ? " link was" : " links were") + " left out"
+          : "Group of " + members.length + " \u2014 copy this page's URL to share the overlap", false);
+        grpTrimmed = 0;
+      }
+      return;
+    }
     // Spectator mode: two payloads joined by "~" compare against each other
     // instead of against the viewer's own list.
     const vs = /^#vs=([^~]+)~(.+)$/.exec(location.hash);
